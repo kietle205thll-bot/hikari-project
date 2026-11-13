@@ -207,12 +207,13 @@ export const addToCartServer = async (userId, product, quantity = 1) => {
       params: { userId, productId: product.id, _t: Date.now() }
     });
     const existingItems = checkRes.data || [];
+    // Tìm chính xác sản phẩm có productId khớp với product.id
+    const existingItem = existingItems.find(item => String(item.productId) === String(product.id));
 
-    if (existingItems.length > 0) {
+    if (existingItem) {
       // Đã tồn tại -> Cập nhật số lượng bằng PATCH
-      const item = existingItems[0];
-      const newQuantity = (item.quantity || 0) + quantity;
-      const patchRes = await api.patch(`/carts/${item.id}`, {
+      const newQuantity = (existingItem.quantity || 0) + quantity;
+      const patchRes = await api.patch(`/carts/${existingItem.id}`, {
         quantity: newQuantity,
         isNew: Boolean(product.isNew)
       });

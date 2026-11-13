@@ -628,8 +628,8 @@ const setupEventListeners = () => {
     const btn = e.target.closest('.btn-add-cart');
     if (!btn || btn.disabled) return;
 
-    const productId = Number(btn.dataset.id);
-    const product = state.allProducts.find(p => p.id === productId);
+    const productId = btn.dataset.id;
+    const product = state.allProducts.find(p => String(p.id) === String(productId));
     if (product) {
       btn.disabled = true;
       btn.style.opacity = '0.6';

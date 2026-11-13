@@ -784,11 +784,7 @@ const renderWishlistTab = () => {
       localStorage.setItem('hikari_wishlist', JSON.stringify(currentWishlist));
       if (state.user && state.user.id) {
         localStorage.setItem(`hikari_wishlist_${state.user.id}`, JSON.stringify(currentWishlist));
-        fetch(`http://localhost:3000/users/${state.user.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ wishlist: currentWishlist })
-        }).catch(() => {});
+        api.patch(`/users/${state.user.id}`, { wishlist: currentWishlist }).catch(() => {});
       }
       showToast('Đã xóa tác phẩm khỏi danh sách yêu thích!', 'info');
       renderWishlistTab();
@@ -1081,18 +1077,14 @@ const setupProfileForms = () => {
       localStorage.setItem('currentUser', JSON.stringify(state.user));
 
       try {
-        await fetch(`http://localhost:3000/users/${state.user.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: state.user.name,
-            phone: newPhone,
-            birthday: newBirthday,
-            address: newAddress
-          })
+        await api.patch(`/users/${state.user.id}`, {
+          name: state.user.name,
+          phone: newPhone,
+          birthday: newBirthday,
+          address: newAddress
         });
       } catch (err) {
-        console.warn('Lỗi đồng bộ API json-server:', err);
+        console.warn('Lỗi đồng bộ API users:', err);
       }
 
       showToast('✓ Cập nhật thông tin tài khoản thành công!', 'success');

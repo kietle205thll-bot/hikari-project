@@ -24,6 +24,7 @@ app.get('/', (req, res) => {
 // ================= 1. CATEGORIES API =================
 app.get('/categories', async (req, res) => {
   try {
+    res.set('Cache-Control', 'public, max-age=15, s-maxage=30');
     const result = await query('SELECT * FROM categories ORDER BY id ASC');
     res.json(result.rows);
   } catch (err) {
@@ -60,6 +61,7 @@ app.delete('/categories/:id', async (req, res) => {
 // ================= 2. BANNERS API =================
 app.get('/banners', async (req, res) => {
   try {
+    res.set('Cache-Control', 'public, max-age=15, s-maxage=30');
     const result = await query('SELECT * FROM banners ORDER BY id ASC');
     res.json(result.rows);
   } catch (err) {
@@ -71,6 +73,7 @@ app.get('/banners', async (req, res) => {
 // ================= 3. COUPONS API =================
 app.get('/coupons', async (req, res) => {
   try {
+    res.set('Cache-Control', 'public, max-age=15, s-maxage=30');
     const result = await query('SELECT * FROM coupons ORDER BY id ASC');
     res.json(result.rows);
   } catch (err) {
@@ -82,6 +85,7 @@ app.get('/coupons', async (req, res) => {
 // ================= 4. PRODUCTS API =================
 app.get('/products', async (req, res) => {
   try {
+    res.set('Cache-Control', 'public, max-age=15, s-maxage=30');
     const { categoryId, _sort, _order, _limit } = req.query;
     let sql = 'SELECT * FROM products';
     const params = [];
@@ -451,12 +455,16 @@ app.delete('/orders/:id', async (req, res) => {
 // ================= 7. CARTS API =================
 app.get('/carts', async (req, res) => {
   try {
-    const { userId } = req.query;
-    let sql = 'SELECT * FROM carts';
+    const { userId, productId } = req.query;
+    let sql = 'SELECT * FROM carts WHERE 1=1';
     const params = [];
     if (userId) {
       params.push(userId);
-      sql += ' WHERE "userId" = $1';
+      sql += ` AND "userId" = $${params.length}`;
+    }
+    if (productId) {
+      params.push(productId);
+      sql += ` AND "productId" = $${params.length}`;
     }
     sql += ' ORDER BY id ASC';
     const result = await query(sql, params);

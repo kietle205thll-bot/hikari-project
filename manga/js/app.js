@@ -232,8 +232,8 @@ const renderHeroSlider = (banners = []) => {
   container.addEventListener('click', async (e) => {
     const buyBtn = e.target.closest('.btn-slide-buy');
     if (!buyBtn) return;
-    const prodId = Number(buyBtn.dataset.id);
-    const prod = state.allProducts.find(p => p.id === prodId);
+    const prodId = buyBtn.dataset.id;
+    const prod = state.allProducts.find(p => String(p.id) === String(prodId));
     if (prod) {
       buyBtn.disabled = true;
       await addToCart(prod, 1);
@@ -737,8 +737,8 @@ const setupEventListeners = () => {
     const btn = e.target.closest('.btn-add-cart');
     if (!btn || btn.disabled) return;
 
-    const productId = Number(btn.dataset.id);
-    const product = state.allProducts.find(p => p.id === productId);
+    const productId = btn.dataset.id;
+    const product = state.allProducts.find(p => String(p.id) === String(productId));
     if (product) {
       btn.disabled = true;
       btn.style.opacity = '0.6';

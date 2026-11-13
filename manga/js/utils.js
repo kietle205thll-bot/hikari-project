@@ -3,7 +3,7 @@
  * Áp dụng các tính năng ES6+: Arrow functions, Template literals, Default parameters, Destructuring
  */
 
-import { addToCartServer, fetchCartServer, fetchOrders, isOrderCancelled } from './api.js';
+import { api, addToCartServer, fetchCartServer, fetchOrders, isOrderCancelled } from './api.js';
 import './chatbot.js';
 
 // Định dạng số thành tiền tệ Việt Nam Đồng (VND)
@@ -207,7 +207,7 @@ export const saveCart = (cart = []) => {
   }
 };
 
-// Thêm sản phẩm vào giỏ hàng (BẤT ĐỒNG BỘ - LƯU VÀO CSDL SERVER)
+// Thêm sản phẩm vào giỏ hàng (TỐI ƯU PHẢN HỒI TỨC THÌ 0ms - LƯU VÀO CSDL SERVER)
 export const addToCart = async (product, quantity = 1) => {
   if (!product || !product.id) return false;
 
@@ -222,59 +222,45 @@ export const addToCart = async (product, quantity = 1) => {
   const qtyToAdd = Math.max(1, Number(quantity) || 1);
   const userId = getCurrentUserId();
 
-  try {
-    // 2. Gọi API Bất đồng bộ lưu vào bảng /carts trên CSDL Server
-    await addToCartServer(userId, product, qtyToAdd);
+  // 2. Cập nhật ngay lập tức LocalStorage & Badge (0ms delay - Optimistic UI)
+  const cart = getCart();
+  const existingIndex = cart.findIndex(item => String(item.id) === String(product.id) || String(item.productId) === String(product.id));
 
-    // 3. Đồng bộ với cache LocalStorage
-    const cart = getCart();
-    const existingIndex = cart.findIndex(item => item.id === product.id || item.productId === product.id);
-
-    if (existingIndex !== -1) {
-      cart[existingIndex].quantity += qtyToAdd;
-      cart[existingIndex].stock = stock;
-      cart[existingIndex].isNew = Boolean(product.isNew);
-    } else {
-      const { id, name, price, originalPrice, image, categoryName, isNew } = product;
-      cart.push({
-        id,
-        productId: id,
-        name,
-        price,
-        originalPrice,
-        image,
-        categoryName,
-        isNew: Boolean(isNew),
-        stock,
-        quantity: qtyToAdd
-      });
-    }
-
-    saveCart(cart);
-    await updateCartBadge();
-
-    // Phát tín hiệu cập nhật giỏ hàng cho các trang khác
-    localStorage.setItem('cart_last_synced', Date.now().toString());
-    window.dispatchEvent(new CustomEvent('cartUpdated'));
-
-    showToast(`Đã thêm ${qtyToAdd} cuốn "${product.name}" vào giỏ hàng!`, 'success');
-    return true;
-  } catch (err) {
-    console.warn('Lỗi khi gọi addToCartServer, dùng fallback LocalStorage:', err);
-
-    // Fallback lưu LocalStorage nếu mạng có sự cố
-    const cart = getCart();
-    const existingIndex = cart.findIndex(item => item.id === product.id);
-    if (existingIndex !== -1) {
-      cart[existingIndex].quantity += qtyToAdd;
-    } else {
-      cart.push({ ...product, productId: product.id, quantity: qtyToAdd });
-    }
-    saveCart(cart);
-    updateCartBadge();
-    showToast(`Đã thêm vào giỏ hàng!`, 'success');
-    return true;
+  if (existingIndex !== -1) {
+    cart[existingIndex].quantity += qtyToAdd;
+    cart[existingIndex].stock = stock;
+    cart[existingIndex].isNew = Boolean(product.isNew);
+  } else {
+    const { id, name, price, originalPrice, image, categoryName, isNew } = product;
+    cart.push({
+      id,
+      productId: id,
+      name,
+      price,
+      originalPrice,
+      image,
+      categoryName,
+      isNew: Boolean(isNew),
+      stock,
+      quantity: qtyToAdd
+    });
   }
+
+  saveCart(cart);
+  updateCartBadge();
+
+  // Phát tín hiệu cập nhật giỏ hàng tức thời
+  localStorage.setItem('cart_last_synced', Date.now().toString());
+  window.dispatchEvent(new CustomEvent('cartUpdated'));
+
+  showToast(`Đã thêm ${qtyToAdd} cuốn "${product.name}" vào giỏ hàng!`, 'success');
+
+  // 3. Đồng bộ ngầm lên CSDL Server (/carts) không làm chặn giao diện
+  addToCartServer(userId, product, qtyToAdd).catch(err => {
+    console.warn('Lỗi đồng bộ giỏ hàng ngầm lên server:', err);
+  });
+
+  return true;
 };
 
 // Cập nhật số lượng đếm trên badge giỏ hàng (BẤT ĐỒNG BỘ TỪ SERVER)
@@ -705,13 +691,9 @@ export const showUserProfileModal = async (user) => {
       localStorage.setItem('user', JSON.stringify(user));
 
       try {
-        await fetch(`http://localhost:3000/users/${user.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ phone: newPhone, birthday: newBirthday })
-        });
+        await api.patch(`/users/${user.id}`, { phone: newPhone, birthday: newBirthday });
       } catch (err) {
-        console.warn('Lỗi đồng bộ server json-server:', err);
+        console.warn('Lỗi đồng bộ server users:', err);
       }
 
       showToast('✓ Cập nhật thông tin cá nhân thành công!', 'success');
@@ -787,11 +769,7 @@ export const toggleWishlistItem = (prodId, prodName) => {
 
   // Đồng bộ gián tiếp lên thông tin người dùng nếu có server
   if (user.id) {
-    fetch(`http://localhost:3000/users/${user.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ wishlist })
-    }).catch(() => {});
+    api.patch(`/users/${user.id}`, { wishlist }).catch(() => {});
   }
 
   updateWishlistHeaderBadge();
@@ -1012,8 +990,8 @@ export const setupCategoryDropdown = async () => {
     try {
       let categories = [];
       try {
-        const res = await fetch('http://localhost:3000/categories');
-        if (res.ok) categories = await res.json();
+        const res = await api.get('/categories');
+        categories = res.data || [];
       } catch (e) {
         const fb = await fetch('./db.json');
         const d = await fb.json();
