@@ -1404,6 +1404,11 @@ const setupRevenueEventListeners = () => {
     const trackingNotice = patchPayload.trackingCode ? ` (Mã VĐ: ${patchPayload.trackingCode})` : '';
     showToast(`✓ Đơn #${orderCode} → "${targetStatus}"${trackingNotice}`, 'success');
 
+    // Phát tín hiệu đồng bộ tức thì sang phía Khách hàng
+    localStorage.setItem('cart_last_synced', Date.now().toString());
+    localStorage.setItem('hikari_order_status_updated', Date.now().toString());
+    window.dispatchEvent(new CustomEvent('orderUpdated', { detail: { orderId, status: targetStatus } }));
+
     updateKpiSummary();
     renderRevenueAnalytics();
     renderProductsTable();

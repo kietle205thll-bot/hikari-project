@@ -414,6 +414,13 @@ app.post('/orders', async (req, res) => {
   }
 });
 
+const ALLOWED_ORDER_COLUMNS = new Set([
+  'orderCode', 'userId', 'customer', 'items', 'subtotal', 'shippingFee',
+  'discount', 'couponCode', 'total', 'paymentMethod', 'paymentStatus',
+  'status', 'trackingCode', 'createdAt', 'createdAtIso',
+  'confirmedAt', 'shippedAt', 'completedAt', 'cancelledAt', 'cancelReason'
+]);
+
 app.patch('/orders/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -424,11 +431,12 @@ app.patch('/orders/:id', async (req, res) => {
 
     for (const [key, val] of Object.entries(updates)) {
       if (key === 'id') continue;
+      if (!ALLOWED_ORDER_COLUMNS.has(key)) continue;
       fields.push(`"${key}" = $${idx++}`);
       values.push(typeof val === 'object' && val !== null ? JSON.stringify(val) : val);
     }
 
-    if (fields.length === 0) return res.json({ message: 'No fields' });
+    if (fields.length === 0) return res.json({ message: 'No valid fields to update' });
 
     values.push(id);
     const sql = `UPDATE orders SET ${fields.join(', ')} WHERE id = $${idx} RETURNING *`;

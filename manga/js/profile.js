@@ -174,7 +174,13 @@ const setupOrderSyncListeners = () => {
 
   window.addEventListener('focus', syncIfOrdersTabActive);
   document.addEventListener('visibilitychange', syncIfOrdersTabActive);
-  state.orderSyncTimer = window.setInterval(syncIfOrdersTabActive, 15000);
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'hikari_order_status_updated' || e.key === 'cart_last_synced') {
+      refreshProfileOrders(false);
+    }
+  });
+  window.addEventListener('orderUpdated', () => refreshProfileOrders(false));
+  state.orderSyncTimer = window.setInterval(syncIfOrdersTabActive, 3000);
 };
 
 // ================= 2. RENDER SIDEBAR TÀI KHOẢN (CỘT TRÁI) =================

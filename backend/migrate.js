@@ -115,7 +115,12 @@ async function migrate() {
         status VARCHAR(100) DEFAULT 'Chờ xác nhận',
         "trackingCode" VARCHAR(100),
         "createdAt" VARCHAR(100),
-        "createdAtIso" VARCHAR(100)
+        "createdAtIso" VARCHAR(100),
+        "confirmedAt" VARCHAR(100),
+        "shippedAt" VARCHAR(100),
+        "completedAt" VARCHAR(100),
+        "cancelledAt" VARCHAR(100),
+        "cancelReason" TEXT
       );
     `);
 
