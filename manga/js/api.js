@@ -1,14 +1,19 @@
 /**
- * api.js - Quản lý kết nối API tới json-server
+ * api.js - Quản lý kết nối API tới Backend PostgreSQL & SePay (Vercel)
  * Sử dụng Axios và Async/Await
  */
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:3000';
+// URL Backend Production đã deploy trên Vercel kết nối Neon PostgreSQL
+const LIVE_BACKEND_URL = 'https://hikari-backend-alpha.vercel.app';
+
+export const API_BASE_URL = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? (localStorage.getItem('api_base_url') || LIVE_BACKEND_URL)
+  : LIVE_BACKEND_URL;
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 5000,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
     'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -400,6 +405,31 @@ export const pushOrderNotification = (order, message, status) => {
     });
     localStorage.setItem('hikari_order_notifications', JSON.stringify(notifications.slice(0, 50)));
   } catch (e) {}
+};
+
+/**
+ * Kiểm tra trạng thái thanh toán tự động qua SePay (Polling)
+ */
+export const checkOrderPaymentStatus = async (orderCode) => {
+  try {
+    const response = await api.get(`/api/orders/check-payment/${orderCode}`);
+    return response.data;
+  } catch (error) {
+    return null;
+  }
+};
+
+/**
+ * Giả lập thanh toán SePay (Dành cho kiểm thử đồ án mà không cần chuyển tiền thật)
+ */
+export const simulateSepayPayment = async (orderCode, amount) => {
+  try {
+    const response = await api.post('/api/sepay/simulate-test', { orderCode, amount });
+    return response.data;
+  } catch (error) {
+    console.error('Lỗi giả lập SePay:', error);
+    return null;
+  }
 };
 
 

@@ -29,7 +29,9 @@ import {
   fetchProductById,
   createOrder,
   deductOrderStock,
-  pushOrderNotification
+  pushOrderNotification,
+  checkOrderPaymentStatus,
+  simulateSepayPayment
 } from './api.js';
 
 let appliedDiscount = 0;
@@ -830,6 +832,7 @@ const updateQrBoxDisplay = () => {
   const qrBank = document.querySelector('#qrBankName');
   const qrAmount = document.querySelector('#qrAmountDisplay');
   const qrContent = document.querySelector('#qrContentDisplay');
+  const qrImgContainer = document.querySelector('#qrImageContainer');
   const submitBtn = document.querySelector('#btnConfirmOrder');
 
   if (!select || !qrBox) return;
@@ -843,6 +846,12 @@ const updateQrBoxDisplay = () => {
     qrContent.textContent = randomCode;
     qrContent.dataset.code = randomCode;
   }
+  const currentCode = qrContent?.dataset?.code || 'HKR123456';
+
+  if (qrImgContainer && method !== 'cod') {
+    const vietQrUrl = `https://img.vietqr.io/image/MB-0388888888-compact2.jpg?amount=${finalTotal}&addInfo=${encodeURIComponent(currentCode)}&accountName=HIKARI%20BOOKSTORE`;
+    qrImgContainer.innerHTML = `<img src="${vietQrUrl}" alt="VietQR SePay" style="width: 100%; height: 100%; object-fit: contain; border-radius: 6px;" onerror="this.onerror=null; this.src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(currentCode)}';" />`;
+  }
 
   if (method === 'cod') {
     qrBox.style.display = 'none';
@@ -853,10 +862,10 @@ const updateQrBoxDisplay = () => {
   } else {
     qrBox.style.display = 'block';
     if (qrIcon) qrIcon.textContent = '💳';
-    if (qrTitle) qrTitle.textContent = 'Mã Thanh Toán VietQR / Ví MoMo (Mô Phỏng)';
-    if (qrBank) qrBank.textContent = 'VietQR (MBBank Demo) & Ví MoMo';
+    if (qrTitle) qrTitle.textContent = 'Mã Thanh Toán VietQR Tự Động (Tích Hợp SePay)';
+    if (qrBank) qrBank.textContent = 'VietQR Ngân Hàng (MBBank / SePay)';
     if (submitBtn) {
-      submitBtn.textContent = '✅ [Mô Phỏng] Tôi Đã Quét Mã QR & Thanh Toán Thành Công';
+      submitBtn.textContent = '✓ Xác Nhận Đặt Hàng & Mở Hóa Đơn';
       submitBtn.style.background = '#10b981';
     }
   }
@@ -1248,6 +1257,20 @@ const setupCheckoutModal = () => {
                 ← Tiếp tục mua sắm
               </a>
             </div>
+
+            ${paymentMethod !== 'cod' ? `
+              <div id="sepayStatusBox" style="margin-top: 1.25rem; padding: 0.85rem 1rem; background: #eff6ff; border: 1.5px dashed #3b82f6; border-radius: 8px; text-align: center;">
+                <div style="font-size: 0.9rem; font-weight: 800; color: #1d4ed8; margin-bottom: 0.35rem; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">
+                  <span id="sepaySpinIcon">⏳</span> <span id="sepayStatusText">Đang đợi xác thực thanh toán từ SePay...</span>
+                </div>
+                <p style="font-size: 0.8rem; color: #475569; margin: 0 0 0.6rem 0;">
+                  Khi bạn chuyển khoản với nội dung <strong>${orderData.orderCode}</strong>, SePay sẽ gửi Webhook và tự động duyệt đơn hàng sau 2 - 5 giây.
+                </p>
+                <button type="button" id="btnSimulateSepay" style="background: #2563eb; color: #ffffff; border: none; font-size: 0.8rem; font-weight: 700; padding: 0.4rem 0.9rem; border-radius: 5px; cursor: pointer;">
+                  ⚡ Bấm để giả lập SePay bắn Webhook thành công (Demo)
+                </button>
+              </div>
+            ` : ''}
           </div>
 
           <!-- MẪU HÓA ĐƠN ĐỂ XUẤT PDF CHUẨN A4 (TỰ ĐỘNG CÂN CHỈNH 1 TRANG, KHÔNG CẮT CHỮ, KHÔNG LỖI CUỘN TRANG) -->
@@ -1412,6 +1435,46 @@ const setupCheckoutModal = () => {
               }
             }, 1000);
           });
+        }
+
+        // LẮNG NGHE WEBHOOK SEPAY THỜI GIAN THỰC (POLLING) CHO ĐƠN CHUYỂN KHOẢN
+        if (orderData.paymentMethod !== 'cod') {
+          const pollInterval = setInterval(async () => {
+            const checkData = await checkOrderPaymentStatus(orderData.orderCode);
+            if (checkData && checkData.isPaid) {
+              clearInterval(pollInterval);
+              const box = document.querySelector('#sepayStatusBox');
+              const text = document.querySelector('#sepayStatusText');
+              const icon = document.querySelector('#sepaySpinIcon');
+              const simBtn = document.querySelector('#btnSimulateSepay');
+              if (box) {
+                box.style.background = '#dcfce7';
+                box.style.borderColor = '#22c55e';
+              }
+              if (text) {
+                text.textContent = '✅ ĐÃ THANH TOÁN THÀNH CÔNG (SePay đã xác nhận)!';
+                text.style.color = '#15803d';
+              }
+              if (icon) icon.textContent = '🎉';
+              if (simBtn) simBtn.style.display = 'none';
+              showToast(`✓ Đơn hàng #${orderData.orderCode} đã thanh toán thành công qua SePay!`, 'success');
+            }
+          }, 3000);
+
+          const btnSim = document.querySelector('#btnSimulateSepay');
+          if (btnSim) {
+            btnSim.addEventListener('click', async () => {
+              btnSim.disabled = true;
+              btnSim.textContent = '⏳ Đang kích hoạt webhook SePay...';
+              const simRes = await simulateSepayPayment(orderData.orderCode, orderData.total);
+              if (simRes && simRes.success) {
+                showToast('✓ Đã kích hoạt Webhook SePay giả lập thành công!', 'success');
+              } else {
+                btnSim.disabled = false;
+                btnSim.textContent = '⚡ Bấm để giả lập SePay bắn Webhook thành công (Demo)';
+              }
+            });
+          }
         }
       }
 
