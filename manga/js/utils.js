@@ -263,7 +263,7 @@ export const addToCart = async (product, quantity = 1) => {
   return true;
 };
 
-// Cập nhật số lượng đếm trên badge giỏ hàng (BẤT ĐỒNG BỘ TỪ SERVER)
+// Cập nhật số lượng đếm trên badge giỏ hàng (Đếm số loại sản phẩm trong giỏ)
 export const updateCartBadge = async () => {
   const badge = document.querySelector('#cartCount');
   if (!badge) return;
@@ -271,9 +271,8 @@ export const updateCartBadge = async () => {
   const userId = getCurrentUserId();
   try {
     const serverItems = await fetchCartServer(userId);
-    if (Array.isArray(serverItems) && serverItems.length > 0) {
-      const totalItems = serverItems.reduce((total, item) => total + (item.quantity || 0), 0);
-      badge.textContent = totalItems;
+    if (Array.isArray(serverItems)) {
+      badge.textContent = serverItems.length;
       return;
     }
   } catch (e) {
@@ -282,8 +281,7 @@ export const updateCartBadge = async () => {
 
   // Fallback đọc từ LocalStorage
   const cart = getCart();
-  const totalItems = cart.reduce((total, item) => total + (item.quantity || 0), 0);
-  badge.textContent = totalItems;
+  badge.textContent = cart.length;
 };
 
 // ================= HÀM TIỆN ÍCH XỬ LÝ NGÀY THÁNG ĐƠN HÀNG =================

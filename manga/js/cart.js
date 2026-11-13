@@ -506,7 +506,7 @@ const renderCart = async () => {
           `}
 
           <div class="summary-line">
-            <span>Tạm tính (${cart.reduce((s, i) => s + i.quantity, 0)} cuốn):</span>
+            <span>Tạm tính (${cart.length} sản phẩm):</span>
             <strong>${formatPrice(subtotal)}</strong>
           </div>
 
