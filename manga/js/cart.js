@@ -57,19 +57,22 @@ checkMockUser();
 
 const enrichCartItemsNewFlag = async (cart = []) => {
   if (!Array.isArray(cart) || cart.length === 0) return cart;
-  const needsLookup = cart.some(item => typeof item.isNew !== 'boolean');
-  if (!needsLookup) return cart;
 
   try {
     const products = await fetchProducts();
-    const productById = new Map((products || []).map(p => [Number(p.id), p]));
+    const productById = new Map((products || []).map(p => [String(p.id), p]));
     return cart.map(item => {
-      if (typeof item.isNew === 'boolean') return item;
-      const matched = productById.get(Number(item.productId || item.id));
-      return { ...item, isNew: Boolean(matched?.isNew) };
+      const prodId = String(item.productId || item.id);
+      const matched = productById.get(prodId);
+      return {
+        ...item,
+        productId: matched?.id || item.productId || item.id,
+        stock: typeof matched?.stock === 'number' ? matched.stock : (item.stock || 50),
+        isNew: Boolean(matched?.isNew ?? item.isNew)
+      };
     });
   } catch (err) {
-    console.warn('Không thể bổ sung cờ sách mới cho giỏ hàng:', err);
+    console.warn('Không thể bổ sung cờ sách mới và tồn kho cho giỏ hàng:', err);
     return cart;
   }
 };
