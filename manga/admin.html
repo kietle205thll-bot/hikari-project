@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản Trị Hệ Thống - Hikari BookStore</title>
+  <meta name="description" content="Trang quản trị sản phẩm, nhập kho hàng loạt và quản lý đơn hàng Hikari BookStore.">
+
+  <!-- CSS STYLESHEETS -->
+  <link rel="stylesheet" href="./css/reset.css">
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/admin.css">
+
+  <!-- Import Map cho Axios -->
+  <script type="importmap">
+  {
+    "imports": {
+      "axios": "https://esm.sh/axios@1.7.9"
+    }
+  }
+  </script>
+</head>
+<body class="admin-body">
+
+  <!-- 1. THANH ĐIỀU HƯỚNG ADMIN (NAVBAR) -->
+  <nav class="admin-navbar">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <a href="admin.html" class="admin-logo">
+        <span>📖</span> Hikari<span>Admin</span>
+      </a>
+      <span class="admin-badge">Hệ Thống Quản Lý</span>
+    </div>
+
+    <div class="admin-nav-actions">
+      <div class="admin-user-info">
+        <span>👤 Quản trị:</span>
+        <strong id="adminUserDisplayName">Admin Hikari</strong>
+      </div>
+      <a href="index.html" class="btn-client-view" target="_blank" title="Mở trang bán hàng dành cho độc giả">
+        🌐 Xem Trang Khách Hàng
+      </a>
+      <button id="btnAdminLogout" class="btn-admin-logout" title="Đăng xuất khỏi hệ thống quản trị">
+        Đăng Xuất
+      </button>
+    </div>
+  </nav>
+
+  <!-- 2. NỘI DUNG CHÍNH (DASHBOARD CONTAINER) -->
+  <main class="admin-container">
+
+    <!-- KHỐI THỐNG KÊ NHANH (KPI CARDS) -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon" style="background: #e0e7ff; color: #4338ca;">📚</div>
+        <div class="stat-info">
+          <h3>Tổng Đầu Sách</h3>
+          <p class="stat-value" id="statTotalProducts">0</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" style="background: #dcfce7; color: #15803d;">📦</div>
+        <div class="stat-info">
+          <h3>Tổng Đơn Hàng</h3>
+          <p class="stat-value" id="statTotalOrders">0</p>
+        </div>
+      </div>
+
+      <div class="stat-card" id="kpiCardRevenue">
+        <div class="stat-icon" style="background: #fef3c7; color: #b45309;">💰</div>
+        <div class="stat-info">
+          <h3>Doanh Thu</h3>
+          <p class="stat-value" id="statTotalRevenue">0 ₫</p>
+        </div>
+      </div>
+
+      <div class="stat-card" id="kpiCardUsers">
+        <div class="stat-icon" style="background: #fee2e2; color: #b91c1c;">👥</div>
+        <div class="stat-info">
+          <h3>Độc Giả Đăng Ký</h3>
+          <p class="stat-value" id="statTotalUsers">0</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= KHỐI BÁO CÁO & THỐNG KÊ DOANH THU ĐA CHIỀU (DEADLINE MỚI) ================= -->
+    <section class="admin-card revenue-analytics-card" style="margin-bottom: 2rem;">
+      <div id="adminRevenueAnalyticsBlock">
+      <div class="admin-card-header" style="flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h2 class="admin-card-title" style="margin-bottom: 0.25rem;">
+            <span>📊</span> Báo Cáo & Thống Kê Doanh Thu Đa Chiều
+          </h2>
+          <p style="font-size: 0.85rem; color: #64748b; margin: 0;">
+            Phân tích số liệu kinh doanh chi tiết theo Ngày, Tháng, Quý và Năm kèm biểu đồ và bảng số liệu
+          </p>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+          <!-- Dropdown lọc Năm -->
+          <div style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.875rem; font-weight: 600; color: #334155;">
+            <span>🗓️ Năm:</span>
+            <select id="statYearSelect" class="admin-filter-select" style="min-width: 110px; padding: 0.4rem 0.65rem; border-radius: 6px; font-weight: 600;">
+              <option value="2026" selected>Năm 2026</option>
+              <option value="2025">Năm 2025</option>
+              <option value="all">Tất cả các năm</option>
+            </select>
+          </div>
+
+          <!-- Bộ tab chuyển đổi Ngày / Tháng / Quý / Năm -->
+          <div class="revenue-period-tabs" id="revenuePeriodTabs">
+            <button type="button" class="period-tab-btn" data-period="day">📅 Theo Ngày</button>
+            <button type="button" class="period-tab-btn active" data-period="month">📆 Theo Tháng</button>
+            <button type="button" class="period-tab-btn" data-period="quarter">📊 Theo Quý</button>
+            <button type="button" class="period-tab-btn" data-period="year">🗓️ Theo Năm</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- HIGHLIGHT SUMMARY METRICS CHO KỲ ĐANG CHỌN -->
+      <div class="revenue-summary-row">
+        <div class="rev-metric-box">
+          <span class="rev-metric-label">Doanh Thu Kỳ Chọn</span>
+          <span class="rev-metric-value" id="revPeriodTotal" style="color: #e11d48;">0 ₫</span>
+        </div>
+        <div class="rev-metric-box">
+          <span class="rev-metric-label">Tổng Đơn Hoàn Thành</span>
+          <span class="rev-metric-value" id="revPeriodOrders" style="color: #1e1b4b;">0 đơn</span>
+        </div>
+        <div class="rev-metric-box">
+          <span class="rev-metric-label">Tổng Sách Bán Ra</span>
+          <span class="rev-metric-value" id="revPeriodItems" style="color: #059669;">0 cuốn</span>
+        </div>
+        <div class="rev-metric-box">
+          <span class="rev-metric-label">Đơn Trung Bình (AOV)</span>
+          <span class="rev-metric-value" id="revPeriodAov" style="color: #4338ca;">0 ₫</span>
+        </div>
+      </div>
+
+      <!-- BIỂU ĐỒ TRỰC QUAN (VISUAL BAR CHART) -->
+      <div class="revenue-chart-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <h3 style="font-size: 0.95rem; font-weight: 700; color: #0f172a; margin: 0;" id="revenueChartTitle">
+            📈 Biểu Đồ Doanh Thu
+          </h3>
+          <span style="font-size: 0.8rem; color: #64748b;" id="revenueChartHint">
+            (Rê chuột vào cột để xem chi tiết doanh thu & số đơn)
+          </span>
+        </div>
+        <div class="revenue-bars-container" id="revenueBarsContainer">
+          <!-- Render động các cột biểu đồ -->
+        </div>
+        <div class="revenue-filter-banner" id="revenueActiveFilterBanner" style="display: none;">
+          <span id="revenueActiveFilterText"></span>
+          <button type="button" class="btn-secondary btn-sm" id="btnResetRevenueFilter">🔄 Xem tất cả</button>
+        </div>
+      </div>
+
+      <!-- BẢNG 1: BẢNG THỐNG KÊ CHI TIẾT (THEO YÊU CẦU: "ngoài dashboard thì có thêm phần table") -->
+      <div style="margin-top: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <h3 style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.4rem;">
+            <span>📋</span> Bảng Thống Kê Doanh Thu Chi Tiết
+          </h3>
+          <span style="font-size: 0.8rem; color: #64748b; font-weight: 600;" id="revenueTablePeriodDesc">Đang hiển thị theo từng tháng</span>
+        </div>
+
+        <div class="admin-table-wrap">
+          <table class="admin-table revenue-table">
+            <thead>
+              <tr>
+                <th style="min-width: 140px;">Mốc Thời Gian</th>
+                <th style="text-align: center; width: 100px;">Số Đơn</th>
+                <th style="text-align: center; width: 120px;">Số Sách Bán</th>
+                <th style="min-width: 240px;">Truyện Cụ Thể Đã Bán</th>
+                <th style="text-align: right; min-width: 130px;">Doanh Thu</th>
+                <th style="text-align: right; min-width: 130px;">Đơn Trung Bình (AOV)</th>
+                <th style="width: 160px;">Tỷ Trọng Doanh Thu</th>
+              </tr>
+            </thead>
+            <tbody id="revenueTableBody">
+              <!-- Render động từng dòng thời gian -->
+            </tbody>
+            <tfoot id="revenueTableFoot">
+              <!-- Dòng tổng kết -->
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- BẢNG 2: THỐNG KÊ CHI TIẾT TRUYỆN CỤ THỂ ĐÃ BÁN -->
+      <div style="margin-top: 1.75rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
+          <h3 style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.4rem;">
+            <span>📚</span> Thống Kê Chi Tiết Truyện Cụ Thể Đã Bán (<span id="soldBooksCountDisplay">0</span> đầu truyện)
+          </h3>
+          <span style="font-size: 0.8rem; color: #64748b; font-weight: 600;" id="soldBooksPeriodDesc">Đang hiển thị theo từng tháng</span>
+        </div>
+
+        <div class="admin-table-wrap">
+          <table class="admin-table revenue-table">
+            <thead>
+              <tr>
+                <th style="text-align: center; width: 60px;">STT</th>
+                <th style="min-width: 240px;">Truyện / Tác Phẩm</th>
+                <th style="text-align: center; width: 100px;">Số Đơn</th>
+                <th style="text-align: center; width: 120px;">Số Lượng Bán</th>
+                <th style="text-align: right; min-width: 130px;">Doanh Thu Truyện</th>
+                <th style="min-width: 220px;">Phân Bổ Theo Mốc</th>
+                <th style="width: 150px;">Tỷ Trọng SL</th>
+              </tr>
+            </thead>
+            <tbody id="soldBooksTableBody">
+              <!-- Render động thống kê từng truyện đã bán -->
+            </tbody>
+            <tfoot id="soldBooksTableFoot">
+              <!-- Dòng tổng kết truyện đã bán -->
+            </tfoot>
+          </table>
+        </div>
+      </div>
+      </div>
+
+      <!-- BẢNG 3: DANH SÁCH CHI TIẾT CÁC ĐƠN HÀNG THUỘC KỲ ĐANG LỌC -->
+      <div id="adminOrdersSection" style="margin-top: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+          <h3 style="font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.4rem;">
+            <span>📦</span> <span id="adminOrdersHeadingLabel">Danh Sách Đơn Hàng Thuộc Kỳ Lọc</span> (<span id="filteredOrdersCountDisplay" style="color: #e11d48;">0</span> đơn)
+          </h3>
+          <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <button id="btnRefreshAdminOrders" type="button" class="btn-admin btn-admin-outline" style="font-size: 0.8rem; font-weight: 700; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer;" title="Đồng bộ trạng thái đơn hàng mới nhất từ khách hàng">
+              🔄 Làm mới đơn
+            </button>
+            <button id="btnExportOrdersExcel" class="btn-admin" style="background: #10b981; color: #ffffff; border: none; font-size: 0.8rem; font-weight: 700; padding: 0.4rem 0.85rem; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem;" title="Xuất toàn bộ đơn hàng của kỳ đang lọc ra file Excel CSV">
+              📥 Xuất Excel Đơn Hàng (.csv)
+            </button>
+            <span style="font-size: 0.8rem; color: #64748b;">(Đồng bộ API)</span>
+          </div>
+        </div>
+
+        <div class="admin-table-wrap" style="max-height: 400px; overflow-y: auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="width: 100px; text-align: center;">Mã Đơn</th>
+                <th>Khách Hàng</th>
+                <th>Thời Gian Đặt</th>
+                <th>Tác Phẩm Đặt Mua</th>
+                <th style="text-align: center; width: 110px;">Voucher</th>
+                <th style="text-align: right; width: 120px;">Tổng Tiền</th>
+                <th style="width: 215px; text-align: center;">Trạng Thái &amp; Xử Lý</th>
+              </tr>
+            </thead>
+            <tbody id="adminOrdersTableBody">
+              <!-- Render động danh sách đơn hàng -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- BẢNG QUẢN LÝ SẢN PHẨM -->
+    <section class="admin-card">
+      <div class="admin-card-header">
+        <h2 class="admin-card-title">
+          <span>📚</span> Quản Lý Kho Sách Manga & Light Novel
+        </h2>
+
+        <div class="admin-actions-group">
+          <!-- NÚT TẢI FILE MẪU IMPORT -->
+          <a href="data_mau_import.json" download="sach_mau_import.json" class="btn-admin btn-admin-outline" title="Tải file JSON mẫu về để chỉnh sửa và import">
+            📄 Tải File Mẫu
+          </a>
+
+          <!-- NÚT XUẤT EXCEL KHO SÁCH -->
+          <button id="btnExportProductsExcel" class="btn-admin" style="background: #059669; color: #ffffff; border: none; font-size: 0.85rem; font-weight: 700; padding: 0.45rem 0.9rem; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem;" title="Xuất toàn bộ dữ liệu kho sách ra file Excel CSV">
+            📤 Xuất Excel Kho Sách (.csv)
+          </button>
+
+          <!-- NÚT MỞ MODAL IMPORT FILE -->
+          <button id="btnOpenImportModal" class="btn-admin btn-admin-secondary" title="Import hàng loạt sách từ file JSON hoặc CSV vào CSDL">
+            📥 Import Sách Từ File
+          </button>
+
+          <!-- NÚT QUẢN LÝ DANH MỤC SẢN PHẨM -->
+          <button id="btnOpenCategoryModal" class="btn-admin btn-admin-secondary" style="display: inline-flex; align-items: center; gap: 0.35rem;" title="Thêm/Xóa danh mục sản phẩm (Fantasy, Isekai, Manga...)">
+            📂 Quản Lý Danh Mục
+          </button>
+
+          <!-- NÚT THÊM SẢN PHẨM THỦ CÔNG -->
+          <button id="btnOpenAddModal" class="btn-admin btn-admin-primary" title="Thêm từng cuốn sách mới thủ công">
+            + Thêm Sách Mới
+          </button>
+        </div>
+      </div>
+
+      <!-- THANH TÌM KIẾM VÀ LỌC -->
+      <div class="admin-filters-bar">
+        <input 
+          type="text" 
+          id="adminSearchInput" 
+          class="admin-search-input" 
+          placeholder="🔍 Tìm kiếm theo tên tác phẩm, tác giả hoặc NXB..." 
+        />
+
+        <select id="adminCategoryFilter" class="admin-filter-select">
+          <option value="0">Tất cả thể loại</option>
+          <!-- Được render động từ API categories -->
+        </select>
+
+        <select id="adminStockFilter" class="admin-filter-select">
+          <option value="all">Tất cả trạng thái kho</option>
+          <option value="in_stock">Còn hàng ( > 5 cuốn )</option>
+          <option value="low_stock">Sắp hết hàng ( 1 - 5 cuốn )</option>
+          <option value="out_of_stock">Đã hết hàng ( 0 cuốn )</option>
+        </select>
+      </div>
+
+      <!-- BẢNG DỮ LIỆU SẢN PHẨM -->
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th style="width: 50px; text-align: center;">ID</th>
+              <th style="width: 70px; text-align: center;">Ảnh</th>
+              <th>Tên Tác Phẩm</th>
+              <th>Tác Giả</th>
+              <th>Thể Loại</th>
+              <th>Giá Bán</th>
+              <th style="text-align: center;">Tồn Kho</th>
+              <th style="text-align: center; width: 110px;">Đã Bán</th>
+              <th style="width: 110px; text-align: center;">Hành Động</th>
+            </tr>
+          </thead>
+          <tbody id="adminProductsTableBody">
+            <!-- Render động từ API /products -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= BẢNG QUẢN LÝ NHÂN VIÊN & PHÊ DUYỆT ĐĂNG KÝ (CHỈ ADMIN) ================= -->
+    <section class="admin-card" id="adminStaffSection" style="margin-top: 2rem;">
+      <div class="admin-card-header" style="flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h2 class="admin-card-title" style="margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <span>💼</span> Quản Lý Nhân Viên &amp; Phê Duyệt Đăng Ký
+            <span id="pendingStaffCountBadge" style="display: none; background: #fef3c7; color: #b45309; border: 1px solid #fde68a; font-size: 0.78rem; font-weight: 800; padding: 2px 10px; border-radius: 999px;">0 chờ duyệt</span>
+          </h2>
+          <p style="font-size: 0.85rem; color: #64748b; margin: 0;">
+            Duyệt tài khoản nhân viên mới đăng ký, thêm nhanh nhân viên hoặc xóa tài khoản nhân viên khỏi hệ thống
+          </p>
+        </div>
+        <button type="button" id="btnOpenAddStaffModal" class="btn-admin btn-admin-primary" style="display: inline-flex; align-items: center; gap: 6px;">
+          <span>➕</span> Thêm Nhân Viên Mới
+        </button>
+      </div>
+
+      <!-- HÀNG CHỜ PHÊ DUYỆT ĐĂNG KÝ NHÂN VIÊN -->
+      <div id="pendingStaffBox" style="display: none; margin-bottom: 1.5rem; background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 1rem;">
+        <div style="font-size: 0.92rem; font-weight: 800; color: #92400e; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 6px;">
+          <span>⏳</span> Yêu Cầu Đăng Ký Nhân Viên Chờ Phê Duyệt
+        </div>
+        <div class="admin-table-wrap" style="background: #fff; border-radius: 8px;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="width: 70px; text-align: center;">ID</th>
+                <th>Họ &amp; Tên</th>
+                <th>Email</th>
+                <th>Số Điện Thoại</th>
+                <th>Ngày Đăng Ký</th>
+                <th style="width: 210px; text-align: center;">Phê Duyệt</th>
+              </tr>
+            </thead>
+            <tbody id="pendingStaffTableBody">
+              <!-- Render động từ API /users -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- DANH SÁCH NHÂN VIÊN TRONG HỆ THỐNG -->
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th style="width: 70px; text-align: center;">ID</th>
+              <th>Họ &amp; Tên Nhân Viên</th>
+              <th>Email</th>
+              <th>Số Điện Thoại</th>
+              <th style="text-align: center;">Vai Trò</th>
+              <th style="text-align: center;">Trạng Thái</th>
+              <th style="width: 120px; text-align: center;">Thao Tác</th>
+            </tr>
+          </thead>
+          <tbody id="adminStaffTableBody">
+            <!-- Render động từ API /users -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= BẢNG QUẢN LÝ ĐỘC GIẢ & THÀNH VIÊN VIP (THEO THÁNG) ================= -->
+    <section class="admin-card" id="adminUsersSection" style="margin-top: 2rem;">
+      <div class="admin-card-header" style="flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h2 class="admin-card-title" style="margin-bottom: 0.25rem;">
+            <span>👥</span> Quản Lý Khách Hàng &amp; Cấp Bậc VIP
+          </h2>
+          <p style="font-size: 0.85rem; color: #64748b; margin: 0;">
+            Theo dõi danh sách khách hàng, số đơn hợp lệ/đã hủy, tổng chi tiêu tích lũy và trạng thái duy trì VIP
+          </p>
+        </div>
+        <div style="font-size: 0.82rem; font-weight: 700; color: #4338ca; background: #e0e7ff; padding: 6px 12px; border-radius: 6px;">
+          ⭐ Lên VIP: Chi tiêu ≥ 500k/tháng | Duy trì: ≥ 250k/tháng
+        </div>
+      </div>
+
+      <!-- BỘ LỌC TÌM KIẾM KHÁCH HÀNG -->
+      <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+        <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; flex: 1; min-width: 260px;">
+          <input
+            type="text"
+            id="adminCustomerSearchInput"
+            class="form-input"
+            placeholder="🔍 Tìm theo tên, email, SĐT khách hàng..."
+            style="max-width: 320px; padding: 0.5rem 0.85rem; font-size: 0.88rem;"
+          />
+          <select id="adminCustomerTierFilter" class="form-input" style="max-width: 210px; padding: 0.5rem 0.75rem; font-size: 0.88rem;">
+            <option value="all">Tất cả hạng thành viên</option>
+            <option value="vip">⭐ Thành viên VIP</option>
+            <option value="regular">Thân Thiết</option>
+            <option value="newbie">🎁 Thành viên Mới</option>
+          </select>
+        </div>
+        <span id="adminCustomersCount" style="font-size: 0.85rem; font-weight: 700; color: #475569;">0 khách hàng</span>
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th style="width: 50px; text-align: center;">ID</th>
+              <th>Họ &amp; Tên Khách Hàng</th>
+              <th>Email</th>
+              <th>Số Điện Thoại</th>
+              <th>Ngày Sinh</th>
+              <th style="text-align: center;">Hạng Thành Viên</th>
+              <th style="text-align: center;">Đơn Hàng</th>
+              <th style="text-align: right;">Chi Tiêu Tháng Này</th>
+              <th style="text-align: right;">Tổng Chi Tiêu</th>
+              <th style="text-align: center;">Trạng Thái Duy Trì VIP</th>
+              <th style="width: 170px; text-align: center;">Thao Tác</th>
+            </tr>
+          </thead>
+          <tbody id="adminUsersTableBody">
+            <!-- Render động từ API /users và /orders -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= MODAL 1: THÊM / SỬA SÁCH THỦ CÔNG ================= -->
+  <div id="productModal" class="admin-modal-overlay">
+    <div class="admin-modal-card" style="max-width: 680px;">
+      <button type="button" class="modal-close-btn" id="btnCloseProductModal">&times;</button>
+      <h2 id="productModalTitle" style="font-size: 1.35rem; font-weight: 800; color: #0f172a; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>📖</span> Thêm Tác Phẩm Mới
+      </h2>
+
+      <form id="productForm" novalidate>
+        <input type="hidden" id="editProductId" value="" />
+
+        <!-- TÊN SÁCH -->
+        <div class="form-group">
+          <label for="pName" class="form-label">Tên tác phẩm / sách *</label>
+          <input type="text" id="pName" class="form-input" placeholder="Ví dụ: One Piece - Tập 109: Sinh Mệnh Khởi Động" required />
+        </div>
+
+        <!-- TÁC GIẢ & NXB -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label for="pAuthor" class="form-label">Tác giả *</label>
+            <input type="text" id="pAuthor" class="form-input" placeholder="Ví dụ: Eiichiro Oda" required />
+          </div>
+          <div class="form-group">
+            <label for="pPublisher" class="form-label">Nhà xuất bản *</label>
+            <input type="text" id="pPublisher" class="form-input" placeholder="Ví dụ: NXB Kim Đồng" required />
+          </div>
+        </div>
+
+        <!-- THỂ LOẠI & SỐ LƯỢNG TỒN KHO -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label for="pCategory" class="form-label">Thể loại / Danh mục *</label>
+            <select id="pCategory" class="form-input" required>
+              <!-- Render động từ API categories -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="pStock" class="form-label">Số lượng tồn kho ban đầu *</label>
+            <input type="number" id="pStock" class="form-input" value="50" min="0" required />
+          </div>
+        </div>
+
+        <!-- GIÁ BÁN & GIÁ GỐC -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label for="pPrice" class="form-label">Giá bán hiện tại (đ) *</label>
+            <input type="number" id="pPrice" class="form-input" placeholder="Ví dụ: 35000" min="1000" required />
+          </div>
+          <div class="form-group">
+            <label for="pOriginalPrice" class="form-label">Giá bìa gốc (đ) (tính % giảm giá)</label>
+            <input type="number" id="pOriginalPrice" class="form-input" placeholder="Ví dụ: 40000" min="0" />
+          </div>
+        </div>
+
+        <!-- TẢI ẢNH BÌA TỪ MÁY TÍNH -->
+        <div class="form-group">
+          <label class="form-label">Ảnh bìa tác phẩm (Tải ảnh từ máy tính) *</label>
+          <div id="imageUploadZone" class="image-upload-zone">
+            <input type="file" id="pImageFile" accept="image/*" style="display: none;" />
+            
+            <!-- Trạng thái chưa chọn ảnh -->
+            <div id="uploadPrompt" style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0.5rem 0;">
+              <span style="font-size: 2.2rem;">🖼️</span>
+              <div style="font-size: 0.9rem; font-weight: 700; color: #1e293b;">
+                Nhấp để chọn ảnh từ máy tính hoặc kéo thả file vào đây
+              </div>
+              <div style="font-size: 0.78rem; color: #64748b;">
+                Hỗ trợ định dạng: JPG, PNG, WEBP (tự động tối ưu hóa kích thước)
+              </div>
+            </div>
+
+            <!-- Trạng thái đã chọn ảnh (Xem trước) -->
+            <div id="imagePreviewContainer" style="display: none; align-items: center; justify-content: center; gap: 14px; text-align: left;">
+              <img id="imagePreviewImg" src="" alt="Ảnh bìa xem trước" style="width: 75px; height: 105px; object-fit: cover; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); border: 1px solid #e2e8f0;" />
+              <div>
+                <div id="imageFileName" style="font-size: 0.85rem; font-weight: 700; color: #0f172a; max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">cover.jpg</div>
+                <div id="imageFileSize" style="font-size: 0.75rem; color: #15803d; font-weight: 600; margin-top: 2px;">✓ Sẵn sàng lưu</div>
+                <button type="button" id="btnChangeImage" style="margin-top: 8px; background: #fee2e2; color: #b91c1c; border: none; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
+                  🔄 Đổi ảnh từ máy khác
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- INPUT ẨN LƯU DỮ LIỆU BASE64 HOẶC URL -->
+          <input type="hidden" id="pImage" required />
+
+          <!-- TÙY CHỌN PHỤ: DÁN URL NẾU CÓ -->
+          <div style="margin-top: 6px; display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 0.75rem; color: #64748b;">💡 Khuyên dùng ảnh chụp hoặc tải từ máy</span>
+            <button type="button" id="btnToggleUrlInput" style="background: none; border: none; color: #64748b; font-size: 0.75rem; text-decoration: underline; cursor: pointer;">
+              🌐 Hoặc dán link URL ảnh nếu muốn
+            </button>
+          </div>
+          <input type="url" id="pImageUrlBackup" class="form-input" placeholder="https://..." style="display: none; margin-top: 6px;" />
+        </div>
+
+        <!-- MÔ TẢ TÁC PHẨM -->
+        <div class="form-group">
+          <label for="pDesc" class="form-label">Giới thiệu tóm tắt tác phẩm</label>
+          <textarea id="pDesc" class="form-input" rows="3" placeholder="Mô tả tóm tắt nội dung cuốn sách..."></textarea>
+        </div>
+
+        <!-- HUY HIỆU ĐÁNH DẤU -->
+        <div style="display: flex; gap: 1.5rem; margin-bottom: 1.5rem;">
+          <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-size: 0.9rem;">
+            <input type="checkbox" id="pIsHot" />
+            <span>🔥 Đánh dấu là Sách Hot</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-size: 0.9rem;">
+            <input type="checkbox" id="pIsNew" checked />
+            <span>✨ Đánh dấu là Sách Mới</span>
+          </label>
+        </div>
+
+        <!-- NÚT BẤM LƯU / HỦY -->
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+          <button type="button" class="btn-admin btn-admin-outline" id="btnCancelProductModal">Hủy bỏ</button>
+          <button type="submit" class="btn-admin btn-admin-primary" id="btnSaveProduct">Lưu Sản Phẩm</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 2: IMPORT SẢN PHẨM HÀNG LOẠT (TÍNH NĂNG ĐẶC BIỆT) ================= -->
+  <div id="importModal" class="admin-modal-overlay">
+    <div class="admin-modal-card">
+      <button type="button" class="modal-close-btn" id="btnCloseImportModal">&times;</button>
+      <h2 style="font-size: 1.35rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>📥</span> Nhập Dữ Liệu Sách Hàng Loạt (Batch Import)
+      </h2>
+      <p style="font-size: 0.875rem; color: #64748b; margin-bottom: 1.25rem;">
+        Nhập danh sách hàng chục cuốn Manga & Light Novel từ file <strong>.json</strong> hoặc <strong>.csv</strong> trực tiếp vào CSDL chỉ với 1 cú click.
+      </p>
+
+      <!-- HỘP KÉO THẢ / CHỌN FILE -->
+      <div class="import-dropzone" id="dropzoneBox">
+        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📁</div>
+        <p style="font-size: 0.95rem; font-weight: 700; color: #0f172a; margin: 0 0 0.25rem 0;">
+          Kéo thả file vào đây, hoặc click để chọn file từ máy tính
+        </p>
+        <span style="font-size: 0.8rem; color: #64748b;">Hỗ trợ định dạng: <strong>.json</strong> hoặc <strong>.csv</strong></span>
+        <input type="file" id="importFileInput" accept=".json, .csv" style="display: none;" />
+      </div>
+
+      <!-- VÙNG XEM TRƯỚC (PREVIEW) -->
+      <div id="importPreviewArea" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <span style="font-size: 0.875rem; font-weight: 700; color: #0f172a;">
+            📋 Xem trước dữ liệu: <span id="importCountDisplay" style="color: #e11d48;">0</span> cuốn sách hợp lệ
+          </span>
+          <button type="button" id="btnClearSelectedFile" style="background: none; border: none; color: #ef4444; font-size: 0.8rem; cursor: pointer; text-decoration: underline;">
+            Chọn file khác
+          </button>
+        </div>
+
+        <div class="import-preview-box">
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
+            <thead>
+              <tr style="border-bottom: 1px solid #cbd5e1; color: #475569; text-align: left;">
+                <th style="padding: 4px;">Tên sách</th>
+                <th style="padding: 4px;">Tác giả</th>
+                <th style="padding: 4px;">Thể loại</th>
+                <th style="padding: 4px; text-align: right;">Giá</th>
+                <th style="padding: 4px; text-align: center;">Kho</th>
+              </tr>
+            </thead>
+            <tbody id="importPreviewTbody">
+              <!-- Render danh sách preview -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+        <button type="button" class="btn-admin btn-admin-outline" id="btnCancelImport">Đóng</button>
+        <button type="button" class="btn-admin btn-admin-primary" id="btnConfirmImport" disabled>
+          ✓ Bắt Đầu Import Vào CSDL
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 3: QUẢN LÝ DANH MỤC SẢN PHẨM ================= -->
+  <div id="categoryModal" class="admin-modal-overlay">
+    <div class="admin-modal-card" style="max-width: 680px;">
+      <button type="button" class="modal-close-btn" id="btnCloseCategoryModal">&times;</button>
+      <h2 style="font-size: 1.35rem; font-weight: 800; color: #0f172a; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>📂</span> Quản Lý Danh Mục Sản Phẩm
+      </h2>
+      <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1.25rem;">
+        Thêm mới các danh mục (như Fantasy, Isekai, Romance...) hoặc xóa danh mục không còn sử dụng.
+      </p>
+
+      <!-- FORM THÊM DANH MỤC MỚI -->
+      <form id="addCategoryForm" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.25rem; margin-bottom: 1.5rem;" novalidate>
+        <div style="font-size: 0.95rem; font-weight: 800; color: #0f172a; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 6px;">
+          <span>✨</span> Thêm Danh Mục Mới Vào Hệ Thống
+        </div>
+        <div style="display: grid; grid-template-columns: 80px 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Icon</label>
+            <input type="text" id="catIcon" class="form-input" value="✨" maxlength="4" style="text-align: center; font-size: 1.2rem; padding: 0.5rem;" />
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Tên thể loại / Danh mục *</label>
+            <input type="text" id="catName" class="form-input" placeholder="Ví dụ: Isekai & Chuyển Sinh, Fantasy..." required />
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 0.85rem;">
+          <label class="form-label">Mô tả ngắn</label>
+          <input type="text" id="catDesc" class="form-input" placeholder="Ví dụ: Thế giới giả tưởng, chuyển sinh dị giới hấp dẫn..." />
+        </div>
+        <div style="display: flex; justify-content: flex-end;">
+          <button type="submit" id="btnSaveCategory" class="btn-admin btn-admin-primary" style="display: inline-flex; align-items: center; gap: 6px; padding: 0.55rem 1.25rem;">
+            + Thêm Danh Mục Mới
+          </button>
+        </div>
+      </form>
+
+      <!-- DANH SÁCH DANH MỤC HIỆN CÓ -->
+      <div>
+        <div style="font-size: 0.95rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+          <span>📋 Danh Mục Hiện Có Trong CSDL</span>
+          <span id="catTotalCount" style="font-size: 0.8rem; color: #e11d48; font-weight: 700;">5 danh mục</span>
+        </div>
+        <div style="max-height: 280px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <table class="category-table" style="margin-top: 0;">
+            <thead>
+              <tr>
+                <th style="width: 50px; text-align: center;">Icon</th>
+                <th>Tên Danh Mục</th>
+                <th>Slug</th>
+                <th style="text-align: center;">Số lượng sách</th>
+                <th style="width: 70px; text-align: center;">Xóa</th>
+              </tr>
+            </thead>
+            <tbody id="categoryTableBody">
+              <!-- Render động danh mục -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 1.25rem;">
+        <button type="button" class="btn-admin btn-admin-outline" id="btnCloseCategoryModal2">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 4: THÊM NHÂN VIÊN MỚI (CHỈ ADMIN) ================= -->
+  <div id="addStaffModal" class="admin-modal-overlay">
+    <div class="admin-modal-card" style="max-width: 480px;">
+      <button type="button" class="modal-close-btn" id="btnCloseAddStaffModal">&times;</button>
+      <h2 style="font-size: 1.25rem; font-weight: 800; color: #0f172a; margin-bottom: 1.15rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>💼</span> Thêm Tài Khoản Nhân Viên Mới
+      </h2>
+
+      <form id="addStaffForm" novalidate>
+        <div class="form-group">
+          <label for="staffNameInput" class="form-label">Họ và tên nhân viên *</label>
+          <input type="text" id="staffNameInput" class="form-input" placeholder="Ví dụ: Trần Minh Khoa" required />
+        </div>
+
+        <div class="form-group">
+          <label for="staffEmailInput" class="form-label">Email đăng nhập *</label>
+          <input type="email" id="staffEmailInput" class="form-input" placeholder="Ví dụ: khoa.staff@hikari.vn" required />
+        </div>
+
+        <div class="form-group">
+          <label for="staffPhoneInput" class="form-label">Số điện thoại (10 số VN) *</label>
+          <input type="tel" id="staffPhoneInput" class="form-input" placeholder="Ví dụ: 0912345678" inputmode="numeric" maxlength="10" required />
+        </div>
+
+        <div class="form-group">
+          <label for="staffPasswordInput" class="form-label">Mật khẩu khởi tạo *</label>
+          <input type="password" id="staffPasswordInput" class="form-input" placeholder="Tối thiểu 8 ký tự (hoa, thường, số, @...)" required />
+        </div>
+
+        <p style="font-size: 0.8rem; color: #64748b; background: #f8fafc; padding: 0.65rem 0.75rem; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 1rem;">
+          ℹ️ Nhân viên được Admin thêm trực tiếp sẽ có trạng thái <strong>Đang hoạt động</strong> ngay và chỉ thấy mục quản lý sản phẩm &amp; đơn hàng.
+        </p>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+          <button type="button" class="btn-admin btn-admin-outline" id="btnCancelAddStaffModal">Hủy</button>
+          <button type="submit" id="btnSubmitAddStaff" class="btn-admin btn-admin-primary">✓ Tạo Tài Khoản Nhân Viên</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SCRIPT LOGIC ADMIN -->
+  <script type="module" src="./js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,817 @@
+/* admin.css - Giao diện Quản trị viên Hikari BookStore */
+
+.admin-body {
+  background-color: #f1f5f9;
+  color: #1e293b;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* ADMIN NAVBAR */
+.admin-navbar {
+  background: #0f172a;
+  color: #ffffff;
+  padding: 0.85rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.admin-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.admin-logo span {
+  color: #f43f5e;
+}
+
+.admin-badge {
+  background: #f43f5e;
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-left: 0.35rem;
+}
+
+.admin-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.admin-user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #cbd5e1;
+}
+
+.admin-user-info strong {
+  color: #ffffff;
+}
+
+.btn-client-view {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.825rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.btn-client-view:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-admin-logout {
+  background: #fee2e2;
+  color: #e11d48;
+  border: none;
+  padding: 0.45rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.825rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-admin-logout:hover {
+  background: #fecdd3;
+  color: #9f1239;
+}
+
+/* STATS CARDS */
+.admin-container {
+  max-width: 1320px;
+  width: 100%;
+  margin: 1.75rem auto;
+  padding: 0 1.5rem;
+  flex: 1;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 1.35rem;
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+.stat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+}
+
+.stat-info h3 {
+  font-size: 0.825rem;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin: 0 0 0.35rem 0;
+}
+
+.stat-info .stat-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+/* TOOLBAR */
+.admin-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.admin-card-header {
+  padding: 1.25rem 1.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.admin-card-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.admin-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-admin {
+  padding: 0.55rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.btn-admin-primary {
+  background: #e11d48;
+  color: #ffffff;
+}
+
+.btn-admin-primary:hover {
+  background: #be123c;
+  transform: translateY(-1px);
+}
+
+.btn-admin-secondary {
+  background: #1e1b4b;
+  color: #ffffff;
+}
+
+.btn-admin-secondary:hover {
+  background: #312e81;
+  transform: translateY(-1px);
+}
+
+.btn-admin-outline {
+  background: #ffffff;
+  color: #475569;
+  border: 1.5px solid #cbd5e1;
+}
+
+.btn-admin-outline:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+/* FILTERS BAR */
+.admin-filters-bar {
+  padding: 1rem 1.75rem;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.admin-search-input {
+  flex: 1;
+  min-width: 260px;
+  padding: 0.55rem 0.95rem;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background: #ffffff;
+}
+
+.admin-search-input:focus {
+  outline: none;
+  border-color: #e11d48;
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.1);
+}
+
+.admin-filter-select {
+  padding: 0.55rem 0.95rem;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+/* TABLE */
+.admin-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.875rem;
+}
+
+.admin-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 700;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.admin-table td {
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
+}
+
+.admin-table tr:hover td {
+  background-color: #f8fafc;
+}
+
+.admin-prod-thumb {
+  width: 48px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stock-badge {
+  display: inline-block;
+  padding: 0.25rem 0.55rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.stock-in {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.stock-low {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.stock-out {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.table-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.35rem 0.55rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.btn-edit-prod {
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+.btn-edit-prod:hover {
+  background: #dbeafe;
+}
+
+.btn-del-prod {
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+.btn-del-prod:hover {
+  background: #fee2e2;
+}
+
+/* MODAL STYLES FOR ADMIN */
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s ease;
+}
+
+.admin-modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.admin-modal-card {
+  width: 100%;
+  max-width: 650px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+  position: relative;
+  animation: modalScaleUp 0.3s ease;
+}
+
+.import-dropzone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 10px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 1.25rem 0;
+}
+
+.import-dropzone:hover, .import-dropzone.dragover {
+  border-color: #e11d48;
+  background: #fff1f2;
+}
+
+.import-preview-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+/* ================= 9. REVENUE ANALYTICS & BAR CHART STYLES ================= */
+.revenue-period-tabs {
+  display: inline-flex;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 3px;
+  gap: 3px;
+}
+
+.period-tab-btn {
+  background: transparent;
+  border: none;
+  padding: 0.45rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.825rem;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.period-tab-btn:hover {
+  color: #1e1b4b;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.period-tab-btn.active {
+  background: #4338ca;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(67, 56, 202, 0.3);
+}
+
+.revenue-summary-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.rev-metric-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  transition: all 0.2s ease;
+}
+
+.rev-metric-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.rev-metric-label {
+  font-size: 0.775rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.5px;
+}
+
+.rev-metric-value {
+  font-size: 1.45rem;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+/* KHỐI BIỂU ĐỒ CỘT VISUAL BAR CHART */
+.revenue-chart-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+.revenue-bars-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  height: 250px;
+  padding: 4.25rem 0.75rem 0.75rem;
+  overflow-x: auto;
+  border-bottom: 2px solid #cbd5e1;
+  box-sizing: border-box;
+}
+
+.chart-bar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  min-width: 48px;
+  height: 100%;
+  justify-content: flex-end;
+  position: relative;
+  cursor: pointer;
+}
+
+.chart-bar-track {
+  width: 100%;
+  max-width: 38px;
+  height: 140px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(226, 232, 240, 0.4);
+  border-radius: 6px 6px 0 0;
+}
+
+.chart-bar-fill {
+  width: 100%;
+  background: linear-gradient(180deg, #6366f1 0%, #4338ca 100%);
+  border-radius: 6px 6px 0 0;
+  transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 4px;
+}
+
+.chart-bar-item:hover .chart-bar-fill {
+  background: linear-gradient(180deg, #f43f5e 0%, #e11d48 100%);
+  filter: brightness(1.1);
+}
+
+.chart-bar-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #475569;
+  margin-top: 0.5rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* TOOLTIP TRÊN BIỂU ĐỒ (CĂN CHỈNH HEADROOM KHÔNG BỊ CẮT TRÀN) */
+.chart-bar-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: #0f172a;
+  color: #ffffff;
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.45;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 50;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  border: 1px solid #334155;
+}
+
+/* Mũi tên nhọn hướng xuống cột */
+.chart-bar-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: #0f172a transparent transparent transparent;
+}
+
+.chart-bar-item:hover .chart-bar-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Tránh tràn mép trái/phải cho các cột biên */
+.chart-bar-item:first-child .chart-bar-tooltip {
+  left: 0;
+  transform: translateY(4px);
+}
+.chart-bar-item:first-child .chart-bar-tooltip::after {
+  left: 20px;
+}
+.chart-bar-item:first-child:hover .chart-bar-tooltip {
+  transform: translateY(0);
+}
+
+.chart-bar-item:last-child .chart-bar-tooltip {
+  left: auto;
+  right: 0;
+  transform: translateY(4px);
+}
+.chart-bar-item:last-child .chart-bar-tooltip::after {
+  left: auto;
+  right: 15px;
+}
+.chart-bar-item:last-child:hover .chart-bar-tooltip {
+  transform: translateY(0);
+}
+
+/* BẢNG THỐNG KÊ DOANH THU */
+.revenue-table tfoot tr {
+  background: #f1f5f9;
+  font-weight: 800;
+  border-top: 2px solid #0f172a;
+}
+
+.revenue-table tfoot td {
+  padding: 0.85rem 1rem;
+  color: #0f172a;
+  font-size: 0.95rem;
+}
+
+.progress-mini-bar {
+  background: #e2e8f0;
+  border-radius: 4px;
+  height: 8px;
+  width: 100%;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.progress-mini-fill {
+  background: linear-gradient(90deg, #6366f1, #e11d48);
+  height: 100%;
+  border-radius: 4px;
+}
+
+.coupon-tag {
+  display: inline-block;
+  padding: 2px 6px;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+  border-radius: 4px;
+  font-size: 0.725rem;
+  font-weight: 700;
+}
+
+.chart-bar-item.is-selected .chart-bar-fill {
+  background: linear-gradient(180deg, #ec4899 0%, #db2777 100%);
+  box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.25);
+}
+
+.revenue-filter-banner {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  color: #1e3a8a;
+  font-weight: 600;
+}
+
+.sold-book-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 340px;
+}
+
+.sold-book-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: #334155;
+  line-height: 1.3;
+}
+
+.sold-book-pill strong {
+  color: #4f46e5;
+}
+
+.period-breakdown-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.period-breakdown-chip {
+  display: inline-block;
+  padding: 2px 7px;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #3730a3;
+}
+
+/* ================= 10. FORM INPUT & MODAL ENHANCEMENTS ================= */
+.form-group {
+  margin-bottom: 1.1rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 0.35rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.875rem;
+  color: #0f172a;
+  background-color: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  outline: none;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  border-color: #e11d48;
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.15);
+}
+
+.form-input::placeholder {
+  color: #94a3b8;
+  font-size: 0.825rem;
+}
+
+/* KHU VỰC TẢI ẢNH TỪ MÁY TÍNH */
+.image-upload-zone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 10px;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.image-upload-zone:hover,
+.image-upload-zone.dragover {
+  border-color: #e11d48;
+  background: #fff1f2;
+}
+
+/* BẢNG QUẢN LÝ DANH MỤC */
+.category-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.category-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 700;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid #e2e8f0;
+  text-align: left;
+}
+
+.category-table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.875rem;
+  color: #1e293b;
+  vertical-align: middle;
+}
+
+.category-table tr:hover td {
+  background: #f8fafc;
+}
+
+

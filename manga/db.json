@@ -1,0 +1,1333 @@
+{
+  "categories": [
+    {
+      "id": 1,
+      "name": "Manga - Truyện Tranh",
+      "slug": "manga",
+      "icon": "📚",
+      "description": "Các bộ truyện tranh Nhật Bản kinh điển và mới nhất"
+    },
+    {
+      "id": 2,
+      "name": "Light Novel",
+      "slug": "light-novel",
+      "icon": "✨",
+      "description": "Tiểu thuyết ánh sáng, thế giới Isekai & Fantasy hấp dẫn"
+    },
+    {
+      "id": 3,
+      "name": "Tiểu Thuyết & Văn Học",
+      "slug": "tieu-thuyet",
+      "icon": "📖",
+      "description": "Tác phẩm văn học kinh điển và hiện đại trong & ngoài nước"
+    },
+    {
+      "id": 4,
+      "name": "Sách Kỹ Năng & Tư Duy",
+      "slug": "ky-nang",
+      "icon": "💡",
+      "description": "Sách phát triển bản thân, tư duy tài chính và tâm lý học"
+    },
+    {
+      "id": 5,
+      "name": "Artbook & Sưu Tầm",
+      "slug": "artbook",
+      "icon": "🎨",
+      "description": "Tập tranh minh họa cao cấp, postcard và phiên bản giới hạn"
+    },
+    {
+      "id": 6,
+      "name": "fantasy",
+      "slug": "fantasy",
+      "icon": "✨",
+      "description": "time travel"
+    }
+  ],
+  "banners": [
+    {
+      "id": 1,
+      "tenbanner": "One Piece Tập 108: Sinh Mệnh Khởi Động - Ra Mắt Toàn Quốc",
+      "hinhbanner": "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=1200&auto=format&fit=crop&q=80",
+      "mota": "Hành trình kịch tính của Luffy và Ngũ Lão Tinh Saturn! Bản in mới nhất kèm quà tặng Bookmark độc quyền.",
+      "productId": 1,
+      "tag": "Sản Phẩm Mới Ra Mắt ✨"
+    },
+    {
+      "id": 2,
+      "tenbanner": "Jujutsu Kaisen Tập 24: Trận Chiến Shinjuku Nghẹt Thở",
+      "hinhbanner": "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=1200&auto=format&fit=crop&q=80",
+      "mota": "Cuộc đối đầu lịch sử giữa Gojo Satoru và Sukuna! Tập truyện mới ra lò đã có mặt tại kệ sách.",
+      "productId": 2,
+      "tag": "Manga Mới Nổi Bật 🔥"
+    },
+    {
+      "id": 3,
+      "tenbanner": "Chuyển Sinh Thành Slime Tập 18: Đại Chiến Bát Tinh Ma Vương",
+      "hinhbanner": "https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=1200&auto=format&fit=crop&q=80",
+      "mota": "Light Novel ăn khách nhất thế giới Isekai. Bản in mới kèm 8 trang tranh màu cao cấp từ Mitz Vah.",
+      "productId": 8,
+      "tag": "Light Novel Mới ✨"
+    }
+  ],
+  "coupons": [
+    {
+      "id": 1,
+      "code": "WELCOME20",
+      "title": "Ưu Đãi Thành Viên Mới",
+      "discountType": "fixed",
+      "discountValue": 20000,
+      "minOrder": 50000,
+      "description": "Giảm 20.000đ cho đơn đầu tiên của Thành Viên Mới (dùng 1 lần)",
+      "target": "new_member",
+      "onceOnly": true
+    },
+    {
+      "id": 2,
+      "code": "VIPMEMBER",
+      "title": "Đặc Quyền Thành Viên VIP",
+      "discountType": "percent",
+      "discountValue": 15,
+      "minOrder": 0,
+      "description": "Giảm 15% tổng hóa đơn dành riêng cho Thành Viên VIP (chi tiêu ≥ 500.000đ/tháng hoặc duy trì từ tháng trước)",
+      "target": "vip",
+      "monthlyMinSpent": 500000,
+      "maintainMinSpent": 250000
+    },
+    {
+      "id": 3,
+      "code": "NEWBOOKS",
+      "title": "Ưu Đãi Sách Mới Lên Kệ",
+      "discountType": "percent",
+      "discountValue": 10,
+      "minOrder": 0,
+      "description": "Giảm 10% cho tất cả ấn phẩm Sách Mới trong giỏ hàng",
+      "target": "new_products"
+    },
+    {
+      "id": 4,
+      "code": "HIKARI10",
+      "title": "Ưu Đãi Độc Giả Thân Thiết",
+      "discountType": "percent",
+      "discountValue": 10,
+      "minOrder": 0,
+      "description": "Giảm 10% cho mọi đơn hàng Manga & Light Novel",
+      "target": "all"
+    },
+    {
+      "id": 5,
+      "code": "SINHNHAT35",
+      "title": "Quà Tặng Sinh Nhật Khách Hàng",
+      "discountType": "percent",
+      "discountValue": 35,
+      "minOrder": 100000,
+      "description": "Giảm 35% tổng hóa đơn chúc mừng sinh nhật độc giả trong tháng",
+      "target": "all"
+    },
+    {
+      "id": 6,
+      "code": "MANGA15",
+      "title": "Sale Truyện Tranh 15%",
+      "discountType": "percent",
+      "discountValue": 15,
+      "minOrder": 100000,
+      "description": "Giảm 15% cho đơn hàng Manga & Truyện tranh từ 100.000đ",
+      "target": "all"
+    }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "name": "One Piece - Tập 108: Sinh Mệnh Khởi Động",
+      "author": "Eiichiro Oda",
+      "publisher": "NXB Kim Đồng",
+      "translator": "Nguyễn Hải Linh",
+      "price": 34000,
+      "originalPrice": 40000,
+      "discount": 15,
+      "categoryId": 1,
+      "categoryName": "Manga - Truyện Tranh",
+      "image": "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600&auto=format&fit=crop&q=80",
+      "description": "Luffy cùng nhóm Mũ Rơm tiếp tục hành trình kịch tính tại đảo tương lai Egghead. Những bí mật về Thế kỷ Trống và vũ khí cổ đại dần được hé lộ khi Đô đốc Kizaru cùng Ngũ Lão Tinh Saturn trực tiếp xuất trận!",
+      "pages": 208,
+      "publishYear": 2024,
+      "format": "Bìa rời, kèm bookmark",
+      "rating": 5,
+      "reviewsCount": 1420,
+      "stock": 80,
+      "isHot": true,
+      "isNew": true
+    },
+    {
+      "id": 2,
+      "name": "Jujutsu Kaisen - Chú Thuật Hồi Chiến - Tập 24",
+      "author": "Gege Akutami",
+      "publisher": "NXB Kim Đồng",
+      "translator": "Anh Quách",
+      "price": 40500,
+      "originalPrice": 45000,
+      "discount": 10,
+      "categoryId": 1,
+      "categoryName": "Manga - Truyện Tranh",
+      "image": "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=600&auto=format&fit=crop&q=80",
+      "description": "Trận chiến đỉnh cao giữa Gojo Satoru và Sukuna - Chú thuật sư mạnh nhất thời hiện đại đối đầu Nguyền vương cổ đại tại Shinjuku. Cuộc so tài lãnh địa nghẹt thở làm rung chuyển toàn cõi Chú thuật!",
+      "pages": 192,
+      "publishYear": 2024,
+      "format": "Bìa mềm, cán màng bóng",
+      "rating": 4.9,
+      "reviewsCount": 980,
+      "stock": 0,
+      "isHot": true,
+      "isNew": true
+    },
+    {
+      "id": 3,
+      "name": "SPY x FAMILY - Tập 12",
+      "author": "Tatsuya Endo",
+      "publisher": "NXB Kim Đồng",
+      "translator": "Tuấn Dương",
+      "price": 37800,
+      "originalPrice": 42000,
+      "discount": 10,
+      "categoryId": 1,
+      "categoryName": "Manga - Truyện Tranh",
+      "image": "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=600&auto=format&fit=crop&q=80",
+      "description": "Gia đình điệp viên Forger với những tình huống dở khóc dở cười. Lần này bé Anya đứng trước thử thách bài kiểm tra học kỳ tại Học viện Eden, liệu chiến dịch Strix của Twilight có gặp nguy cơ đổ vỡ?",
+      "pages": 200,
+      "publishYear": 2024,
+      "format": "Bìa gập, quà tặng postcard Anya",
+      "rating": 4.9,
+      "reviewsCount": 750,
+      "stock": 54,
+      "isHot": true,
+      "isNew": false
+    },
+    {
+      "id": 4,
+      "name": "Thám Tử Lừng Danh Conan - Tập 104",
+      "author": "Gosho Aoyama",
+      "publisher": "NXB Kim Đồng",
+      "translator": "Nguyễn Phương Nam",
+      "price": 29750,
+      "originalPrice": 35000,
+      "discount": 15,
+      "categoryId": 1,
+      "categoryName": "Manga - Truyện Tranh",
+      "image": "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&auto=format&fit=crop&q=80",
+      "description": "Vụ án mạng ly kỳ diễn ra với sự góp mặt của Hattori Heiji và Kazuha. Đồng thời, manh mối quan trọng về nhân vật quyền lực RUM trong Tổ chức Áo Đen ngày càng rõ nét trước sự suy luận sắc bén của Conan.",
+      "pages": 184,
+      "publishYear": 2024,
+      "format": "Bìa mềm truyền thống",
+      "rating": 4.8,
+      "reviewsCount": 1100,
+      "stock": 120,
+      "isHot": false,
+      "isNew": true
+    },
+    {
+      "id": 5,
+      "name": "Chainsaw Man - Tập 15",
+      "author": "Tatsuki Fujimoto",
+      "publisher": "NXB Trẻ",
+      "translator": "Thanh Hà",
+      "price": 45000,
+      "originalPrice": 50000,
+      "discount": 10,
+      "categoryId": 1,
+      "categoryName": "Manga - Truyện Tranh",
+      "image": "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=600&auto=format&fit=crop&q=80",
+      "description": "Phần 2 tiếp tục câu chuyện u ám nhưng lôi cuốn của Denji và cô bạn Asa Mitaka. Khi Quỷ Chiến Tranh trỗi dậy, những bi kịch học đường đan xen với thế giới quỷ dị ngập tràn sự điên rồ đặc trưng của Fujimoto.",
+      "pages": 196,
+      "publishYear": 2024,
+      "format": "Bìa rời, bìa áo cán mờ",
+      "rating": 4.8,
+      "reviewsCount": 630,
+      "stock": 35,
+      "isHot": false,
+      "isNew": true
+    },
+    {
+      "id": 6,
+      "name": "Blue Lock - Tập 21: Thời Khắc Tỏa Sáng",
+      "author": "Muneyuki Kaneshiro & Yusuke Nomura",
+      "publisher": "NXB Kim Đồng",
+      "translator": "Quang Minh",
+      "price": 35700,
+      "originalPrice": 42000,
+      "discount": 15,
+      "categoryId": 1,
+      "categoryName": "Manga - Truyện Tranh",
+      "image": "https://images.unsplash.com/photo-1532012164546-f432f2e37b73?w=600&auto=format&fit=crop&q=80",
+      "description": "Giải đấu Neo Egoist League diễn ra nghẹt thở giữa Bastard Munchen và Manshine City. Isagi Yoichi lĩnh hội được Thị giác Không gian hoàn hảo để thách thức thiên tài Nagi Seishiro!",
+      "pages": 192,
+      "publishYear": 2024,
+      "format": "Bìa gập, bìa áo màu nổi bật",
+      "rating": 4.9,
+      "reviewsCount": 890,
+      "stock": 50,
+      "isHot": true,
+      "isNew": false
+    },
+    {
+      "id": 7,
+      "name": "Sword Art Online - Tập 27: Unital Ring VI",
+      "author": "Reki Kawahara",
+      "publisher": "IPM / NXB Hà Nội",
+      "translator": "Lê Vũ Thảo",
+      "price": 101250,
+      "originalPrice": 135000,
+      "discount": 25,
+      "categoryId": 2,
+      "categoryName": "Light Novel",
+      "image": "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=600&auto=format&fit=crop&q=80",
+      "description": "Kirito, Asuna cùng bạn bè bị kéo vào thế giới game sinh tồn bí ẩn Unital Ring. Nơi đây toàn bộ trang bị cấp cao biến mất, họ phải học cách xây dựng từ con số 0 trong khi bảo vệ ngôi nhà thân yêu Log House.",
+      "pages": 380,
+      "publishYear": 2023,
+      "format": "Bìa mềm tay gập, trang màu minh họa abec",
+      "rating": 4.9,
+      "reviewsCount": 540,
+      "stock": 28,
+      "isHot": true,
+      "isNew": false
+    },
+    {
+      "id": 8,
+      "name": "Chuyển Sinh Thành Slime - Tập 18",
+      "author": "Fuse (Minh họa: Mitz Vah)",
+      "publisher": "NXB Trẻ",
+      "translator": "Lâm Hưng",
+      "price": 119000,
+      "originalPrice": 140000,
+      "discount": 15,
+      "categoryId": 2,
+      "categoryName": "Light Novel",
+      "image": "https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=600&auto=format&fit=crop&q=80",
+      "description": "Ma Vương Rimuru Tempest chính thức tham dự hội nghị Bát Tinh Ma Vương Walpurgis. Cuộc chiến toàn diện với Đế quốc phía Đông và thế lực Feldway đẩy thế giới Jura Tempest vào tình trạng báo động đỏ!",
+      "pages": 412,
+      "publishYear": 2023,
+      "format": "Bìa rời ép nhũ, 8 trang màu",
+      "rating": 5,
+      "reviewsCount": 670,
+      "stock": 40,
+      "isHot": true,
+      "isNew": true
+    },
+    {
+      "id": 9,
+      "name": "Re:Zero - Bắt Đầu Lại Ở Thế Giới Khác - Tập 22",
+      "author": "Tappei Nagatsuki",
+      "publisher": "IPM / NXB Hồng Đức",
+      "translator": "Hương Giang",
+      "price": 93750,
+      "originalPrice": 125000,
+      "discount": 25,
+      "categoryId": 2,
+      "categoryName": "Light Novel",
+      "image": "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=600&auto=format&fit=crop&q=80",
+      "description": "Natsuki Subaru cùng Emilia tiến vào Tháp Canh Pleiades giữa cồn cát Augria. Đối mặt với Thí Luyện của Hiền Giả Shaula, năng lực Trở Về Từ Cõi Chết một lần nữa bị kéo căng tới cực hạn tâm lý.",
+      "pages": 360,
+      "publishYear": 2023,
+      "format": "Bìa mềm, bookmark kẹp sách",
+      "rating": 4.8,
+      "reviewsCount": 420,
+      "stock": 18,
+      "isHot": false,
+      "isNew": false
+    },
+    {
+      "id": 10,
+      "name": "Overlord - Tập 14: Phù Thủy Diệt Quốc",
+      "author": "Kugane Maruyama (Minh họa: so-bin)",
+      "publisher": "IPM / NXB Hà Nội",
+      "translator": "Minh Trí",
+      "price": 120000,
+      "originalPrice": 160000,
+      "discount": 25,
+      "categoryId": 2,
+      "categoryName": "Light Novel",
+      "image": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&auto=format&fit=crop&q=80",
+      "description": "Hành vi cướp bóc đoàn xe lương thực của Vương quốc Re-Estize đã vượt qua lằn ranh đỏ của Ainz Ooal Gown. Đạo quân bất tử từ Lăng Mộ Ngầm Nazarick tràn vào, chuẩn bị xóa sổ một đế chế khỏi bản đồ thế giới.",
+      "pages": 460,
+      "publishYear": 2022,
+      "format": "Bìa cứng gáy tròn cao cấp, minh họa so-bin",
+      "rating": 5,
+      "reviewsCount": 890,
+      "stock": 15,
+      "isHot": true,
+      "isNew": false
+    },
+    {
+      "id": 11,
+      "name": "Chào Mừng Đến Lớp Học Đề Cao Thực Lực - Năm 2 Tập 8",
+      "author": "Shogo Kinugasa",
+      "publisher": "Hikari Light Novel",
+      "translator": "Duy Khương",
+      "price": 77000,
+      "originalPrice": 110000,
+      "discount": 30,
+      "categoryId": 2,
+      "categoryName": "Light Novel",
+      "image": "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=600&auto=format&fit=crop&q=80",
+      "description": "Chuyến du lịch dã ngoại mùa đông tại Hokkaido của học sinh trường Cao Trung Đào Tạo Nâng Cao. Ayanokoji Kiyotaka tiếp tục thao túng mọi cục diện phía sau màn che trong khi Karuizawa Kei đối mặt thử thách mới.",
+      "pages": 344,
+      "publishYear": 2024,
+      "format": "Bìa áo cán cát, bookmark PVC",
+      "rating": 4.9,
+      "reviewsCount": 610,
+      "stock": 31,
+      "isHot": true,
+      "isNew": true
+    },
+    {
+      "id": 12,
+      "name": "No Game No Life - Tập 11: Cặp Đôi Game Thủ",
+      "author": "Yuu Kamiya",
+      "publisher": "NXB Kim Đồng",
+      "translator": "Thái Bình",
+      "price": 69300,
+      "originalPrice": 99000,
+      "discount": 30,
+      "categoryId": 2,
+      "categoryName": "Light Novel",
+      "image": "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=600&auto=format&fit=crop&q=80",
+      "description": "Hai anh em Sora và Shiro - bộ đôi 'Kuhaku' bất bại thách đấu tộc Tiên Tinh Thần Linh. Trò chơi trí tuệ đặt cược cả sinh mạng và lãnh thổ của loài người bước vào giai đoạn quyết định nảy lửa.",
+      "pages": 320,
+      "publishYear": 2023,
+      "format": "Bìa mềm, 4 tranh màu gập",
+      "rating": 4.7,
+      "reviewsCount": 350,
+      "stock": 22,
+      "isHot": false,
+      "isNew": false
+    },
+    {
+      "id": 13,
+      "name": "Rừng Na Uy (Norwegian Wood)",
+      "author": "Haruki Murakami",
+      "publisher": "NXB Hội Nhà Văn",
+      "translator": "Trịnh Lữ",
+      "price": 84500,
+      "originalPrice": 130000,
+      "discount": 35,
+      "categoryId": 3,
+      "categoryName": "Tiểu Thuyết & Văn Học",
+      "image": "https://images.unsplash.com/photo-1476275466078-4007374efbbe?w=600&auto=format&fit=crop&q=80",
+      "description": "Kiệt tác bất hủ của Haruki Murakami về tuổi trẻ, nỗi cô đơn, những mất mát và khát vọng sống trong xã hội Tokyo những năm 1960. Câu chuyện tình sâu lắng giữa Toru Watanabe, Naoko u sầu và Midori tràn đầy sức sống.",
+      "pages": 448,
+      "publishYear": 2021,
+      "format": "Bìa mềm tái bản mới",
+      "rating": 4.9,
+      "reviewsCount": 2300,
+      "stock": 55,
+      "isHot": true,
+      "isNew": false
+    },
+    {
+      "id": 14,
+      "name": "Cây Cam Ngọt Của Tôi",
+      "author": "José Mauro de Vasconcelos",
+      "publisher": "NXB Hội Nhà Văn - Nhã Nam",
+      "translator": "Nguyễn Bích Lan",
+      "price": 68600,
+      "originalPrice": 98000,
+      "discount": 30,
+      "categoryId": 3,
+      "categoryName": "Tiểu Thuyết & Văn Học",
+      "image": "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=600&auto=format&fit=crop&q=80",
+      "description": "Câu chuyện cảm động rơi nước mắt về cậu bé Zezé 5 tuổi thông minh nhưng tinh nghịch tại xóm nghèo Brazil, người đã tìm thấy tình yêu thương vô điều kiện bên cây cam ngọt Pinkie và ông bác người Bồ Đào Nha.",
+      "pages": 244,
+      "publishYear": 2022,
+      "format": "Bìa mềm cao cấp",
+      "rating": 5,
+      "reviewsCount": 4500,
+      "stock": 90,
+      "isHot": true,
+      "isNew": false
+    },
+    {
+      "id": 15,
+      "name": "Tôi Thấy Hoa Vàng Trên Cỏ Xanh",
+      "author": "Nguyễn Nhật Ánh",
+      "publisher": "NXB Trẻ",
+      "translator": "Nguyên tác tiếng Việt",
+      "price": 82500,
+      "originalPrice": 110000,
+      "discount": 25,
+      "categoryId": 3,
+      "categoryName": "Tiểu Thuyết & Văn Học",
+      "image": "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&auto=format&fit=crop&q=80",
+      "description": "Bức tranh tuổi thơ trong trẻo ở làng quê Việt Nam qua đôi mắt cậu bé Thiều và em trai Tường. Một cuốn sách đánh thức những ký ức hồn nhiên, tình anh em ruột thịt và những rung động đầu đời trong sáng.",
+      "pages": 378,
+      "publishYear": 2023,
+      "format": "Bìa mềm có tay gấp",
+      "rating": 4.9,
+      "reviewsCount": 1820,
+      "stock": 64,
+      "isHot": false,
+      "isNew": false
+    },
+    {
+      "id": 16,
+      "name": "Tâm Lý Học Về Tiền (The Psychology of Money)",
+      "author": "Morgan Housel",
+      "publisher": "NXB Dân Trí - 1980Books",
+      "translator": "Vũ Hoàng Linh",
+      "price": 109850,
+      "originalPrice": 169000,
+      "discount": 35,
+      "categoryId": 4,
+      "categoryName": "Sách Kỹ Năng & Tư Duy",
+      "image": "https://images.unsplash.com/photo-1592496431122-2349e0fbc666?w=600&auto=format&fit=crop&q=80",
+      "description": "19 câu chuyện ngắn khai mở cách con người tư duy và cảm nhận về tiền bạc. Cuốn sách giúp bạn hiểu rằng thành công tài chính không chỉ phụ thuộc vào sự thông minh hay toán học, mà nằm ở hành vi và cảm xúc cá nhân.",
+      "pages": 328,
+      "publishYear": 2022,
+      "format": "Bìa mềm, giấy xốp chống lóa",
+      "rating": 4.9,
+      "reviewsCount": 3100,
+      "stock": 69,
+      "isHot": true,
+      "isNew": false
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "name": "Admin Hikari",
+      "email": "admin@hikari.vn",
+      "phone": "0901234567",
+      "role": "admin",
+      "password": "123"
+    },
+    {
+      "id": 2,
+      "name": "Trần Văn An",
+      "email": "an@gmail.com",
+      "phone": "0933888999",
+      "role": "customer",
+      "password": "123",
+      "usedCoupons": []
+    },
+    {
+      "id": 3,
+      "name": "Nguyễn Thị Mai",
+      "email": "mai@gmail.com",
+      "phone": "0988776655",
+      "role": "customer",
+      "password": "Mai@123456",
+      "usedCoupons": [],
+      "wishlist": [
+        3
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Lê Hoàng Long",
+      "email": "staff@hikari.vn",
+      "phone": "0908889999",
+      "role": "staff",
+      "password": "123",
+      "usedCoupons": []
+    },
+    {
+      "id": 1794472410145,
+      "name": "văn c",
+      "email": "c@gmail.com",
+      "phone": "0987258201",
+      "birthday": "2000-10-15",
+      "password": "C@123456c",
+      "role": "staff",
+      "status": "active",
+      "usedCoupons": [],
+      "createdAt": "2026-11-12T08:33:30.145Z"
+    }
+  ],
+  "orders": [
+    {
+      "id": 1791880000012,
+      "orderCode": "HKR889901",
+      "userId": 2,
+      "customer": {
+        "name": "Trần Văn An",
+        "phone": "0933888999",
+        "address": "45 Lê Lợi, Quận 1, TP.HCM",
+        "note": "Đơn số 1 của VIP"
+      },
+      "items": [
+        {
+          "id": 1,
+          "productId": 1,
+          "name": "One Piece - Tập 108: Sinh Mệnh Khởi Động",
+          "price": 34000,
+          "quantity": 15,
+          "isNew": true
+        },
+        {
+          "id": 2,
+          "productId": 2,
+          "name": "Jujutsu Kaisen - Chú Thuật Hồi Chiến - Tập 24",
+          "price": 40500,
+          "quantity": 10,
+          "isNew": false
+        }
+      ],
+      "subtotal": 915000,
+      "discount": 91500,
+      "couponCode": "HIKARI10",
+      "total": 823500,
+      "paymentMethod": "cod",
+      "status": "Đã hoàn thành",
+      "createdAt": "10:15:00 10/10/2026",
+      "createdAtIso": "2026-10-10T10:15:00.000Z"
+    },
+    {
+      "id": 1791880000013,
+      "orderCode": "HKR889902",
+      "userId": 2,
+      "customer": {
+        "name": "Trần Văn An",
+        "phone": "0933888999",
+        "address": "45 Lê Lợi, Quận 1, TP.HCM",
+        "note": "Đơn số 2 của VIP"
+      },
+      "items": [
+        {
+          "id": 5,
+          "productId": 5,
+          "name": "Chuyển Sinh Thành Slime - Tập 18",
+          "price": 76500,
+          "quantity": 10,
+          "isNew": true
+        }
+      ],
+      "subtotal": 765000,
+      "discount": 76500,
+      "couponCode": "HIKARI10",
+      "total": 688500,
+      "paymentMethod": "banking",
+      "status": "Đã hoàn thành",
+      "createdAt": "14:20:00 14/10/2026",
+      "createdAtIso": "2026-10-14T14:20:00.000Z"
+    },
+    {
+      "id": 1791880000014,
+      "orderCode": "HKR889903",
+      "userId": 2,
+      "customer": {
+        "name": "Trần Văn An",
+        "phone": "0933888999",
+        "address": "45 Lê Lợi, Quận 1, TP.HCM",
+        "note": "Đơn số 3 của VIP"
+      },
+      "items": [
+        {
+          "id": 3,
+          "productId": 3,
+          "name": "SPY x FAMILY - Tập 12",
+          "price": 37800,
+          "quantity": 12,
+          "isNew": false
+        }
+      ],
+      "subtotal": 453600,
+      "discount": 0,
+      "couponCode": "",
+      "total": 453600,
+      "paymentMethod": "cod",
+      "status": "Đã hoàn thành",
+      "createdAt": "16:10:00 17/10/2026",
+      "createdAtIso": "2026-10-17T16:10:00.000Z"
+    },
+    {
+      "id": 1791880000015,
+      "orderCode": "HKR889904",
+      "userId": 2,
+      "customer": {
+        "name": "Trần Văn An",
+        "phone": "0933888999",
+        "address": "45 Lê Lợi, Quận 1, TP.HCM",
+        "note": "Đơn số 4 của VIP (Dùng VIPMEMBER)"
+      },
+      "items": [
+        {
+          "id": 1,
+          "productId": 1,
+          "name": "One Piece - Tập 108: Sinh Mệnh Khởi Động",
+          "price": 34000,
+          "quantity": 8,
+          "isNew": true
+        },
+        {
+          "id": 2,
+          "productId": 2,
+          "name": "Jujutsu Kaisen - Chú Thuật Hồi Chiến - Tập 24",
+          "price": 40500,
+          "quantity": 5,
+          "isNew": false
+        },
+        {
+          "id": 12,
+          "productId": 12,
+          "name": "Tâm Lý Học Về Tiền",
+          "price": 161500,
+          "quantity": 2,
+          "isNew": false
+        }
+      ],
+      "subtotal": 797500,
+      "discount": 119625,
+      "couponCode": "VIPMEMBER",
+      "total": 677875,
+      "paymentMethod": "banking",
+      "status": "Đã hoàn thành",
+      "createdAt": "09:45:00 28/10/2026",
+      "createdAtIso": "2026-10-28T09:45:00.000Z"
+    },
+    {
+      "id": 1793258818410,
+      "orderCode": "HKR238261",
+      "userId": 2,
+      "customer": {
+        "name": "Trần Văn An",
+        "phone": "0933888999",
+        "address": "30 TDT",
+        "note": ""
+      },
+      "items": [
+        {
+          "userId": 2,
+          "productId": 3,
+          "name": "SPY x FAMILY - Tập 12",
+          "price": 37800,
+          "originalPrice": 42000,
+          "image": "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=600&auto=format&fit=crop&q=80",
+          "categoryName": "Manga - Truyện Tranh",
+          "stock": 60,
+          "quantity": 2,
+          "id": 3
+        }
+      ],
+      "subtotal": 75600,
+      "discount": 0,
+      "couponCode": "",
+      "total": 105600,
+      "paymentMethod": "cod",
+      "status": "Đã hoàn thành",
+      "createdAt": "14:26:58 29/10/2026",
+      "createdAtIso": "2026-10-29T07:26:58.413Z"
+    },
+    {
+      "id": 1793259057544,
+      "orderCode": "HKR390744",
+      "userId": 2,
+      "customer": {
+        "name": "Trần Văn An",
+        "phone": "0933888999",
+        "address": "SSDSAF",
+        "note": ""
+      },
+      "items": [
+        {
+          "userId": 2,
+          "productId": 3,
+          "name": "SPY x FAMILY - Tập 12",
+          "price": 37800,
+          "originalPrice": 42000,
+          "image": "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=600&auto=format&fit=crop&q=80",
+          "categoryName": "Manga - Truyện Tranh",
+          "stock": 58,
+          "quantity": 2,
+          "id": 1
+        }
+      ],
+      "subtotal": 75600,
+      "discount": 0,
+      "couponCode": "",
+      "total": 105600,
+      "paymentMethod": "cod",
+      "status": "Đã hoàn thành",
+      "createdAt": "14:30:57 29/10/2026",
+      "createdAtIso": "2026-10-29T07:30:57.548Z"
+    },
+    {
+      "id": 1793259133275,
+      "orderCode": "HKR902655",
+      "userId": 2,
+      "customer": {
+        "name": "Trần Văn An",
+        "phone": "0933888999",
+        "address": "fasfsa",
+        "note": ""
+      },
+      "items": [
+        {
+          "userId": 2,
+          "productId": 2,
+          "name": "Jujutsu Kaisen - Chú Thuật Hồi Chiến - Tập 24",
+          "price": 40500,
+          "originalPrice": 45000,
+          "image": "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=600&auto=format&fit=crop&q=80",
+          "categoryName": "Manga - Truyện Tranh",
+          "stock": 37,
+          "quantity": 7,
+          "id": 1
+        }
+      ],
+      "subtotal": 283500,
+      "discount": 0,
+      "couponCode": "",
+      "total": 283500,
+      "paymentMethod": "cod",
+      "status": "Đã hoàn thành",
+      "createdAt": "14:32:13 29/10/2026",
+      "createdAtIso": "2026-10-29T07:32:13.275Z"
+    },
+    {
+      "id": 1793259543221,
+      "orderCode": "HKR674234",
+      "userId": 2,
+      "customer": {
+        "name": "Trần Văn An",
+        "phone": "0933888999",
+        "address": "30 TDT, P. Bến Nghé, Q.1",
+        "note": ""
+      },
+      "items": [
+        {
+          "id": 1,
+          "productId": 1,
+          "name": "One Piece - Tập 108: Sinh Mệnh Khởi Động",
+          "price": 34000,
+          "quantity": 2,
+          "isNew": true,
+          "image": "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600&auto=format&fit=crop&q=80",
+          "stock": 85,
+          "categoryName": "Manga - Truyện Tranh"
+        },
+        {
+          "id": 2,
+          "productId": 2,
+          "name": "Jujutsu Kaisen - Chú Thuật Hồi Chiến - Tập 24",
+          "price": 40500,
+          "quantity": 1,
+          "isNew": false,
+          "image": "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=600&auto=format&fit=crop&q=80",
+          "stock": 37,
+          "categoryName": "Manga - Truyện Tranh"
+        }
+      ],
+      "subtotal": 108500,
+      "discount": 0,
+      "couponCode": "",
+      "total": 138500,
+      "paymentMethod": "cod",
+      "status": "Đã hoàn thành",
+      "createdAt": "14:39:03 29/10/2026",
+      "createdAtIso": "2026-10-29T07:39:03.225Z"
+    },
+    {
+      "id": 101,
+      "orderCode": "HKR101111",
+      "userId": 2,
+      "customer": {
+        "name": "Trần Văn An",
+        "phone": "0933888999",
+        "address": "12 Lê Duẩn, Q1, TP.HCM"
+      },
+      "items": [
+        {
+          "id": 1,
+          "productId": 1,
+          "name": "One Piece - Tập 108: Sinh Mệnh Khởi Động",
+          "price": 34000,
+          "quantity": 3
+        }
+      ],
+      "total": 102000,
+      "shippingFee": 30000,
+      "paymentMethod": "cod",
+      "status": "delivered",
+      "createdAt": "10:15 15/01/2026",
+      "createdAtIso": "2026-01-15T10:15:00.000Z"
+    },
+    {
+      "id": 102,
+      "orderCode": "HKR102222",
+      "userId": 2,
+      "customer": {
+        "name": "Trần Văn An",
+        "phone": "0933888999",
+        "address": "12 Lê Duẩn, Q1, TP.HCM"
+      },
+      "items": [
+        {
+          "id": 2,
+          "productId": 2,
+          "name": "Jujutsu Kaisen - Tập 24",
+          "price": 40500,
+          "quantity": 2
+        }
+      ],
+      "total": 81000,
+      "shippingFee": 30000,
+      "paymentMethod": "momo",
+      "status": "delivered",
+      "createdAt": "14:20 20/02/2026",
+      "createdAtIso": "2026-02-20T14:20:00.000Z"
+    },
+    {
+      "id": 103,
+      "orderCode": "HKR103333",
+      "customer": {
+        "name": "Hoàng Văn Tuấn",
+        "phone": "0912345678",
+        "address": "45 Hai Bà Trưng, Q1, TP.HCM"
+      },
+      "items": [
+        {
+          "id": 3,
+          "productId": 3,
+          "name": "SPY x FAMILY - Tập 12",
+          "price": 37800,
+          "quantity": 4
+        }
+      ],
+      "total": 151200,
+      "shippingFee": 30000,
+      "paymentMethod": "banking",
+      "status": "delivered",
+      "createdAt": "09:30 10/03/2026",
+      "createdAtIso": "2026-03-10T09:30:00.000Z"
+    },
+    {
+      "id": 104,
+      "orderCode": "HKR104444",
+      "userId": 2,
+      "customer": {
+        "name": "Trần Văn An",
+        "phone": "0933888999",
+        "address": "12 Lê Duẩn, Q1, TP.HCM"
+      },
+      "items": [
+        {
+          "id": 4,
+          "productId": 4,
+          "name": "Chainsaw Man - Tập 15",
+          "price": 40500,
+          "quantity": 3
+        }
+      ],
+      "total": 121500,
+      "shippingFee": 30000,
+      "paymentMethod": "cod",
+      "status": "delivered",
+      "createdAt": "16:45 18/04/2026",
+      "createdAtIso": "2026-04-18T16:45:00.000Z"
+    },
+    {
+      "id": 105,
+      "orderCode": "HKR105555",
+      "customer": {
+        "name": "Vũ Thị Hương",
+        "phone": "0977112233",
+        "address": "78 Nguyễn Trãi, Q5, TP.HCM"
+      },
+      "items": [
+        {
+          "id": 5,
+          "productId": 5,
+          "name": "Thám Tử Lừng Danh Conan - Tập 104",
+          "price": 27000,
+          "quantity": 5
+        }
+      ],
+      "total": 135000,
+      "shippingFee": 30000,
+      "paymentMethod": "momo",
+      "status": "delivered",
+      "createdAt": "11:00 25/05/2026",
+      "createdAtIso": "2026-05-25T11:00:00.000Z"
+    },
+    {
+      "id": 106,
+      "orderCode": "HKR106666",
+      "customer": {
+        "name": "Đặng Minh Quân",
+        "phone": "0966445566",
+        "address": "89 Pasteur, Q3, TP.HCM"
+      },
+      "items": [
+        {
+          "id": 6,
+          "productId": 6,
+          "name": "Sword Art Online - Tập 27",
+          "price": 99000,
+          "quantity": 2
+        }
+      ],
+      "total": 198000,
+      "shippingFee": 30000,
+      "paymentMethod": "banking",
+      "status": "delivered",
+      "createdAt": "15:20 12/06/2026",
+      "createdAtIso": "2026-06-12T15:20:00.000Z"
+    },
+    {
+      "id": 107,
+      "orderCode": "HKR107777",
+      "userId": 2,
+      "customer": {
+        "name": "Trần Văn An",
+        "phone": "0933888999",
+        "address": "12 Lê Duẩn, Q1, TP.HCM"
+      },
+      "items": [
+        {
+          "id": 7,
+          "productId": 7,
+          "name": "Overlord - Tập 16",
+          "price": 112500,
+          "quantity": 2
+        }
+      ],
+      "total": 225000,
+      "shippingFee": 30000,
+      "paymentMethod": "cod",
+      "status": "delivered",
+      "createdAt": "10:00 20/07/2026",
+      "createdAtIso": "2026-07-20T10:00:00.000Z"
+    },
+    {
+      "id": 108,
+      "orderCode": "HKR108888",
+      "customer": {
+        "name": "Phạm Thu Hà",
+        "phone": "0944556677",
+        "address": "102 Cách Mạng Tháng 8, Q10, TP.HCM"
+      },
+      "items": [
+        {
+          "id": 8,
+          "productId": 8,
+          "name": "Re:Zero - Bắt Đầu Lại Ở Thế Giới Khác - Tập 25",
+          "price": 94500,
+          "quantity": 2
+        }
+      ],
+      "total": 189000,
+      "shippingFee": 30000,
+      "paymentMethod": "momo",
+      "status": "delivered",
+      "createdAt": "14:15 15/08/2026",
+      "createdAtIso": "2026-08-15T14:15:00.000Z"
+    },
+    {
+      "id": 109,
+      "orderCode": "HKR109999",
+      "customer": {
+        "name": "Ngô Đức Trọng",
+        "phone": "0922334455",
+        "address": "55 Trần Hưng Đạo, Q5, TP.HCM"
+      },
+      "items": [
+        {
+          "id": 9,
+          "productId": 9,
+          "name": "Rừng Na Uy (Bản Dịch Mới)",
+          "price": 135000,
+          "quantity": 2
+        }
+      ],
+      "total": 270000,
+      "shippingFee": 0,
+      "paymentMethod": "banking",
+      "status": "delivered",
+      "createdAt": "17:30 05/09/2026",
+      "createdAtIso": "2026-09-05T17:30:00.000Z"
+    },
+    {
+      "id": 1793758226259,
+      "orderCode": "HKR992153",
+      "userId": 3,
+      "customer": {
+        "name": "Nguyễn Thị Mai",
+        "phone": "0988776655",
+        "address": "12 TDT",
+        "note": ""
+      },
+      "items": [
+        {
+          "userId": 3,
+          "productId": 2,
+          "name": "Jujutsu Kaisen - Chú Thuật Hồi Chiến - Tập 24",
+          "price": 40500,
+          "originalPrice": 45000,
+          "image": "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=600&auto=format&fit=crop&q=80",
+          "categoryName": "Manga - Truyện Tranh",
+          "stock": 29,
+          "quantity": 29,
+          "id": 1
+        }
+      ],
+      "subtotal": 1174500,
+      "discount": 0,
+      "couponCode": "",
+      "total": 1174500,
+      "paymentMethod": "cod",
+      "status": "Đã hoàn thành",
+      "createdAt": "09:10:26 4/11/2026",
+      "createdAtIso": "2026-11-04T02:10:26.262Z"
+    },
+    {
+      "id": 1794358062596,
+      "orderCode": "HKR805725",
+      "userId": 3,
+      "customer": {
+        "name": "Nguyễn Thị Mai",
+        "phone": "0988776655",
+        "address": "12 TDT",
+        "note": ""
+      },
+      "items": [
+        {
+          "userId": 3,
+          "productId": 1,
+          "name": "One Piece - Tập 108: Sinh Mệnh Khởi Động",
+          "price": 34000,
+          "originalPrice": 40000,
+          "image": "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600&auto=format&fit=crop&q=80",
+          "categoryName": "Manga - Truyện Tranh",
+          "stock": 83,
+          "quantity": 1,
+          "id": 1
+        }
+      ],
+      "subtotal": 34000,
+      "discount": 0,
+      "couponCode": "",
+      "total": 64000,
+      "paymentMethod": "momo",
+      "status": "Đã hoàn thành",
+      "createdAt": "07:47:42 11/11/2026",
+      "createdAtIso": "2026-11-11T00:47:42.599Z"
+    },
+    {
+      "id": 1794359042467,
+      "orderCode": "HKR916665",
+      "userId": 3,
+      "customer": {
+        "name": "Nguyễn Thị Mai",
+        "phone": "0988776655",
+        "address": "120 do igibiteo",
+        "note": ""
+      },
+      "items": [
+        {
+          "userId": 3,
+          "productId": 1,
+          "name": "One Piece - Tập 108: Sinh Mệnh Khởi Động",
+          "price": 34000,
+          "originalPrice": 40000,
+          "image": "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600&auto=format&fit=crop&q=80",
+          "categoryName": "Manga - Truyện Tranh",
+          "stock": 82,
+          "quantity": 1,
+          "id": 1
+        }
+      ],
+      "subtotal": 34000,
+      "discount": 0,
+      "couponCode": "",
+      "total": 64000,
+      "paymentMethod": "banking",
+      "status": "Đã hoàn thành",
+      "createdAt": "08:04:02 11/11/2026",
+      "createdAtIso": "2026-11-11T01:04:02.468Z"
+    },
+    {
+      "id": 1794362013911,
+      "orderCode": "HKR443267",
+      "userId": 3,
+      "customer": {
+        "name": "Nguyễn Thị Mai",
+        "phone": "0988776655",
+        "address": "120 do igibiteo",
+        "note": ""
+      },
+      "items": [
+        {
+          "userId": 3,
+          "productId": 11,
+          "name": "Chào Mừng Đến Lớp Học Đề Cao Thực Lực - Năm 2 Tập 8",
+          "price": 77000,
+          "originalPrice": 110000,
+          "image": "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=600&auto=format&fit=crop&q=80",
+          "categoryName": "Light Novel",
+          "stock": 32,
+          "quantity": 1,
+          "id": 1
+        }
+      ],
+      "subtotal": 77000,
+      "discount": 0,
+      "couponCode": "",
+      "total": 107000,
+      "paymentMethod": "banking",
+      "status": "Đã hoàn thành",
+      "createdAt": "08:53:33 11/11/2026",
+      "createdAtIso": "2026-11-11T01:53:33.914Z"
+    },
+    {
+      "id": 1794362077954,
+      "orderCode": "HKR489290",
+      "userId": 3,
+      "customer": {
+        "name": "Nguyễn Thị Mai",
+        "phone": "0988776655",
+        "address": "120 do igibiteo",
+        "note": ""
+      },
+      "items": [
+        {
+          "userId": 3,
+          "productId": 1,
+          "name": "One Piece - Tập 108: Sinh Mệnh Khởi Động",
+          "price": 34000,
+          "originalPrice": 40000,
+          "image": "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600&auto=format&fit=crop&q=80",
+          "categoryName": "Manga - Truyện Tranh",
+          "stock": 81,
+          "quantity": 1,
+          "id": 1
+        }
+      ],
+      "subtotal": 34000,
+      "discount": 0,
+      "couponCode": "",
+      "total": 64000,
+      "paymentMethod": "cod",
+      "status": "Đã hoàn thành",
+      "createdAt": "08:54:37 11/11/2026",
+      "createdAtIso": "2026-11-11T01:54:37.954Z"
+    },
+    {
+      "id": 1794416579054,
+      "orderCode": "HKR516035",
+      "userId": 3,
+      "customer": {
+        "name": "Nguyễn Thị Mai",
+        "phone": "0988776655",
+        "email": "mai@gmail.com",
+        "address": "12 TDT",
+        "note": ""
+      },
+      "items": [
+        {
+          "userId": 3,
+          "productId": 3,
+          "name": "SPY x FAMILY - Tập 12",
+          "price": 37800,
+          "originalPrice": 42000,
+          "image": "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=600&auto=format&fit=crop&q=80",
+          "categoryName": "Manga - Truyện Tranh",
+          "stock": 56,
+          "quantity": 1,
+          "id": 1
+        }
+      ],
+      "subtotal": 37800,
+      "shippingFee": 30000,
+      "discount": 0,
+      "couponCode": "",
+      "total": 67800,
+      "paymentMethod": "banking",
+      "paymentStatus": "Đã thanh toán",
+      "status": "Đã hoàn thành",
+      "trackingCode": "VD-HKR516035",
+      "createdAt": "00:02:59 12/11/2026",
+      "createdAtIso": "2026-11-11T17:02:59.057Z",
+      "confirmedAt": "2026-11-11T17:03:32.925Z",
+      "shippedAt": "2026-11-11T17:03:46.661Z",
+      "completedAt": "2026-11-11T17:04:04.950Z"
+    },
+    {
+      "id": 1794417002895,
+      "orderCode": "HKR292952",
+      "userId": 3,
+      "customer": {
+        "name": "Nguyễn Thị Mai",
+        "phone": "0988776655",
+        "email": "mai@gmail.com",
+        "address": "120 do igibiteo",
+        "note": ""
+      },
+      "items": [
+        {
+          "userId": 3,
+          "productId": 3,
+          "name": "SPY x FAMILY - Tập 12",
+          "price": 37800,
+          "originalPrice": 42000,
+          "image": "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=600&auto=format&fit=crop&q=80",
+          "categoryName": "Manga - Truyện Tranh",
+          "stock": 55,
+          "quantity": 1,
+          "id": 1
+        }
+      ],
+      "subtotal": 37800,
+      "shippingFee": 30000,
+      "discount": 0,
+      "couponCode": "",
+      "total": 67800,
+      "paymentMethod": "cod",
+      "paymentStatus": "Chưa thanh toán (COD)",
+      "status": "Đã hoàn thành",
+      "trackingCode": "VD-HKR292952",
+      "createdAt": "00:10:02 12/11/2026",
+      "createdAtIso": "2026-11-11T17:10:02.895Z",
+      "confirmedAt": "2026-11-11T17:10:20.546Z",
+      "shippedAt": "2026-11-11T17:10:31.450Z",
+      "completedAt": "2026-11-11T17:11:15.724Z"
+    },
+    {
+      "id": 1794417098015,
+      "orderCode": "HKR944419",
+      "userId": 3,
+      "customer": {
+        "name": "Nguyễn Thị Mai",
+        "phone": "0988776655",
+        "email": "mai@gmail.com",
+        "address": "120 do igibiteo",
+        "note": ""
+      },
+      "items": [
+        {
+          "userId": 3,
+          "productId": 3,
+          "name": "SPY x FAMILY - Tập 12",
+          "price": 37800,
+          "originalPrice": 42000,
+          "image": "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=600&auto=format&fit=crop&q=80",
+          "categoryName": "Manga - Truyện Tranh",
+          "stock": 54,
+          "quantity": 1,
+          "id": 1
+        }
+      ],
+      "subtotal": 37800,
+      "shippingFee": 30000,
+      "discount": 0,
+      "couponCode": "",
+      "total": 67800,
+      "paymentMethod": "cod",
+      "paymentStatus": "Chưa thanh toán (COD)",
+      "status": "Đã hủy",
+      "trackingCode": "",
+      "createdAt": "00:11:38 12/11/2026",
+      "createdAtIso": "2026-11-11T17:11:38.015Z",
+      "confirmedAt": "2026-11-11T17:11:54.084Z",
+      "cancelledAt": "2026-11-11T17:11:59.092Z",
+      "cancelReason": "Khách hàng hủy đơn COD trước khi giao hàng"
+    }
+  ],
+  "carts": []
+}

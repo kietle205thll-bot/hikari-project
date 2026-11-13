@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng Nhập - Hikari BookStore</title>
+  <meta name="description" content="Đăng nhập tài khoản độc giả Hikari BookStore để mua sách, theo dõi đơn hàng và nhận nhiều ưu đãi độc quyền.">
+
+  <!-- CSS STYLESHEETS -->
+  <link rel="stylesheet" href="./css/reset.css">
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/auth.css">
+  <link rel="stylesheet" href="./css/responsive.css">
+
+  <!-- Import Map cho Axios -->
+  <script type="importmap">
+  {
+    "imports": {
+      "axios": "https://esm.sh/axios@1.7.9"
+    }
+  }
+  </script>
+</head>
+<body class="auth-body">
+
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <!-- HEADER CARD -->
+      <div class="auth-header">
+        <a href="index.html" class="auth-logo">
+          <div class="logo-icon">📖</div>
+          <div>Hikari<span>Books</span></div>
+        </a>
+        <h1 class="auth-title">Đăng Nhập</h1>
+        <p class="auth-subtitle">Chào mừng bạn quay trở lại với Hikari BookStore!</p>
+      </div>
+
+      <!-- FORM ĐĂNG NHẬP -->
+      <form id="loginForm" class="auth-form" novalidate>
+        <!-- TÀI KHOẢN / EMAIL -->
+        <div class="form-group">
+          <label for="usernameInput" class="form-label">Email hoặc Tên đăng nhập *</label>
+          <div class="input-wrapper">
+            <span class="input-icon">👤</span>
+            <input 
+              type="text" 
+              id="usernameInput" 
+              class="form-input" 
+              placeholder="Nhập email hoặc tên tài khoản"
+              autocomplete="username"
+            />
+          </div>
+          <span class="error-msg" id="usernameError"></span>
+        </div>
+
+        <!-- MẬT KHẨU -->
+        <div class="form-group">
+          <label for="passwordInput" class="form-label">Mật khẩu *</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input 
+              type="password" 
+              id="passwordInput" 
+              class="form-input" 
+              placeholder="Nhập mật khẩu của bạn"
+              autocomplete="current-password"
+            />
+          </div>
+          <span class="error-msg" id="passwordError"></span>
+        </div>
+
+        <!-- TÙY CHỌN GHI NHỚ -->
+        <div class="form-options">
+          <label class="remember-label">
+            <input type="checkbox" id="rememberMe" checked />
+            <span>Ghi nhớ đăng nhập</span>
+          </label>
+          <a href="#" class="forgot-link" id="forgotPwdLink">Quên mật khẩu?</a>
+        </div>
+
+        <!-- NÚT ĐĂNG NHẬP -->
+        <button type="submit" id="loginSubmitBtn" class="btn-auth-submit">
+          Đăng Nhập
+        </button>
+      </form>
+
+      <!-- CHUYỂN ĐỔI SANG ĐĂNG KÝ -->
+      <div class="auth-switch">
+        Chưa có tài khoản độc giả? 
+        <a href="register.html">Đăng ký ngay</a>
+      </div>
+
+      <!-- QUAY VỀ TRANG CHỦ -->
+      <div style="text-align: center;">
+        <a href="index.html" class="back-home-link">
+          ← Quay về trang chủ
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL QUÊN MẬT KHẨU -->
+  <div id="forgotPasswordModal" class="modal-overlay">
+    <div class="forgot-card">
+      <button type="button" class="modal-close-btn" id="btnCloseForgotModal" title="Đóng">&times;</button>
+      
+      <!-- BƯỚC 1: NHẬP EMAIL -->
+      <div id="forgotStep1">
+        <div style="text-align: center; margin-bottom: 1.5rem;">
+          <div style="font-size: 2.5rem; margin-bottom: 0.25rem;">🔑</div>
+          <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--dark);">Quên Mật Khẩu?</h2>
+          <p style="font-size: 0.875rem; color: var(--gray-600); margin-top: 0.25rem;">
+            Nhập email tài khoản của bạn để nhận mã xác thực ngẫu nhiên đặt lại mật khẩu.
+          </p>
+        </div>
+
+        <form id="forgotStep1Form" novalidate>
+          <div class="form-group">
+            <label for="forgotEmailInput" class="form-label">Email tài khoản *</label>
+            <div class="input-wrapper">
+              <span class="input-icon">✉️</span>
+              <input 
+                type="email" 
+                id="forgotEmailInput" 
+                class="form-input" 
+                placeholder="Ví dụ: an@gmail.com"
+                required
+              />
+            </div>
+            <span class="error-msg" id="forgotEmailError"></span>
+          </div>
+
+          <button type="submit" id="btnSendResetCode" class="btn-auth-submit" style="margin-top: 1rem;">
+            📩 Gửi Mã Xác Thực (OTP)
+          </button>
+        </form>
+      </div>
+
+      <!-- BƯỚC 2: NHẬP MÃ 6 SỐ (HẠN 60 GIÂY) -->
+      <div id="forgotStep2" style="display: none;">
+        <div style="text-align: center; margin-bottom: 1.25rem;">
+          <div style="font-size: 2.2rem; margin-bottom: 0.25rem;">⏳</div>
+          <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--dark);">Nhập Mã Xác Thực OTP</h2>
+          <p style="font-size: 0.85rem; color: var(--gray-600);">
+            Mã ngẫu nhiên 6 số đã gửi tới: <strong id="targetEmailDisplay" style="color: var(--primary);"></strong>
+          </p>
+        </div>
+
+        <!-- HỘP ĐẾM NGƯỢC 60S -->
+        <div class="countdown-box" id="countdownBox">
+          <div>
+            <span>⏱️ Hiệu lực mã:</span>
+            <strong id="countdownText" style="font-size: 1.1rem; color: var(--primary); margin-left: 0.25rem;">60s</strong>
+          </div>
+          <button type="button" id="btnResendCode" style="background: none; border: none; color: var(--primary); font-size: 0.85rem; font-weight: 700; cursor: pointer; text-decoration: underline;" disabled>
+            Gửi lại mã
+          </button>
+        </div>
+
+        <form id="forgotStep2Form" novalidate>
+          <!-- MÃ RANDOM 6 SỐ -->
+          <div class="form-group">
+            <label for="resetCodeInput" class="form-label">Mã xác thực (6 chữ số) *</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🔢</span>
+              <input 
+                type="text" 
+                id="resetCodeInput" 
+                class="form-input" 
+                placeholder="Nhập mã 6 số (VD: 849201)" 
+                maxlength="6"
+                required
+              />
+            </div>
+            <span class="error-msg" id="resetCodeError"></span>
+          </div>
+
+          <button type="submit" id="btnVerifyOtp" class="btn-auth-submit" style="margin-top: 1rem;">
+            ✓ Xác Thực Mã OTP ➔
+          </button>
+        </form>
+      </div>
+
+      <!-- BƯỚC 2B: THIẾT LẬP MẬT KHẨU MỚI (ĐÃ DỪNG ĐẾM NGƯỢC OTP) -->
+      <div id="forgotStepNewPass" style="display: none;">
+        <div style="text-align: center; margin-bottom: 1.25rem;">
+          <div style="font-size: 2.2rem; margin-bottom: 0.25rem;">🔑</div>
+          <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--dark);">Thiết Lập Mật Khẩu Mới</h2>
+          <div style="display: inline-flex; align-items: center; gap: 6px; background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-top: 0.25rem;">
+            <span>✓</span> Mã OTP đã xác thực thành công
+          </div>
+        </div>
+
+        <form id="forgotNewPassForm" novalidate>
+          <!-- MẬT KHẨU MỚI -->
+          <div class="form-group">
+            <label for="newPasswordInput" class="form-label">Mật khẩu mới *</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🔒</span>
+              <input 
+                type="password" 
+                id="newPasswordInput" 
+                class="form-input" 
+                placeholder="Tối thiểu 8 ký tự (hoa, thường, số, ký tự @...)" 
+                required
+              />
+            </div>
+            <span class="error-msg" id="newPasswordError"></span>
+          </div>
+
+          <!-- XÁC NHẬN MẬT KHẨU MỚI -->
+          <div class="form-group">
+            <label for="confirmNewPasswordInput" class="form-label">Xác nhận mật khẩu mới *</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🔑</span>
+              <input 
+                type="password" 
+                id="confirmNewPasswordInput" 
+                class="form-input" 
+                placeholder="Nhập lại mật khẩu mới" 
+                required
+              />
+            </div>
+            <span class="error-msg" id="confirmNewPasswordError"></span>
+          </div>
+
+          <button type="submit" id="btnSubmitNewPassword" class="btn-auth-submit" style="margin-top: 1rem;">
+            🔒 Cập Nhật Mật Khẩu Mới
+          </button>
+        </form>
+      </div>
+
+      <!-- BƯỚC 3: THÀNH CÔNG -->
+      <div id="forgotStep3" style="display: none; text-align: center; padding: 1rem 0;">
+        <div style="font-size: 3.5rem; margin-bottom: 0.5rem;">🎉</div>
+        <h2 style="font-size: 1.4rem; font-weight: 800; color: #166534; margin-bottom: 0.5rem;">Đổi Mật Khẩu Thành Công!</h2>
+        <p style="font-size: 0.9rem; color: var(--gray-600); margin-bottom: 1.5rem; line-height: 1.5;">
+          Mật khẩu mới đã được cập nhật trực tiếp vào hệ thống CSDL. Bạn có thể đăng nhập ngay bây giờ.
+        </p>
+        <button type="button" id="btnGoToLogin" class="btn-auth-submit">
+          🔐 Đăng Nhập Ngay
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/login.js"></script>
+</body>
+</html>

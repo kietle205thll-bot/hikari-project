@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giỏ Hàng - Hikari BookStore</title>
+  <meta name="description" content="Quản lý giỏ hàng, cập nhật số lượng sách và tiến hành đặt hàng trực tuyến tại Hikari BookStore.">
+
+  <!-- CSS STYLESHEETS -->
+  <link rel="stylesheet" href="./css/reset.css">
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/auth.css">
+  <link rel="stylesheet" href="./css/cart.css">
+  <link rel="stylesheet" href="./css/responsive.css">
+
+  <!-- Import Map cho Axios -->
+  <script type="importmap">
+  {
+    "imports": {
+      "axios": "https://esm.sh/axios@1.7.9"
+    }
+  }
+  </script>
+
+  <!-- Thư viện xuất hóa đơn PDF chuyên nghiệp -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+  <!-- 1. THANH THÔNG BÁO TRÊN CÙNG -->
+  <div class="top-bar">
+    <div class="container top-bar-content">
+      <div class="top-bar-left">
+        <span>🚀 <strong>Miễn phí vận chuyển</strong> cho đơn hàng từ 250.000đ</span>
+        <span>✨ <strong>100% Sách Thật</strong> có bản quyền</span>
+      </div>
+      <div class="top-bar-right">
+        <span>📞 Hotline: 1900 6868</span>
+        <a href="index.html#about">Về Hikari</a>
+        <a href="index.html#contact">Hỗ trợ</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. THANH ĐIỀU HƯỚNG HEADER -->
+  <header class="header">
+    <div class="container header-content">
+      <!-- LOGO -->
+      <a href="index.html" class="logo">
+        <div class="logo-icon">📖</div>
+        <div class="logo-text">Hikari<span>Books</span></div>
+      </a>
+
+      <!-- ĐIỀU HƯỚNG & USER -->
+      <div class="header-actions" style="margin-left: auto;">
+        <a href="products.html" class="nav-link">Tất cả sách</a>
+        <div id="userGreeting">
+          <div class="auth-links">
+            <a href="login.html" class="nav-link">Đăng nhập</a>
+            <a href="register.html" class="btn-register-header">Đăng ký</a>
+          </div>
+        </div>
+        <a href="cart.html" class="cart-btn" id="headerCartBtn" title="Xem giỏ hàng">
+          🛒
+          <span class="cart-count" id="cartCount">0</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- TẦNG 2: THANH MENU VỚI NÚT DANH MỤC XỔ XUỐNG & CÁC LỐI TẮT -->
+    <nav class="main-nav-bar">
+      <div class="container main-nav-container">
+        
+        <!-- NÚT BẤM DANH MỤC SẢN PHẨM (DROPDOWN) -->
+        <div class="cat-dropdown-wrapper" id="catDropdownWrapper">
+          <button class="cat-dropdown-btn" id="catDropdownBtn" type="button" aria-expanded="false" title="Xem danh mục sách">
+            <span class="cat-dropdown-burger">☰</span>
+            <span class="cat-dropdown-label">Danh Mục Sản Phẩm</span>
+            <span class="cat-dropdown-arrow">▾</span>
+          </button>
+          
+          <!-- MENU XỔ XUỐNG KHI BẤM HOẶC HOVER -->
+          <div class="cat-dropdown-menu" id="catDropdownMenu">
+            <a href="products.html" class="cat-dropdown-item">
+              <span class="cat-item-icon">📚</span>
+              <div class="cat-item-text">
+                <span class="cat-item-title">Tất Cả Tác Phẩm</span>
+                <span class="cat-item-sub">Khám phá hơn 100+ tựa sách bản quyền</span>
+              </div>
+            </a>
+            <a href="products.html?cat=1" class="cat-dropdown-item">
+              <span class="cat-item-icon">📖</span>
+              <div class="cat-item-text">
+                <span class="cat-item-title">Manga - Truyện Tranh</span>
+                <span class="cat-item-sub">One Piece, Conan, Jujutsu Kaisen, Kim Đồng...</span>
+              </div>
+            </a>
+            <a href="products.html?cat=2" class="cat-dropdown-item">
+              <span class="cat-item-icon">✨</span>
+              <div class="cat-item-text">
+                <span class="cat-item-title">Light Novel Bản Quyền</span>
+                <span class="cat-item-sub">Thế giới Isekai, Kỳ ảo & quà tặng Postcard</span>
+              </div>
+            </a>
+            <a href="products.html?cat=3" class="cat-dropdown-item">
+              <span class="cat-item-icon">📕</span>
+              <div class="cat-item-text">
+                <span class="cat-item-title">Tiểu Thuyết & Sách</span>
+                <span class="cat-item-sub">Tác phẩm kinh điển, lãng mạn & văn học Nhật</span>
+              </div>
+            </a>
+            <a href="products.html?cat=4" class="cat-dropdown-item">
+              <span class="cat-item-icon">💡</span>
+              <div class="cat-item-text">
+                <span class="cat-item-title">Sách Kỹ Năng & Tư Duy</span>
+                <span class="cat-item-sub">Phát triển bản thân, bài học cuộc sống</span>
+              </div>
+            </a>
+            <a href="products.html?cat=5" class="cat-dropdown-item">
+              <span class="cat-item-icon">🎨</span>
+              <div class="cat-item-text">
+                <span class="cat-item-title">Artbook & Quà Tặng</span>
+                <span class="cat-item-sub">Tuyển tập tranh minh họa, poster độc quyền</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- CÁC LỐI TẮT ĐIỀU HƯỚNG NHANH -->
+        <ul class="nav-shortcuts">
+          <li>
+            <a href="index.html#flashSaleSection" class="nav-shortcut-link nav-shortcut-flash">
+              <span class="shortcut-icon">⚡</span> Flash Sale
+            </a>
+          </li>
+          <li>
+            <a href="index.html#bestSellersSection" class="nav-shortcut-link nav-shortcut-hot">
+              <span class="shortcut-icon">🔥</span> Bán Chạy Nhất
+            </a>
+          </li>
+          <li>
+            <a href="index.html#newArrivalsSection" class="nav-shortcut-link nav-shortcut-new">
+              <span class="shortcut-icon">✨</span> Hàng Mới Về
+            </a>
+          </li>
+          <li>
+            <a href="products.html" class="nav-shortcut-link">
+              <span class="shortcut-icon">📚</span> Kệ Sách Đầy Đủ
+            </a>
+          </li>
+        </ul>
+
+      </div>
+    </nav>
+  </header>
+
+  <!-- 3. KHU VỰC NỘI DUNG GIỎ HÀNG -->
+  <main class="container cart-page-wrap">
+    <!-- BREADCRUMB -->
+    <nav class="breadcrumb">
+      <a href="index.html">Trang chủ</a>
+      <span class="breadcrumb-separator">/</span>
+      <span class="breadcrumb-current">Giỏ hàng của bạn</span>
+    </nav>
+
+    <div class="cart-title-row">
+      <h1 class="cart-page-title">
+        <span>🛒</span> Giỏ Hàng Của Bạn
+      </h1>
+      <span style="font-size: 0.9375rem; color: var(--gray-600);">
+        Hỗ trợ bọc sách Plastic miễn phí cho mọi đơn hàng
+      </span>
+    </div>
+
+    <!-- KHỐI CHỨA NỘI DUNG GIỎ HÀNG (RENDER BỞI JAVASCRIPT) -->
+    <div id="cartContent">
+      <!-- Sẽ được file cart.js render động từ LocalStorage -->
+    </div>
+    <script>
+      // Hướng dẫn nếu người dùng vô tình mở trực tiếp bằng file:/// thay vì qua localhost Vite
+      if (window.location.protocol === 'file:') {
+        document.addEventListener('DOMContentLoaded', function() {
+          var el = document.getElementById('cartContent');
+          if (el && !el.innerHTML.includes('cart-layout') && !el.innerHTML.includes('empty-state')) {
+            el.innerHTML = '<div style="background: #fffbeb; color: #92400e; padding: 2rem; border-radius: 12px; border: 2px dashed #fcd34d; text-align: center; margin: 2rem 0; font-family: sans-serif;">' +
+              '<div style="font-size: 2.5rem; margin-bottom: 0.5rem;">⚠️</div>' +
+              '<h2 style="font-size: 1.35rem; margin-bottom: 0.75rem; color: #b45309; font-weight: 800;">Cần Mở Qua Máy Chủ Localhost (Vite)</h2>' +
+              '<p style="font-size: 0.95rem; line-height: 1.6; max-width: 650px; margin: 0 auto 1.25rem; color: #78350f;">' +
+              'Bạn đang mở file trực tiếp bằng giao thức <code>file:///</code>. Trình duyệt hiện đại chặn nạp module JavaScript (CORS) khi không qua HTTP server.<br>' +
+              'Vui lòng truy cập giỏ hàng qua đường dẫn máy chủ Vite đang chạy:' +
+              '</p>' +
+              '<a href="http://localhost:5173/cart.html" style="display: inline-block; background: #e11d48; color: #fff; font-weight: bold; padding: 0.85rem 1.75rem; border-radius: 8px; text-decoration: none; font-size: 1.05rem; box-shadow: 0 4px 12px rgba(225,29,72,0.3);">' +
+              '🚀 Mở http://localhost:5173/cart.html' +
+              '</a>' +
+              '</div>';
+          }
+        });
+      }
+    </script>
+  </main>
+
+  <!-- 4. MODAL THANH TOÁN / ĐẶT HÀNG MÔ PHỎNG -->
+  <div class="modal-overlay" id="checkoutModal">
+    <div class="modal-box">
+      <button class="modal-close" id="closeCheckoutModal">✕</button>
+      <h3 style="font-size: 1.35rem; font-weight: 800; margin-bottom: 0.35rem;">
+        📦 Thông Tin Giao Hàng
+      </h3>
+      <p style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: 1.5rem;">
+        Vui lòng điền thông tin để Hikari BookStore tiến hành đóng gói & giao sách.
+      </p>
+
+      <form id="checkoutForm" class="auth-form" novalidate>
+        <div class="form-group">
+          <label for="orderName" class="form-label">Họ và tên người nhận *</label>
+          <input type="text" id="orderName" class="form-input" placeholder="Nguyễn Văn A" style="padding-left: 1rem;" />
+          <span class="error-msg" id="orderNameError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="orderPhone" class="form-label">Số điện thoại liên hệ * <span style="font-weight: 500; color: #64748b; font-size: 0.78rem;">(Đúng 10 số, đầu 03/05/07/08/09)</span></label>
+          <input type="tel" id="orderPhone" class="form-input" maxlength="10" inputmode="numeric" placeholder="VD: 0912345678" style="padding-left: 1rem;" />
+          <span class="error-msg" id="orderPhoneError"></span>
+        </div>
+
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem; gap: 0.5rem; flex-wrap: wrap;">
+            <label for="orderStreet" class="form-label" style="margin-bottom: 0;">Địa chỉ nhận hàng chi tiết *</label>
+            <span id="addressSourceBadge" style="display: none; font-size: 0.72rem; background: #e0e7ff; color: #4338ca; padding: 2px 8px; border-radius: 4px; font-weight: 700;">
+              🏠 Đã điền từ địa chỉ mặc định
+            </span>
+          </div>
+
+          <input type="text" id="orderStreet" class="form-input" placeholder="Số nhà, tên đường (VD: 123 Đường Nguyễn Huệ)" style="padding-left: 1rem;" />
+          <span class="error-msg" id="orderStreetError"></span>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; margin-top: 0.65rem;">
+            <div>
+              <label for="orderWard" class="form-label" style="font-size: 0.8rem;">Phường / Xã *</label>
+              <input type="text" id="orderWard" class="form-input" placeholder="VD: Phường Bến Nghé" style="padding-left: 0.85rem;" />
+              <span class="error-msg" id="orderWardError"></span>
+            </div>
+            <div>
+              <label for="orderDistrict" class="form-label" style="font-size: 0.8rem;">Quận / Huyện *</label>
+              <input type="text" id="orderDistrict" class="form-input" placeholder="VD: Quận 1" style="padding-left: 0.85rem;" />
+              <span class="error-msg" id="orderDistrictError"></span>
+            </div>
+          </div>
+
+          <div style="margin-top: 0.65rem;">
+            <label for="orderCity" class="form-label" style="font-size: 0.8rem;">Tỉnh / Thành phố *</label>
+            <input type="text" id="orderCity" class="form-input" placeholder="VD: TP. Hồ Chí Minh" style="padding-left: 0.85rem;" />
+            <span class="error-msg" id="orderCityError"></span>
+          </div>
+          
+          <div style="margin-top: 0.55rem; display: flex; align-items: center; gap: 0.45rem;">
+            <input type="checkbox" id="chkSaveNewAddressAsDefault" style="width: 15px; height: 15px; cursor: pointer;" />
+            <label for="chkSaveNewAddressAsDefault" style="font-size: 0.78rem; color: var(--gray-600); cursor: pointer; user-select: none;">
+              Đặt địa chỉ này làm địa chỉ nhận hàng mặc định mới cho tài khoản
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="paymentMethod" class="form-label">Phương thức thanh toán</label>
+          <select id="paymentMethod" class="form-input" style="padding-left: 1rem; cursor: pointer;">
+            <option value="cod">💵 Thanh toán khi nhận hàng (COD)</option>
+            <option value="banking">💳 Chuyển khoản Ngân hàng / Ví MoMo (QR Mô Phỏng)</option>
+          </select>
+        </div>
+
+        <!-- KHUNG MÔ PHỎNG THANH TOÁN QR AN TOÀN (TEST SIMULATION) -->
+        <div id="qrSimulationBox" style="display: none; margin-top: 0.75rem; padding: 1rem; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.65rem;">
+            <strong style="font-size: 0.88rem; color: #0f172a; display: flex; align-items: center; gap: 0.35rem;">
+              <span id="qrMethodIcon">💳</span> <span id="qrMethodTitle">Mã Thanh Toán VietQR / Ví MoMo (Mô Phỏng)</span>
+            </strong>
+            <span style="font-size: 0.72rem; background: #e0f2fe; color: #0369a1; padding: 2px 7px; border-radius: 4px; font-weight: 700;">
+              Môi Trường Test
+            </span>
+          </div>
+
+          <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <!-- Ảnh QR SVG đẹp mắt -->
+            <div style="width: 120px; height: 120px; background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 4px;" id="qrImageContainer">
+              <svg width="110" height="110" viewBox="0 0 100 100" style="display: block;">
+                <rect width="100" height="100" fill="#ffffff" />
+                <rect x="5" y="5" width="28" height="28" fill="#0f172a" />
+                <rect x="9" y="9" width="20" height="20" fill="#ffffff" />
+                <rect x="13" y="13" width="12" height="12" fill="#0f172a" />
+                
+                <rect x="67" y="5" width="28" height="28" fill="#0f172a" />
+                <rect x="71" y="9" width="20" height="20" fill="#ffffff" />
+                <rect x="75" y="13" width="12" height="12" fill="#0f172a" />
+                
+                <rect x="5" y="67" width="28" height="28" fill="#0f172a" />
+                <rect x="9" y="71" width="20" height="20" fill="#ffffff" />
+                <rect x="13" y="75" width="12" height="12" fill="#0f172a" />
+                
+                <rect x="38" y="10" width="6" height="6" fill="#0f172a" />
+                <rect x="48" y="10" width="6" height="6" fill="#0f172a" />
+                <rect x="38" y="22" width="6" height="6" fill="#0f172a" />
+                <rect x="54" y="22" width="6" height="6" fill="#0f172a" />
+                <rect x="10" y="38" width="6" height="6" fill="#0f172a" />
+                <rect x="22" y="38" width="6" height="6" fill="#0f172a" />
+                <rect x="38" y="38" width="24" height="24" fill="#e11d48" rx="4" />
+                <text x="50" y="53" font-size="9" font-weight="900" fill="#ffffff" text-anchor="middle">DEMO</text>
+                
+                <rect x="68" y="38" width="6" height="6" fill="#0f172a" />
+                <rect x="80" y="38" width="6" height="6" fill="#0f172a" />
+                <rect x="38" y="68" width="6" height="6" fill="#0f172a" />
+                <rect x="50" y="68" width="6" height="6" fill="#0f172a" />
+                <rect x="68" y="68" width="6" height="6" fill="#0f172a" />
+                <rect x="80" y="68" width="6" height="6" fill="#0f172a" />
+                <rect x="38" y="80" width="6" height="6" fill="#0f172a" />
+                <rect x="54" y="80" width="6" height="6" fill="#0f172a" />
+                <rect x="68" y="80" width="6" height="6" fill="#0f172a" />
+                <rect x="84" y="80" width="6" height="6" fill="#0f172a" />
+              </svg>
+            </div>
+
+            <!-- Chi tiết chuyển khoản -->
+            <div style="flex: 1; min-width: 170px; font-size: 0.8rem; color: #334155; line-height: 1.55;">
+              <div>Kênh hỗ trợ: <strong id="qrBankName">VietQR (MBBank Demo) &amp; Ví MoMo</strong></div>
+              <div>Chủ tài khoản: <strong>HIKARI BOOKSTORE DEMO</strong></div>
+              <div>Số tiền: <strong style="color: #e11d48; font-size: 0.95rem;" id="qrAmountDisplay">0 ₫</strong></div>
+              <div>Nội dung CK: <strong style="background: #fef08a; padding: 1px 6px; border-radius: 4px;" id="qrContentDisplay">HKR...</strong></div>
+            </div>
+          </div>
+
+          <div style="margin-top: 0.75rem; padding: 0.5rem; background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; font-size: 0.73rem; color: #b45309; display: flex; align-items: center; gap: 0.35rem;">
+            <span>⚠️</span>
+            <span><strong>Cảnh báo an toàn:</strong> Đây là môi trường giả lập kiểm thử đồ án. Vui lòng không thực hiện chuyển tiền thật!</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="orderNote" class="form-label">Ghi chú (Tùy chọn)</label>
+          <input type="text" id="orderNote" class="form-input" placeholder="Ví dụ: Giao giờ hành chính, bọc màng cẩn thận..." style="padding-left: 1rem;" />
+        </div>
+
+        <button type="submit" id="btnConfirmOrder" class="btn-checkout" style="margin-top: 0.75rem;">
+          ✓ Xác Nhận Đặt Hàng
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL YÊU CẦU ĐĂNG NHẬP TRƯỚC KHI ĐẶT HÀNG (KHÓA NGHIỆP VỤ) -->
+  <div class="modal-overlay" id="requireLoginModal">
+    <div class="modal-box" style="text-align: center; max-width: 440px; padding: 2rem 1.75rem;">
+      <button class="modal-close" id="closeRequireLoginModal">✕</button>
+      <div style="font-size: 3rem; margin-bottom: 0.5rem; line-height: 1;">🔐</div>
+      <h3 style="font-size: 1.35rem; font-weight: 800; color: var(--dark); margin-bottom: 0.5rem;">
+        Yêu Cầu Đăng Nhập
+      </h3>
+      <p style="font-size: 0.9rem; color: var(--gray-600); line-height: 1.6; margin-bottom: 1.5rem;">
+        Quý khách vui lòng đăng nhập để tiến hành đặt hàng và thanh toán. Bạn có thể đăng nhập hoặc đăng ký tài khoản nhanh chóng chỉ trong 30 giây để tích lũy điểm và theo dõi trạng thái đơn hàng.
+      </p>
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        <a href="login.html?redirect=cart.html" class="btn btn-primary" style="padding: 0.85rem; font-weight: 700; font-size: 1rem; width: 100%; justify-content: center;">
+          🔑 Đăng Nhập Ngay
+        </a>
+        <a href="register.html?redirect=cart.html" class="btn btn-outline" style="padding: 0.75rem; font-weight: 600; font-size: 0.95rem; width: 100%; justify-content: center; border-color: var(--gray-300); color: var(--dark);">
+          ✨ Chưa có tài khoản? Đăng ký (30s)
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h3>Hikari BookStore 📖</h3>
+          <p>
+            Nhà sách chuyên cung cấp Manga, Comic, Light Novel và Tiểu thuyết bản quyền tại Việt Nam. Không gian mua sắm lý tưởng cho cộng đồng yêu truyện tranh.
+          </p>
+          <p><strong>Hotline:</strong> 1900 6868 (8:00 - 21:00)</p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Chính Sách Bán Hàng</h4>
+          <ul class="footer-links">
+            <li><a href="#">Bọc sách plastic miễn phí</a></li>
+            <li><a href="#">Giao hàng 2 giờ nội thành</a></li>
+            <li><a href="#">Đổi trả 7 ngày nếu lỗi in</a></li>
+            <li><a href="#">Cam kết chính hãng 100%</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Hỗ Trợ Khách Hàng</h4>
+          <ul class="footer-links">
+            <li><a href="#">Hướng dẫn mua hàng</a></li>
+            <li><a href="#">Phương thức thanh toán</a></li>
+            <li><a href="#">Chính sách bảo mật</a></li>
+            <li><a href="#">Liên hệ khiếu nại</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col footer-contact">
+          <h4>Văn Phòng Hikari</h4>
+          <ul>
+            <li>📍 123 Đường Sách Nguyễn Huệ, Quận 1, TP.HCM</li>
+            <li>🕒 08:00 - 21:30 hàng ngày</li>
+            <li>📧 support@hikaribooks.vn</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>© 2026 Hikari BookStore. Đồ án JavaScript kết thúc học phần.</div>
+        <div>Mô phỏng website thương mại điện tử bằng JavaScript thuần & ES6+</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPT LOGIC GIỎ HÀNG -->
+  <script type="module" src="./js/cart.js"></script>
+</body>
+</html>

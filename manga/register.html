@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng Ký Tài Khoản - Hikari BookStore</title>
+  <meta name="description" content="Tạo tài khoản thành viên Hikari BookStore để nhận ngay voucher giảm giá cho đơn hàng đầu tiên và tích lũy điểm thưởng.">
+
+  <!-- CSS STYLESHEETS -->
+  <link rel="stylesheet" href="./css/reset.css">
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/auth.css">
+  <link rel="stylesheet" href="./css/responsive.css">
+
+  <!-- Import Map cho Axios -->
+  <script type="importmap">
+  {
+    "imports": {
+      "axios": "https://esm.sh/axios@1.7.9"
+    }
+  }
+  </script>
+</head>
+<body class="auth-body">
+
+  <div class="auth-wrapper">
+    <div class="auth-card" style="max-width: 500px;">
+      <!-- HEADER CARD -->
+      <div class="auth-header">
+        <a href="index.html" class="auth-logo">
+          <div class="logo-icon">📖</div>
+          <div>Hikari<span>Books</span></div>
+        </a>
+        <h1 class="auth-title">Đăng Ký Thành Viên</h1>
+        <p class="auth-subtitle">Trở thành thành viên để nhận ưu đãi và quà tặng manga/light novel độc quyền!</p>
+      </div>
+
+      <!-- BANNER ƯU ĐÃI THÀNH VIÊN MỚI -->
+      <div id="registerWelcomeBanner" style="background: linear-gradient(135deg, #fff1f2, #ffe4e6); border: 1px dashed var(--primary); border-radius: var(--radius-md); padding: 0.85rem 1rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+        <span style="font-size: 1.75rem;">🎁</span>
+        <div>
+          <strong style="color: var(--primary); font-size: 0.95rem;">Quà tặng độc quyền thành viên mới!</strong>
+          <p style="font-size: 0.82rem; color: var(--gray-700); margin: 0.15rem 0 0;">Đăng ký tài khoản nhận ngay mã <strong>WELCOME20</strong> giảm 20% cho đơn hàng đầu tiên.</p>
+        </div>
+      </div>
+
+      <!-- BANNER LƯU Ý KHI ĐĂNG KÝ NHÂN VIÊN -->
+      <div id="staffRegisterNotice" style="display: none; background: #eff6ff; border: 1px dashed #3b82f6; border-radius: var(--radius-md); padding: 0.85rem 1rem; margin-bottom: 1.5rem; align-items: center; gap: 0.75rem;">
+        <span style="font-size: 1.65rem;">💼</span>
+        <div>
+          <strong style="color: #1d4ed8; font-size: 0.95rem;">Đăng ký tài khoản Nhân viên (Staff)</strong>
+          <p style="font-size: 0.82rem; color: #1e40af; margin: 0.15rem 0 0;">Yêu cầu đăng ký sẽ ở trạng thái <strong>Chờ duyệt</strong>. Chỉ khi Quản trị viên (Admin) phê duyệt bạn mới đăng nhập được vào trang quản trị.</p>
+        </div>
+      </div>
+
+      <!-- FORM ĐĂNG KÝ -->
+      <form id="registerForm" class="auth-form" novalidate>
+        <!-- CHỌN VAI TRÒ ĐĂNG KÝ -->
+        <div class="form-group">
+          <label class="form-label">Loại tài khoản đăng ký *</label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+            <label style="display: flex; align-items: center; gap: 0.55rem; padding: 0.7rem 0.85rem; border: 1.5px solid #e2e8f0; border-radius: var(--radius-md); cursor: pointer; background: #fff; font-size: 0.88rem;">
+              <input type="radio" name="accountRole" value="customer" checked style="accent-color: var(--primary); width: 16px; height: 16px;" />
+              <div>
+                <div style="font-weight: 700; color: #0f172a;">🛍️ Khách hàng</div>
+                <div style="font-size: 0.75rem; color: #64748b;">Mua sách &amp; nhận ưu đãi</div>
+              </div>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.55rem; padding: 0.7rem 0.85rem; border: 1.5px solid #e2e8f0; border-radius: var(--radius-md); cursor: pointer; background: #fff; font-size: 0.88rem;">
+              <input type="radio" name="accountRole" value="staff" style="accent-color: var(--primary); width: 16px; height: 16px;" />
+              <div>
+                <div style="font-weight: 700; color: #0f172a;">💼 Nhân viên</div>
+                <div style="font-size: 0.75rem; color: #64748b;">Chờ Admin phê duyệt</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- HỌ VÀ TÊN -->
+        <div class="form-group">
+          <label for="nameInput" class="form-label">Họ và tên *</label>
+          <div class="input-wrapper">
+            <span class="input-icon">👤</span>
+            <input 
+              type="text" 
+              id="nameInput" 
+              class="form-input" 
+              placeholder="Ví dụ: Nguyễn Văn An"
+              autocomplete="name"
+            />
+          </div>
+          <span class="error-msg" id="nameError"></span>
+        </div>
+
+        <!-- EMAIL -->
+        <div class="form-group">
+          <label for="emailInput" class="form-label">Địa chỉ Email *</label>
+          <div class="input-wrapper">
+            <span class="input-icon">✉️</span>
+            <input 
+              type="email" 
+              id="emailInput" 
+              class="form-input" 
+              placeholder="Ví dụ: an.nguyen@gmail.com"
+              autocomplete="email"
+            />
+          </div>
+          <span class="error-msg" id="emailError"></span>
+        </div>
+
+        <!-- SỐ ĐIỆN THOẠI -->
+        <div class="form-group">
+          <label for="phoneInput" class="form-label">Số điện thoại *</label>
+          <div class="input-wrapper">
+            <span class="input-icon">📱</span>
+            <input 
+              type="tel" 
+              id="phoneInput" 
+              class="form-input" 
+              placeholder="Ví dụ: 0912345678"
+              autocomplete="tel"
+            />
+          </div>
+          <span class="error-msg" id="phoneError"></span>
+        </div>
+
+        <!-- NGÀY SINH (ĐỂ NHẬN ƯU ĐÃI SINH NHẬT) -->
+        <div class="form-group">
+          <label for="birthdayInput" class="form-label">
+            Ngày sinh của bạn 🎂 <span style="font-size: 0.8rem; color: var(--primary); font-weight: 500;">(Tặng voucher giảm 35% vào tháng sinh)</span>
+          </label>
+          <div class="input-wrapper">
+            <span class="input-icon">📅</span>
+            <input 
+              type="date" 
+              id="birthdayInput" 
+              class="form-input" 
+              value="2000-10-15"
+            />
+          </div>
+          <span class="error-msg" id="birthdayError"></span>
+        </div>
+
+        <!-- MẬT KHẨU -->
+        <div class="form-group">
+          <label for="passwordInput" class="form-label">Mật khẩu *</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input 
+              type="password" 
+              id="passwordInput" 
+              class="form-input" 
+              placeholder="Tối thiểu 8 ký tự (hoa, thường, số, ký tự @...)"
+              autocomplete="new-password"
+            />
+          </div>
+          <span class="error-msg" id="passwordError"></span>
+        </div>
+
+        <!-- XÁC NHẬN MẬT KHẨU -->
+        <div class="form-group">
+          <label for="confirmPasswordInput" class="form-label">Xác nhận mật khẩu *</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔑</span>
+            <input 
+              type="password" 
+              id="confirmPasswordInput" 
+              class="form-input" 
+              placeholder="Nhập lại mật khẩu"
+              autocomplete="new-password"
+            />
+          </div>
+          <span class="error-msg" id="confirmPasswordError"></span>
+        </div>
+
+        <!-- ĐIỀU KHOẢN -->
+        <div class="form-options">
+          <label class="remember-label">
+            <input type="checkbox" id="agreeTerms" checked />
+            <span>Tôi đồng ý với các điều khoản và chính sách của Hikari BookStore</span>
+          </label>
+        </div>
+
+        <!-- NÚT TẠO TÀI KHOẢN -->
+        <button type="submit" id="registerSubmitBtn" class="btn-auth-submit">
+          Đăng Ký Tài Khoản
+        </button>
+      </form>
+
+      <!-- CHUYỂN ĐỔI SANG ĐĂNG NHẬP -->
+      <div class="auth-switch">
+        Đã có tài khoản? 
+        <a href="login.html">Đăng nhập tại đây</a>
+      </div>
+
+      <!-- QUAY VỀ TRANG CHỦ -->
+      <div style="text-align: center;">
+        <a href="index.html" class="back-home-link">
+          ← Quay về trang chủ
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/register.js"></script>
+</body>
+</html>

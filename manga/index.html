@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hikari BookStore - Thiên Đường Manga & Light Novel Bản Quyền</title>
+  <meta name="description" content="Chuyên cung cấp Manga, Comic, Light Novel và Tiểu thuyết bản quyền với giá ưu đãi, bọc sách plastic miễn phí và giao hàng hỏa tốc.">
+
+  <!-- CSS STYLESHEETS -->
+  <link rel="stylesheet" href="./css/reset.css">
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/auth.css">
+  <link rel="stylesheet" href="./css/responsive.css">
+
+  <!-- Import Map cho Axios - Hoạt động hoàn hảo cả với Vite và Live Server -->
+  <script type="importmap">
+  {
+    "imports": {
+      "axios": "https://esm.sh/axios@1.7.9"
+    }
+  }
+  </script>
+</head>
+<body>
+
+  <!-- 1. THANH THÔNG BÁO TRÊN CÙNG -->
+  <div class="top-bar">
+    <div class="container top-bar-content">
+      <div class="top-bar-left">
+        <span>🚀 <strong>Miễn phí vận chuyển</strong> cho đơn hàng từ 250.000đ</span>
+        <span>✨ <strong>100% Sách Thật</strong> có bản quyền từ các NXB</span>
+      </div>
+      <div class="top-bar-right">
+        <span>📞 Hotline: 1900 6868</span>
+        <a href="#about">Về Hikari</a>
+        <a href="#contact">Hỗ trợ</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. THANH ĐIỀU HƯỚNG HEADER -->
+  <header class="header">
+    <div class="container header-content">
+      <!-- LOGO -->
+      <a href="index.html" class="logo">
+        <div class="logo-icon">📖</div>
+        <div class="logo-text">Hikari<span>Books</span></div>
+      </a>
+
+      <!-- Ô TÌM KIẾM THÔNG MINH -->
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text" 
+          id="searchInput" 
+          class="search-input" 
+          placeholder="Tìm tên sách, manga, light novel, tác giả, NXB..." 
+          autocomplete="off"
+        />
+        <button id="clearSearchBtn" class="search-clear-btn" title="Xóa tìm kiếm">✕</button>
+      </div>
+
+      <!-- CÁC HÀNH ĐỘNG HEADER -->
+      <div class="header-actions">
+        <a href="products.html" class="nav-link">Tất cả sách</a>
+        <div id="userGreeting">
+          <a href="#" class="nav-link" id="loginLink">Đăng nhập</a>
+        </div>
+        <a href="cart.html" class="cart-btn" id="headerCartBtn" title="Xem giỏ hàng">
+          🛒
+          <span class="cart-count" id="cartCount">0</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- TẦNG 2: THANH MENU VỚI NÚT DANH MỤC XỔ XUỐNG & CÁC LỐI TẮT -->
+    <nav class="main-nav-bar">
+      <div class="container main-nav-container">
+        
+        <!-- NÚT BẤM DANH MỤC SẢN PHẨM (DROPDOWN) -->
+        <div class="cat-dropdown-wrapper" id="catDropdownWrapper">
+          <button class="cat-dropdown-btn" id="catDropdownBtn" type="button" aria-expanded="false" title="Xem danh mục sách">
+            <span class="cat-dropdown-burger">☰</span>
+            <span class="cat-dropdown-label">Danh Mục Sản Phẩm</span>
+            <span class="cat-dropdown-arrow">▾</span>
+          </button>
+          
+          <!-- MENU XỔ XUỐNG KHI BẤM HOẶC HOVER -->
+          <div class="cat-dropdown-menu" id="catDropdownMenu">
+            <a href="products.html" class="cat-dropdown-item">
+              <span class="cat-item-icon">📚</span>
+              <div class="cat-item-text">
+                <span class="cat-item-title">Tất Cả Tác Phẩm</span>
+                <span class="cat-item-sub">Khám phá hơn 100+ tựa sách bản quyền</span>
+              </div>
+            </a>
+            <a href="products.html?cat=1" class="cat-dropdown-item">
+              <span class="cat-item-icon">📖</span>
+              <div class="cat-item-text">
+                <span class="cat-item-title">Manga - Truyện Tranh</span>
+                <span class="cat-item-sub">One Piece, Conan, Jujutsu Kaisen, Kim Đồng...</span>
+              </div>
+            </a>
+            <a href="products.html?cat=2" class="cat-dropdown-item">
+              <span class="cat-item-icon">✨</span>
+              <div class="cat-item-text">
+                <span class="cat-item-title">Light Novel Bản Quyền</span>
+                <span class="cat-item-sub">Thế giới Isekai, Kỳ ảo & quà tặng Postcard</span>
+              </div>
+            </a>
+            <a href="products.html?cat=3" class="cat-dropdown-item">
+              <span class="cat-item-icon">📕</span>
+              <div class="cat-item-text">
+                <span class="cat-item-title">Tiểu Thuyết & Sách</span>
+                <span class="cat-item-sub">Tác phẩm kinh điển, lãng mạn & văn học Nhật</span>
+              </div>
+            </a>
+            <a href="products.html?cat=4" class="cat-dropdown-item">
+              <span class="cat-item-icon">💡</span>
+              <div class="cat-item-text">
+                <span class="cat-item-title">Sách Kỹ Năng & Tư Duy</span>
+                <span class="cat-item-sub">Phát triển bản thân, bài học cuộc sống</span>
+              </div>
+            </a>
+            <a href="products.html?cat=5" class="cat-dropdown-item">
+              <span class="cat-item-icon">🎨</span>
+              <div class="cat-item-text">
+                <span class="cat-item-title">Artbook & Quà Tặng</span>
+                <span class="cat-item-sub">Tuyển tập tranh minh họa, poster độc quyền</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- CÁC LỐI TẮT ĐIỀU HƯỚNG NHANH -->
+        <ul class="nav-shortcuts">
+          <li>
+            <a href="#flashSaleSection" class="nav-shortcut-link nav-shortcut-flash">
+              <span class="shortcut-icon">⚡</span> Flash Sale
+            </a>
+          </li>
+          <li>
+            <a href="#bestSellersSection" class="nav-shortcut-link nav-shortcut-hot">
+              <span class="shortcut-icon">🔥</span> Bán Chạy Nhất
+            </a>
+          </li>
+          <li>
+            <a href="#newArrivalsSection" class="nav-shortcut-link nav-shortcut-new">
+              <span class="shortcut-icon">✨</span> Hàng Mới Về
+            </a>
+          </li>
+          <li>
+            <a href="#products" class="nav-shortcut-link">
+              <span class="shortcut-icon">📚</span> Kệ Sách Tổng Hợp
+            </a>
+          </li>
+          <li>
+            <a href="products.html" class="nav-shortcut-link">
+              <span class="shortcut-icon">🔎</span> Xem Toàn Bộ Kho →
+            </a>
+          </li>
+        </ul>
+
+      </div>
+    </nav>
+  </header>
+
+  <!-- 3. HERO BANNER SLIDER DYNAMIC TỪ CSDL BANNER -->
+  <section class="hero" style="padding-bottom: 1rem;">
+    <div class="container">
+      <div id="heroSliderContainer" class="hero-slider-wrap">
+        <!-- Render động từ bảng banners trong CSDL -->
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. CAM KẾT DỊCH VỤ (PERKS) -->
+  <section class="perks-section">
+    <div class="container">
+      <div class="perks-grid">
+        <div class="perk-item">
+          <div class="perk-icon">📚</div>
+          <div class="perk-info">
+            <h4>Sách Thật 100%</h4>
+            <p>Bản quyền chính ngạch</p>
+          </div>
+        </div>
+        <div class="perk-item">
+          <div class="perk-icon">⚡</div>
+          <div class="perk-info">
+            <h4>Giao Hàng 2H</h4>
+            <p>Nội thành siêu tốc</p>
+          </div>
+        </div>
+        <div class="perk-item">
+          <div class="perk-icon">🎁</div>
+          <div class="perk-info">
+            <h4>Bọc Sách Miễn Phí</h4>
+            <p>Màng bọc plastic cao cấp</p>
+          </div>
+        </div>
+        <div class="perk-item">
+          <div class="perk-icon">🔄</div>
+          <div class="perk-info">
+            <h4>Đổi Trả Dễ Dàng</h4>
+            <p>7 ngày nếu lỗi in ấn</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4.0 PHÂN KHU: GIỜ VÀNG FLASH SALE (SẢN PHẨM KHUYẾN MÃI) -->
+  <section class="flashsale-section" id="flashSaleSection">
+    <div class="container">
+      <div class="flashsale-box">
+        <div class="flashsale-header">
+          <div class="flashsale-left">
+            <span class="flashsale-badge">⚡ FLASH SALE GIỜ VÀNG</span>
+            <h2 class="flashsale-title">Săn Sách Giá Sốc Hôm Nay</h2>
+            <p class="flashsale-subtitle">Ưu đãi giảm sâu đến 35% - Số lượng và thời gian có hạn!</p>
+          </div>
+          <div class="flashsale-countdown-wrap">
+            <span class="countdown-label">Kết thúc trong:</span>
+            <div class="countdown-clock" id="flashSaleCountdown">
+              <span class="clock-unit" id="timerHours">06</span>
+              <span class="clock-divider">:</span>
+              <span class="clock-unit" id="timerMinutes">28</span>
+              <span class="clock-divider">:</span>
+              <span class="clock-unit" id="timerSeconds">45</span>
+            </div>
+          </div>
+        </div>
+        <div class="product-grid flashsale-grid" id="flashSaleGrid">
+          <!-- Render động các sản phẩm có discount cao nhất -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4.1 PHÂN KHU: SẢN PHẨM BÁN CHẠY (BEST SELLERS - TÍNH THEO HÓA ĐƠN) -->
+  <section class="featured-section" id="bestSellersSection">
+    <div class="container">
+      <div class="featured-header">
+        <div>
+          <span class="tag-badge" style="background: #fee2e2; color: #dc2626;">🔥 XU HƯỚNG MUA NHIỀU</span>
+          <h2 class="section-title"><span>🔥</span> Manga & Light Novel Bán Chạy Nhất</h2>
+          <p class="section-subtitle">Xếp hạng tự động dựa trên tổng số lượng bán ra đếm theo các hóa đơn trong CSDL</p>
+        </div>
+      </div>
+      <div class="product-grid" id="hotProductsGrid">
+        <!-- Render động các sản phẩm tính theo số lượng bán trên hóa đơn -->
+      </div>
+    </div>
+  </section>
+
+  <!-- 4.2 PHÂN KHU: SẢN PHẨM MỚI NHẤT (NEW ARRIVALS - ĐẨY HÀNG CŨ) -->
+  <section class="featured-section" id="newArrivalsSection" style="background: #f8fafc; padding: 2.5rem 0; border-top: 1px solid var(--gray-200); border-bottom: 1px solid var(--gray-200); margin-bottom: 2rem;">
+    <div class="container">
+      <div class="featured-header">
+        <div>
+          <span class="tag-badge" style="background: #e0e7ff; color: #4338ca;">✨ PHÁT HÀNH MỚI NHẤT</span>
+          <h2 class="section-title"><span>✨</span> Mới Lên Kệ Tuần Này</h2>
+          <p class="section-subtitle">Hàng mới về hôm nay sẽ tự động đứng đầu và đẩy hàng hôm trước ra khỏi top 4</p>
+        </div>
+      </div>
+      <div class="product-grid" id="newProductsGrid">
+        <!-- Render động các sản phẩm theo ID / ngày nhập mới nhất -->
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. PHÂN KHU: KỆ SÁCH HIKARI TỔNG HỢP VỚI BỘ LỌC ĐẦY ĐỦ (THEO DANH MỤC CŨ) -->
+  <section class="products-section" id="products" style="padding: 3rem 0; background: #ffffff;">
+    <div class="container">
+      <div class="section-title-wrap">
+        <div>
+          <span class="tag-badge" style="background: #e0e7ff; color: #4338ca;">📚 TOÀN BỘ KHO SÁCH</span>
+          <h2 class="section-title"><span>📚</span> Kệ Sách Hikari BookStore</h2>
+          <p class="section-subtitle">Khám phá hơn 100+ tựa sách, manga và light novel bản quyền với bộ lọc thông minh</p>
+        </div>
+        <a href="products.html" class="btn btn-outline" style="color: var(--primary); border-color: var(--primary); background: transparent;">
+          Mở trang danh mục chuyên sâu →
+        </a>
+      </div>
+
+      <!-- TABS PHÂN LOẠI DANH MỤC SẢN PHẨM (RENDER TỪ DATABASE) -->
+      <div class="category-tabs" id="categoryTabs">
+        <!-- Render động từ CSDL categories qua app.js -->
+      </div>
+
+      <!-- THANH CÔNG CỤ LỌC & SẮP XẾP SẢN PHẨM -->
+      <div class="toolbar-wrap">
+        <div class="toolbar-left">
+          <span>Hiển thị</span>
+          <span class="toolbar-count" id="productCount">0</span>
+          <span>tác phẩm</span>
+        </div>
+
+        <div class="toolbar-right">
+          <!-- Lọc theo khoảng giá -->
+          <div class="filter-group">
+            <label class="filter-label" for="priceFilterSelect">Khoảng giá:</label>
+            <select id="priceFilterSelect" class="filter-select">
+              <option value="all">Tất cả mức giá</option>
+              <option value="under50">Dưới 50.000đ</option>
+              <option value="50to100">50.000đ - 100.000đ</option>
+              <option value="over100">Trên 100.000đ</option>
+            </select>
+          </div>
+
+          <!-- Lọc theo mức giảm giá -->
+          <div class="filter-group">
+            <label class="filter-label" for="discountFilterSelect">Khuyến mãi:</label>
+            <select id="discountFilterSelect" class="filter-select">
+              <option value="all">Tất cả ưu đãi</option>
+              <option value="tier10">Giảm 10% - 20%</option>
+              <option value="tier20">Giảm 20% - 30%</option>
+              <option value="tier30">Giảm trên 30% 🔥</option>
+            </select>
+          </div>
+
+          <!-- Sắp xếp -->
+          <div class="filter-group">
+            <label class="filter-label" for="sortSelect">Sắp xếp:</label>
+            <select id="sortSelect" class="filter-select">
+              <option value="default">Mặc định</option>
+              <option value="price-asc">Giá: Thấp đến Cao ↑</option>
+              <option value="price-desc">Giá: Cao đến Thấp ↓</option>
+              <option value="name-asc">Tên: A - Z</option>
+              <option value="name-desc">Tên: Z - A</option>
+              <option value="hot">Được đánh giá nhiều nhất ★</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- LƯỚI HIỂN THỊ TẤT CẢ SẢN PHẨM -->
+      <div class="product-grid" id="productGrid">
+        <!-- Render động từ API sản phẩm qua app.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. FOOTER -->
+  <footer class="footer" id="about">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h3>Hikari BookStore 📖</h3>
+          <p>
+            Nhà sách chuyên cung cấp Manga, Comic, Light Novel và Tiểu thuyết bản quyền tại Việt Nam. Không gian mua sắm lý tưởng cho cộng đồng độc giả yêu thích văn hóa truyện tranh và văn học Nhật Bản.
+          </p>
+          <p><strong>Hotline:</strong> 1900 6868 (8:00 - 21:00)</p>
+          <p><strong>Email:</strong> support@hikaribooks.vn</p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Danh Mục Hot</h4>
+          <ul class="footer-links">
+            <li><a href="#products">Manga - Truyện Tranh</a></li>
+            <li><a href="#products">Light Novel Isekai</a></li>
+            <li><a href="#products">Tiểu Thuyết Văn Học</a></li>
+            <li><a href="#products">Sách Tư Duy & Kỹ Năng</a></li>
+            <li><a href="#products">Artbook Cao Cấp</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Hỗ Trợ Khách Hàng</h4>
+          <ul class="footer-links">
+            <li><a href="#">Hướng dẫn mua hàng</a></li>
+            <li><a href="#">Chính sách đổi trả 7 ngày</a></li>
+            <li><a href="#">Phương thức thanh toán</a></li>
+            <li><a href="#">Chính sách bảo mật</a></li>
+            <li><a href="#">Điều khoản sử dụng</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col footer-contact" id="contact">
+          <h4>Văn Phòng Hikari</h4>
+          <ul>
+            <li>📍 123 Đường Sách Nguyễn Huệ, Quận 1, TP.HCM</li>
+            <li>🕒 Giờ làm việc: 08:00 - 21:30 các ngày trong tuần</li>
+            <li>📦 Kho hàng đóng gói: Hà Nội & TP. Hồ Chí Minh</li>
+            <li>💳 Hỗ trợ thanh toán: Tiền mặt, Chuyển khoản, MoMo</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>© 2026 Hikari BookStore. Đồ án JavaScript kết thúc học phần.</div>
+        <div>Xây dựng bằng HTML5, CSS3, JavaScript Thuần & ES6+</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODAL CHÚC MỪNG SINH NHẬT -->
+  <div id="birthdayModal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 9999; justify-content: center; align-items: center;">
+    <div class="birthday-modal-card">
+      <div class="birthday-cake-icon">🎂</div>
+      <h3 style="font-size: 1.5rem; color: #881337; margin-bottom: 0.5rem;">Chúc Mừng Sinh Nhật Bạn! 🎉</h3>
+      <p style="color: var(--gray-700); font-size: 0.95rem; line-height: 1.5;">
+        Hikari BookStore xin gửi lời chúc mừng sinh nhật ý nghĩa nhất đến bạn! Hãy tận hưởng món quà độc quyền giảm ngay <strong>35%</strong> cho mọi đơn hàng sách trong tháng sinh nhật này.
+      </p>
+      
+      <div class="birthday-voucher-box">
+        <div>
+          <div style="font-size: 0.75rem; color: var(--gray-600); text-transform: uppercase;">Mã Ưu Đãi Sinh Nhật</div>
+          <div class="birthday-voucher-code" id="birthdayCodeText">SINHNHAT35</div>
+        </div>
+        <button class="btn btn-primary" id="copyBirthdayCodeBtn" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Sao chép</button>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; justify-content: center;">
+        <a href="#products" class="btn btn-primary" id="useBirthdayCodeBtn" style="padding: 0.65rem 1.25rem;">Mua Sắm Ngay</a>
+        <button class="btn btn-outline" id="closeBirthdayModalBtn" style="padding: 0.65rem 1.25rem;">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT LOGIC JAVASCRIPT ES6+ -->
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>
