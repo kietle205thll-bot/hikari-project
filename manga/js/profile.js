@@ -444,6 +444,172 @@ const renderOrderTimelineHtml = (currentStatus) => {
   `;
 };
 
+// ================= POPUP CHI TIẾT ĐƠN HÀNG KHÁCH HÀNG =================
+const showCustomerOrderDetailModal = (order) => {
+  if (!order) return;
+  let modalEl = document.querySelector('#customerOrderDetailModal');
+  if (!modalEl) {
+    modalEl = document.createElement('div');
+    modalEl.id = 'customerOrderDetailModal';
+    modalEl.style.cssText = `
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.65); z-index: 99999;
+      display: flex; align-items: center; justify-content: center;
+      padding: 1rem; backdrop-filter: blur(4px); box-sizing: border-box;
+    `;
+    document.body.appendChild(modalEl);
+  }
+
+  const orderCode = order.orderCode || order.id;
+  const customerName = order.customer?.name || state.user?.name || 'Khách Hàng Hikari';
+  const customerPhone = order.customer?.phone || state.user?.phone || 'Chưa có SĐT';
+  const customerAddress = order.customer?.address || '123 Đường Sách Nguyễn Huệ, Q1, TP.HCM';
+  const customerNote = order.customer?.note || order.note || '';
+  const createdAt = order.createdAt || 'Mới đặt';
+  const currentStatus = normalizeOrderStatus(order.status);
+  const trackingCode = String(order.trackingCode || '').trim();
+  const isCod = order.paymentMethod === 'cod';
+  const paymentBadge = isCod
+    ? '<span style="background: #f1f5f9; color: #334155; font-weight: 700; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">💵 Thanh toán khi nhận hàng (COD)</span>'
+    : '<span style="background: #ecfdf5; color: #047857; font-weight: 700; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">🏦 Chuyển khoản QR (SePay / MoMo)</span>';
+
+  const items = Array.isArray(order.items) ? order.items : [];
+  const totalQty = items.reduce((s, i) => s + (Number(i.quantity) || 1), 0);
+  const { subtotal, shippingFee, discount, total } = getOrderFinancialBreakdown(order);
+
+  modalEl.innerHTML = `
+    <div style="background: #fff; width: 720px; max-width: 100%; max-height: 90vh; border-radius: 14px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.25); display: flex; flex-direction: column; overflow: hidden; animation: popIn 0.2s ease-out;">
+      <!-- MODAL HEADER -->
+      <div style="padding: 1.1rem 1.4rem; background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); color: #fff; display: flex; align-items: center; justify-content: space-between;">
+        <div>
+          <div style="font-size: 0.78rem; color: #a5b4fc; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">Chi Tiết Đơn Hàng Của Bạn</div>
+          <div style="font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+            <span>#${escapeHtml(orderCode)}</span>
+            <span style="font-size: 0.8rem; font-weight: 600; padding: 2px 8px; border-radius: 6px; background: rgba(255,255,255,0.2);">${escapeHtml(currentStatus)}</span>
+          </div>
+        </div>
+        <button type="button" id="btnCloseCustomerOrderModal" style="background: none; border: none; color: #e0e7ff; font-size: 1.5rem; cursor: pointer; line-height: 1; padding: 4px 8px;" title="Đóng">✕</button>
+      </div>
+
+      <!-- MODAL BODY (SCROLLABLE) -->
+      <div style="padding: 1.25rem 1.4rem; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 1rem;">
+        
+        <!-- TIẾN TRÌNH ĐƠN HÀNG -->
+        ${renderOrderTimelineHtml(currentStatus)}
+
+        <!-- MÃ VẬN ĐƠN (NẾU ĐANG GIAO HOẶC ĐÃ GIAO) -->
+        ${trackingCode ? `
+          <div style="padding: 0.65rem 0.9rem; background: #f5f3ff; border: 1px solid #d8b4fe; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; font-size: 0.82rem; color: #6b21a8;">
+            <div>🚚 <strong>Mã vận đơn bưu cục:</strong> <span style="font-family: monospace; font-weight: 800; background: #fff; padding: 2px 8px; border-radius: 4px; border: 1px solid #d8b4fe; color: #581c87;">${escapeHtml(trackingCode)}</span></div>
+            <button type="button" id="btnCopyModalTracking" style="background: #fff; color: #6b21a8; border: 1px solid #d8b4fe; border-radius: 5px; padding: 2px 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">📋 Sao chép mã</button>
+          </div>
+        ` : ''}
+
+        <!-- THÔNG TIN NGƯỜI NHẬN & ĐỊA CHỈ -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; background: #f8fafc; padding: 0.9rem; border-radius: 10px; border: 1px solid #e2e8f0; font-size: 0.85rem;">
+          <div>
+            <div style="color: #64748b; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; margin-bottom: 4px;">👤 Người Nhận Hàng</div>
+            <div style="font-weight: 700; color: #0f172a; font-size: 0.95rem;">${escapeHtml(customerName)}</div>
+            <div style="color: #4338ca; font-weight: 600;">📞 ${escapeHtml(customerPhone)}</div>
+            <div style="color: #64748b; font-size: 0.78rem; margin-top: 3px;">🕒 Ngày đặt: ${escapeHtml(createdAt)}</div>
+          </div>
+          <div>
+            <div style="color: #64748b; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; margin-bottom: 4px;">📍 Địa Chỉ Giao Hàng</div>
+            <div style="color: #1e293b; line-height: 1.45;">${escapeHtml(customerAddress)}</div>
+            <div style="margin-top: 4px;">${paymentBadge}</div>
+            ${customerNote ? `<div style="margin-top: 4px; padding: 4px 8px; background: #fffbeb; color: #b45309; border-radius: 6px; font-size: 0.78rem;">📝 <strong>Ghi chú:</strong> ${escapeHtml(customerNote)}</div>` : ''}
+          </div>
+        </div>
+
+        <!-- DANH SÁCH SÁCH -->
+        <div>
+          <div style="font-size: 0.85rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
+            <span>📚 Danh Sách Tác Phẩm (${items.length} tác phẩm)</span>
+            <span style="color: #64748b;">Tổng: <strong>${totalQty} cuốn</strong></span>
+          </div>
+          <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.83rem;">
+              <thead style="background: #f8fafc; color: #475569; text-align: left; font-size: 0.75rem;">
+                <tr>
+                  <th style="padding: 8px 10px;">Sách</th>
+                  <th style="padding: 8px 10px; text-align: center;">Đơn giá</th>
+                  <th style="padding: 8px 10px; text-align: center;">Số lượng</th>
+                  <th style="padding: 8px 10px; text-align: right;">Thành tiền</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${items.map(item => `
+                  <tr style="border-top: 1px solid #f1f5f9;">
+                    <td style="padding: 8px 10px; display: flex; align-items: center; gap: 8px;">
+                      <img src="${item.image || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=100'}" style="width: 36px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #e2e8f0;" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=100'" />
+                      <div>
+                        <div style="font-weight: 700; color: #0f172a;">${escapeHtml(item.name)}</div>
+                        ${item.isNew ? '<span style="font-size: 0.68rem; color: #4338ca; background: #e0e7ff; padding: 1px 4px; border-radius: 3px;">Mới ✨</span>' : ''}
+                      </div>
+                    </td>
+                    <td style="padding: 8px 10px; text-align: center; color: #475569;">${formatPrice(item.price)}</td>
+                    <td style="padding: 8px 10px; text-align: center; font-weight: 700; color: #0f172a;">x${item.quantity}</td>
+                    <td style="padding: 8px 10px; text-align: right; font-weight: 700; color: #e11d48;">${formatPrice((Number(item.price) || 0) * (Number(item.quantity) || 1))}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TỔNG KẾT TÀI CHÍNH -->
+        <div style="margin-left: auto; width: 280px; max-width: 100%; font-size: 0.83rem; display: flex; flex-direction: column; gap: 4px; padding: 0.75rem; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+          <div style="display: flex; justify-content: space-between; color: #64748b;">
+            <span>Tạm tính (${totalQty} cuốn):</span>
+            <strong style="color: #0f172a;">${formatPrice(subtotal)}</strong>
+          </div>
+          ${order.couponCode ? `
+            <div style="display: flex; justify-content: space-between; color: #16a34a;">
+              <span>Voucher (${escapeHtml(order.couponCode)}):</span>
+              <strong>-${formatPrice(discount)}</strong>
+            </div>
+          ` : ''}
+          <div style="display: flex; justify-content: space-between; color: #64748b;">
+            <span>Phí vận chuyển:</span>
+            <strong style="color: #0f172a;">${shippingFee === 0 ? 'Miễn phí' : formatPrice(shippingFee)}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding-top: 6px; border-top: 1px dashed #cbd5e1; font-size: 0.95rem; font-weight: 800; color: #e11d48;">
+            <span>Tổng thanh toán:</span>
+            <span>${formatPrice(total)}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL FOOTER -->
+      <div style="padding: 0.9rem 1.4rem; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
+        <button type="button" id="btnCustomerModalPdf" class="btn" style="padding: 0.45rem 1rem; font-size: 0.82rem; font-weight: 700; background: #e0e7ff; color: #4338ca; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+          📄 Xuất Hóa Đơn PDF
+        </button>
+        <button type="button" id="btnCustomerModalCloseBottom" class="btn" style="padding: 0.45rem 1.25rem; font-size: 0.85rem; font-weight: 600; background: #e2e8f0; color: #334155; border: none; border-radius: 6px; cursor: pointer;">Đóng</button>
+      </div>
+    </div>
+  `;
+
+  modalEl.style.display = 'flex';
+
+  const closeModal = () => {
+    modalEl.style.display = 'none';
+  };
+
+  modalEl.querySelector('#btnCloseCustomerOrderModal')?.addEventListener('click', closeModal);
+  modalEl.querySelector('#btnCustomerModalCloseBottom')?.addEventListener('click', closeModal);
+  modalEl.querySelector('#btnCopyModalTracking')?.addEventListener('click', () => {
+    navigator.clipboard?.writeText(trackingCode);
+    showToast(`Đã sao chép mã vận đơn: ${trackingCode}`, 'info');
+  });
+  modalEl.querySelector('#btnCustomerModalPdf')?.addEventListener('click', () => {
+    exportProfileInvoicePdf(order, modalEl.querySelector('#btnCustomerModalPdf'));
+  });
+  modalEl.onclick = (e) => {
+    if (e.target === modalEl) closeModal();
+  };
+};
+
 const renderOrdersTab = () => {
   const { orders } = state;
   const container = document.querySelector('#ordersListContainer');
@@ -530,7 +696,10 @@ const renderOrdersTab = () => {
         <!-- HEADER ĐƠN HÀNG -->
         <div class="order-card-header">
           <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;">
-            <strong style="color: #0f172a; font-size: 0.95rem;">Mã Đơn: #${escapeHtml(orderCode)}</strong>
+            <button type="button" class="btn-customer-order-detail" data-order-id="${order.id}" style="background: none; border: none; cursor: pointer; color: #4338ca; font-weight: 800; font-size: 0.95rem; text-decoration: underline; padding: 0; display: inline-flex; align-items: center; gap: 4px;" title="Bấm để xem chi tiết đầy đủ đơn hàng">
+              <span>Mã Đơn: #${escapeHtml(orderCode)}</span>
+              <span style="font-size: 0.72rem; color: #4338ca; font-weight: 700; text-decoration: none; background: #e0e7ff; padding: 1px 7px; border-radius: 4px;">🔍 Chi tiết</span>
+            </button>
             <span style="color: #64748b; font-size: 0.85rem;">• ${escapeHtml(createdAt)}</span>
             <span style="background: ${isCodOrder ? '#f1f5f9' : '#ecfdf5'}; color: ${isCodOrder ? '#334155' : '#047857'}; padding: 2px 7px; border-radius: 4px; font-size: 0.72rem; font-weight: 700;">
               ${isCodOrder ? '💵 COD' : '🏦 CK / MoMo'}
@@ -690,6 +859,15 @@ const renderOrdersTab = () => {
         btn.textContent = '❌ Hủy đơn hàng';
         showToast('Không thể hủy đơn hàng lúc này. Vui lòng thử lại!', 'error');
       }
+    });
+  });
+
+  // Gắn sự kiện bấm vào mã đơn xem chi tiết đơn hàng (Modal)
+  container.querySelectorAll('.btn-customer-order-detail').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const orderId = btn.dataset.orderId;
+      const order = sortedOrders.find(o => String(o.id) === String(orderId));
+      if (order) showCustomerOrderDetailModal(order);
     });
   });
 
