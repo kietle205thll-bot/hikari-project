@@ -4,6 +4,7 @@
  */
 import { api, fetchCartServer, addToCartServer, removeCartItemServer } from './api.js';
 import { showToast } from './utils.js';
+import { sendOtpEmail } from './mailbox.js';
 
 const loginForm = document.querySelector('#loginForm');
 const usernameInput = document.querySelector('#usernameInput');
@@ -155,12 +156,14 @@ loginForm?.addEventListener('submit', async (e) => {
 
     showToast(`Đăng nhập thành công! Chào mừng ${matchedUser.name}`, 'success');
 
-    // Chuyển hướng sau khi đăng nhập thành công (nếu là Admin/Nhân viên thì vào thẳng admin.html)
+    // Chuyển hướng sau khi đăng nhập thành công (nếu là Admin/Nhân viên/Shipper thì chuyển tương ứng)
     const urlParams = new URLSearchParams(window.location.search);
     let redirectUrl = urlParams.get('redirect');
     if (!redirectUrl) {
       if (sessionUser.role === 'admin' || sessionUser.role === 'staff') {
         redirectUrl = 'admin.html';
+      } else if (sessionUser.role === 'shipper') {
+        redirectUrl = 'shipper.html';
       } else {
         redirectUrl = 'index.html';
       }
@@ -224,6 +227,13 @@ const resetState = {
 
 // Hàm hiển thị Popup mô phỏng email nhận mã
 const showSimulatedEmailNotification = (email, code) => {
+  // Đồng thời gửi vào Hòm Thư Ảo để người dùng có thể xem lại bất cứ lúc nào
+  try {
+    sendOtpEmail(email, code, 'Khôi phục mật khẩu');
+  } catch (otpErr) {
+    console.warn('Lỗi gửi OTP vào mailbox:', otpErr);
+  }
+
   // Xóa popup cũ nếu có
   const oldToast = document.querySelector('#simulatedEmailToast');
   if (oldToast) oldToast.remove();
@@ -561,4 +571,20 @@ btnGoToLogin?.addEventListener('click', () => {
     passwordInput.focus();
   }
 });
+
+// ================= TỰ ĐỘNG ĐIỀN TÀI KHOẢN DEMO =================
+document.querySelectorAll('.btn-demo-account').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const user = btn.dataset.user;
+    const pass = btn.dataset.pass;
+    if (usernameInput && passwordInput) {
+      usernameInput.value = user;
+      passwordInput.value = pass;
+      clearError(usernameInput, usernameError);
+      clearError(passwordInput, passwordError);
+      showToast(`Đã điền tài khoản: ${user}`, 'info');
+    }
+  });
+});
+
 

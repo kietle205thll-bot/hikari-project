@@ -12,7 +12,8 @@ export default defineConfig({
         admin: resolve(__dirname, 'admin.html'),
         login: resolve(__dirname, 'login.html'),
         register: resolve(__dirname, 'register.html'),
-        detail: resolve(__dirname, 'product-detail.html')
+        detail: resolve(__dirname, 'product-detail.html'),
+        shipper: resolve(__dirname, 'shipper.html')
       }
     }
   }

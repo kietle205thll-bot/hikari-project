@@ -1,0 +1,514 @@
+/* ==========================================================================
+   HIKARI VIRTUAL MAILBOX (HÒM THƯ ẢO) STYLES
+   Mô phỏng hòm thư điện tử chuyên nghiệp cho độc giả nhận OTP & Hóa đơn PDF
+   ========================================================================== */
+
+/* Nút hòm thư trên Header */
+.mailbox-header-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #0284c7;
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.mailbox-header-btn:hover {
+  background: #f0f9ff;
+  border-color: #38bdf8;
+  transform: translateY(-1px);
+}
+
+.mailbox-header-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #0284c7;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  box-shadow: 0 2px 4px rgba(2, 132, 199, 0.4);
+  border: 2px solid #ffffff;
+}
+
+/* Modal Hòm Thư Ảo */
+.mailbox-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 99999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.mailbox-modal-overlay.active {
+  display: flex;
+  animation: mbFadeIn 0.2s ease-out;
+}
+
+@keyframes mbFadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.mailbox-modal-window {
+  background: #ffffff;
+  width: 100%;
+  max-width: 960px;
+  height: 85vh;
+  max-height: 680px;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+/* Thanh Header của Modal Mailbox */
+.mailbox-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.25rem;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #ffffff;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.mailbox-topbar-title {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.mailbox-topbar-title .mb-icon {
+  font-size: 1.35rem;
+}
+
+.mailbox-user-email-tag {
+  background: rgba(255, 255, 255, 0.15);
+  color: #bae6fd;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+}
+
+.mailbox-close-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+
+.mailbox-close-btn:hover {
+  color: #ffffff;
+  background: rgba(255,255,255,0.1);
+}
+
+/* Thân giao diện chia 2 cột: Danh sách thư & Chi tiết thư */
+.mailbox-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Cột trái: Danh sách thư */
+.mailbox-list-pane {
+  width: 360px;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  background: #f8fafc;
+  flex-shrink: 0;
+}
+
+.mailbox-filters-bar {
+  padding: 0.75rem 0.85rem;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mailbox-search-input {
+  width: 100%;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  background: #f8fafc;
+  outline: none;
+  transition: border 0.15s;
+}
+
+.mailbox-search-input:focus {
+  border-color: #0284c7;
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
+}
+
+.mailbox-filter-chips {
+  display: flex;
+  gap: 0.35rem;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.mailbox-filter-chip {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.55rem;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.mailbox-filter-chip.active,
+.mailbox-filter-chip:hover {
+  background: #0284c7;
+  border-color: #0284c7;
+  color: #ffffff;
+}
+
+.mailbox-email-items {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+/* Thẻ email trong danh sách */
+.mb-email-item {
+  padding: 0.75rem 0.85rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.mb-email-item:hover {
+  border-color: #38bdf8;
+  background: #f0f9ff;
+  transform: translateY(-1px);
+}
+
+.mb-email-item.active {
+  border-color: #0284c7;
+  background: #e0f2fe;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.12);
+}
+
+.mb-email-item.unread {
+  border-left: 4px solid #0284c7;
+}
+
+.mb-email-item.unread .mb-email-subject {
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.mb-email-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.mb-email-sender {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.mb-email-time {
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+.mb-email-subject {
+  font-size: 0.82rem;
+  color: #1e293b;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mb-email-snippet {
+  font-size: 0.73rem;
+  color: #64748b;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.mb-email-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-top: 0.35rem;
+}
+
+.mb-badge-order {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.mb-badge-shipped {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.mb-badge-completed {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.mb-badge-otp {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+/* Cột phải: Chi tiết email */
+.mailbox-detail-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.mailbox-detail-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  padding: 2rem;
+  text-align: center;
+}
+
+.mailbox-detail-empty .empty-icon {
+  font-size: 3.5rem;
+  margin-bottom: 0.75rem;
+  color: #cbd5e1;
+}
+
+.mailbox-detail-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+/* Đầu thư chi tiết */
+.mb-detail-header {
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.mb-detail-actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.mb-back-btn {
+  display: none;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  padding: 0.3rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mb-detail-subject {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.4;
+  margin-bottom: 0.75rem;
+}
+
+.mb-detail-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: #475569;
+}
+
+.mb-detail-sender-info {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.mb-detail-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #e0f2fe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+/* Thân nội dung email */
+.mb-email-rendered-body {
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: #334155;
+}
+
+/* Khối nút hành động đặc biệt trong email (Tải PDF, copy OTP...) */
+.mb-email-action-box {
+  margin: 1.25rem 0;
+  padding: 1rem 1.25rem;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.btn-email-action-primary {
+  background: #1e1b4b;
+  color: #ffffff;
+  border: none;
+  padding: 0.55rem 1.15rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.15s;
+}
+
+.btn-email-action-primary:hover {
+  background: #312e81;
+  transform: translateY(-1px);
+}
+
+.btn-email-action-secondary {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  padding: 0.5rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-email-action-secondary:hover {
+  background: #e2e8f0;
+}
+
+/* Hộp OTP nổi bật */
+.mb-otp-showcase {
+  text-align: center;
+  padding: 1.5rem;
+  background: #fffbeb;
+  border: 2px dashed #f59e0b;
+  border-radius: 12px;
+  margin: 1rem 0;
+}
+
+.mb-otp-number {
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: 6px;
+  color: #b45309;
+  font-family: monospace;
+  margin: 0.5rem 0;
+}
+
+/* Responsive cho Mobile & Tablet */
+@media (max-width: 768px) {
+  .mailbox-modal-window {
+    height: 94vh;
+    border-radius: 12px;
+  }
+
+  .mailbox-list-pane {
+    width: 100%;
+  }
+
+  .mailbox-detail-pane {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    z-index: 10;
+  }
+
+  .mailbox-detail-pane.viewing {
+    transform: translateX(0);
+  }
+
+  .mb-back-btn {
+    display: inline-flex;
+  }
+}

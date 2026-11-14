@@ -4,6 +4,7 @@
  */
 
 import { api, addToCartServer, fetchCartServer, fetchOrders, isOrderCancelled } from './api.js';
+import { initMailbox, updateMailboxHeaderBadge } from './mailbox.js';
 import './chatbot.js';
 
 // Định dạng số thành tiền tệ Việt Nam Đồng (VND)
@@ -887,8 +888,15 @@ export const checkCurrentUser = async () => {
           </div>
         </div>
 
+        <!-- Nút Hòm Thư Ảo Header (Mã OTP & Hóa Đơn PDF) -->
+        <button type="button" id="headerMailboxBtn" class="header-icon-btn mailbox-header-btn" title="Hòm thư ảo Hikari Mail (Nhận mã OTP & Hóa đơn PDF)" style="position: relative; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: #fff; border: 1px solid #e2e8f0; cursor: pointer; color: #0284c7; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+          <span>📬</span>
+          <span class="mailbox-header-badge" id="headerMailboxCount" style="position: absolute; top: -4px; right: -4px; background: #0284c7; color: #fff; font-size: 0.65rem; font-weight: 800; min-width: 17px; height: 17px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 3px;">0</span>
+        </button>
+
         ${isAdmin ? `<a href="admin.html" class="btn-admin-link" style="background: #1e1b4b; color: #ffffff; padding: 0.35rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem;">👑 Quản Trị</a>` : ''}
         ${isStaff ? `<a href="admin.html" class="btn-admin-link" style="background: #0369a1; color: #ffffff; padding: 0.35rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem;">💼 Quản Lý Kho</a>` : ''}
+        ${user.role === 'shipper' ? `<a href="shipper.html" class="btn-admin-link" style="background: #ea580c; color: #ffffff; padding: 0.35rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem;">🚚 Giao Hàng SPX</a>` : ''}
         <a href="profile.html" id="btnOpenUserProfile" class="user-badge user-badge-clickable" title="Trang cá nhân, Cấp bậc VIP và Lịch sử đơn hàng" style="text-decoration: none;">
           <span>👤</span>
           <span><strong>${user.name}</strong></span>
@@ -957,9 +965,13 @@ export const checkCurrentUser = async () => {
 
     updateNotificationsDisplay();
   } else {
-    // Khách vãng lai: Chỉ hiển thị nút Đăng nhập & Đăng ký, KHÔNG hiển thị nút tim yêu thích
+    // Khách vãng lai: Chỉ hiển thị nút Đăng nhập & Đăng ký, kèm nút Hòm thư ảo
     userGreeting.innerHTML = `
       <div class="auth-links" style="display: flex; align-items: center; gap: 0.5rem;">
+        <button type="button" id="headerMailboxBtn" class="header-icon-btn mailbox-header-btn" title="Hòm thư ảo Hikari Mail (Nhận mã OTP & Hóa đơn PDF)" style="position: relative; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: #fff; border: 1px solid #e2e8f0; cursor: pointer; color: #0284c7; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+          <span>📬</span>
+          <span class="mailbox-header-badge" id="headerMailboxCount" style="position: absolute; top: -4px; right: -4px; background: #0284c7; color: #fff; font-size: 0.65rem; font-weight: 800; min-width: 17px; height: 17px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 3px;">0</span>
+        </button>
         <a href="login.html" class="nav-link">Đăng nhập</a>
         <a href="register.html" class="btn-register-header">Đăng ký</a>
       </div>
@@ -973,6 +985,7 @@ export const checkCurrentUser = async () => {
   }
 
   updateWishlistHeaderBadge();
+  initMailbox();
 };
 
 

@@ -16,6 +16,7 @@ import {
   pushOrderNotification
 } from './api.js';
 import { formatPrice, showToast, showUserProfileModal, attachVnPhoneInputGuard, validateVnPhone } from './utils.js';
+import { sendOrderShippedEmail, sendOrderCompletedEmail } from './mailbox.js';
 
 // Quản lý trạng thái Admin
 const state = {
@@ -1394,8 +1395,18 @@ const setupRevenueEventListeners = () => {
       notifMessage = `Đơn hàng #${orderCode} đã được xác nhận và đang chuẩn bị đóng gói.`;
     } else if (targetStatus === 'Đang giao hàng') {
       notifMessage = `Đơn hàng #${orderCode} đang được giao đến bạn! Mã vận đơn: ${patchPayload.trackingCode}.`;
+      try {
+        sendOrderShippedEmail(order, patchPayload.trackingCode);
+      } catch (mailErr) {
+        console.warn('Lỗi gửi email SPX giao hàng:', mailErr);
+      }
     } else if (targetStatus === 'Đã hoàn thành') {
       notifMessage = `Đơn hàng #${orderCode} đã hoàn thành.`;
+      try {
+        sendOrderCompletedEmail(order);
+      } catch (mailErr) {
+        console.warn('Lỗi gửi email hoàn thành đơn:', mailErr);
+      }
     } else if (targetStatus === 'Đã hủy') {
       notifMessage = `Đơn hàng #${orderCode} đã được chuyển sang trạng thái Đã hủy.`;
     }

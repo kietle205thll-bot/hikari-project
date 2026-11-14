@@ -33,6 +33,7 @@ import {
   checkOrderPaymentStatus,
   simulateSepayPayment
 } from './api.js';
+import { sendOrderPlacedEmail } from './mailbox.js';
 
 let appliedDiscount = 0;
 let appliedCouponCode = '';
@@ -1218,6 +1219,11 @@ const setupCheckoutModal = () => {
           `Đơn hàng #${orderData.orderCode} đã được đặt thành công (Chờ nhân viên xác nhận).`,
           'Chờ xác nhận'
         );
+        try {
+          sendOrderPlacedEmail(orderData);
+        } catch (mailErr) {
+          console.warn('Lỗi gửi email xác nhận đặt hàng vào mailbox:', mailErr);
+        }
 
         // 3. TRỪ TỒN KHO TỪNG SẢN PHẨM TRỰC TIẾP TRÊN CSDL (PATCH /products/:id)
         await deductOrderStock(cart);

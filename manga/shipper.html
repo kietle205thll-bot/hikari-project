@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPX Express - Bàn Làm Việc Bưu Tá Giao Hàng</title>
+  <meta name="description" content="Cổng thông tin điều phối và cập nhật giao hàng dành riêng cho đối tác vận chuyển SPX Express - Hikari BookStore.">
+
+  <!-- STYLESHEETS -->
+  <link rel="stylesheet" href="./css/reset.css">
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/shipper.css">
+  <link rel="stylesheet" href="./css/mailbox.css">
+
+  <!-- Import Map cho Axios -->
+  <script type="importmap">
+  {
+    "imports": {
+      "axios": "https://esm.sh/axios@1.7.9"
+    }
+  }
+  </script>
+
+  <!-- HTML2PDF BUNDLE -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body class="shipper-body">
+
+  <!-- TOP NAVBAR THƯƠNG HIỆU SPX EXPRESS -->
+  <header class="spx-navbar">
+    <div class="spx-navbar-container">
+      <a href="shipper.html" class="spx-brand">
+        <div class="spx-brand-logo">🚚</div>
+        <div>
+          <div class="spx-brand-name">SPX EXPRESS</div>
+          <div class="spx-brand-sub">Hệ Thống Phân Phối Đơn Hàng Hikari Books</div>
+        </div>
+      </a>
+
+      <div class="spx-nav-user">
+        <div class="spx-shipper-badge">
+          <span class="spx-status-dot"></span>
+          <span id="shipperNameDisplay">Nguyễn Văn Giao (SPX-SG-88)</span>
+        </div>
+        <a href="index.html" class="spx-btn-logout" style="text-decoration: none;" title="Về trang chủ Hikari">
+          🏠 Trang Chủ
+        </a>
+        <button type="button" id="btnShipperLogout" class="spx-btn-logout" title="Đăng xuất khỏi ca làm việc">
+          Đăng Xuất
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- NỘI DUNG CHÍNH -->
+  <main class="spx-main-container">
+
+    <!-- METRICS THỐNG KÊ NHANH -->
+    <section class="spx-metrics-grid">
+      <div class="spx-metric-card">
+        <div class="spx-metric-icon spx-icon-orange">📦</div>
+        <div class="spx-metric-info">
+          <div class="spx-metric-label">Đơn cần giao ngay</div>
+          <div class="spx-metric-value" id="metricDeliveringCount">0</div>
+        </div>
+      </div>
+
+      <div class="spx-metric-card">
+        <div class="spx-metric-icon spx-icon-orange">💵</div>
+        <div class="spx-metric-info">
+          <div class="spx-metric-label">Tiền mặt COD cần thu</div>
+          <div class="spx-metric-value" id="metricCodTotal">0 ₫</div>
+        </div>
+      </div>
+
+      <div class="spx-metric-card">
+        <div class="spx-metric-icon spx-icon-green">✅</div>
+        <div class="spx-metric-info">
+          <div class="spx-metric-label">Đã thanh toán trước (0đ)</div>
+          <div class="spx-metric-value" id="metricPrepaidCount">0 đơn</div>
+        </div>
+      </div>
+
+      <div class="spx-metric-card">
+        <div class="spx-metric-icon spx-icon-blue">🎉</div>
+        <div class="spx-metric-info">
+          <div class="spx-metric-label">Giao thành công hôm nay</div>
+          <div class="spx-metric-value" id="metricCompletedCount">0</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- THANH ĐIỀU HƯỚNG TABS -->
+    <nav class="spx-tabs-bar">
+      <button type="button" class="spx-tab-btn active" data-tab="delivering">
+        <span>🚚 Kiện Cần Giao Hôm Nay</span>
+        <span class="spx-tab-badge" id="badgeDeliveringTab">0</span>
+      </button>
+      <button type="button" class="spx-tab-btn" data-tab="pending">
+        <span>📦 Kiện Chờ Hikari Xuất Kho</span>
+        <span class="spx-tab-badge" id="badgePendingTab">0</span>
+      </button>
+      <button type="button" class="spx-tab-btn" data-tab="completed">
+        <span>✅ Lịch Sử Đã Giao</span>
+        <span class="spx-tab-badge" id="badgeCompletedTab">0</span>
+      </button>
+    </nav>
+
+    <!-- KHU VỰC DANH SÁCH ĐƠN HÀNG -->
+    <section id="spxOrdersContainer" class="spx-orders-list">
+      <div style="text-align: center; padding: 3rem; color: #64748b;">
+        ⏳ Đang tải dữ liệu đơn vận chuyển SPX Express...
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL XÁC NHẬN GIAO HÀNG THÀNH CÔNG -->
+  <div class="spx-confirm-modal-overlay" id="spxConfirmDeliveryModal">
+    <div class="spx-confirm-card">
+      <div class="spx-confirm-header">
+        <span>✅ Xác Nhận Hoàn Tất Giao Hàng</span>
+        <button type="button" id="btnCloseSpxConfirmModal" style="background: none; border: none; color: #fff; font-size: 1.25rem; cursor: pointer;">✕</button>
+      </div>
+      <div class="spx-confirm-body" id="spxConfirmModalBody">
+        <!-- Render chi tiết xác nhận -->
+      </div>
+      <div class="spx-confirm-footer">
+        <button type="button" class="btn" id="btnCancelSpxConfirm" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer;">
+          Hủy Bỏ
+        </button>
+        <button type="button" class="btn" id="btnSubmitSpxConfirm" style="background: #16a34a; color: #ffffff; border: none; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+          ✓ Xác Nhận Đã Nhận Hàng
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT QUẢN LÝ SHIPPER -->
+  <script type="module" src="./js/shipper.js"></script>
+</body>
+</html>
