@@ -15,6 +15,17 @@ export const formatPrice = (price = 0) => {
   });
 };
 
+// Rút gọn tên danh mục để hiển thị gọn gàng trên các thẻ sách nhỏ (card)
+export const getShortCategoryName = (catName = '') => {
+  if (!catName) return 'Sách';
+  if (catName.includes('Manga')) return 'Manga';
+  if (catName.includes('Light Novel')) return 'Light Novel';
+  if (catName.includes('Tiểu Thuyết')) return 'Tiểu Thuyết';
+  if (catName.includes('Kỹ Năng')) return 'Kỹ Năng';
+  if (catName.includes('Artbook')) return 'Artbook';
+  return catName;
+};
+
 // Hiển thị thông báo Toast góc màn hình
 export const showToast = (message, type = 'success') => {
   let container = document.querySelector('#toastContainer');

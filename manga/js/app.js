@@ -3,7 +3,7 @@
  * Sử dụng ES6+: Modules, Arrow functions, Array methods (map, filter, find, sort, reduce), Destructuring
  */
 import { fetchCategories, fetchProducts, fetchBanners, fetchOrders } from './api.js';
-import { formatPrice, addToCart, updateCartBadge, checkCurrentUser } from './utils.js';
+import { formatPrice, addToCart, updateCartBadge, checkCurrentUser, getShortCategoryName } from './utils.js';
 
 // Quản lý trạng thái ứng dụng (Application State)
 const state = {
@@ -62,8 +62,10 @@ const createProductCardHtml = (product, options = {}) => {
 
       <div class="product-card-body">
         <div class="product-meta-row">
-          <span class="product-category-tag">${categoryName || 'Sách'}</span>
-          ${genre ? `<span class="product-genre-badge" style="background: #fdf2f8; color: #db2777; font-size: 0.68rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${genre}">🏷️ ${genre.split(',')[0]}</span>` : ''}
+          <div class="product-tags-group">
+            <span class="product-category-tag">${getShortCategoryName(categoryName)}</span>
+            ${genre ? `<span class="product-genre-badge" title="${genre}">🏷️ ${genre.split(',')[0].trim()}</span>` : ''}
+          </div>
           <span class="product-rating">★ ${rating || 5.0}</span>
         </div>
 
@@ -79,7 +81,7 @@ const createProductCardHtml = (product, options = {}) => {
         ${showSalesBadge 
           ? `
             <div class="product-sold-badge" title="Được tính tự động từ toàn bộ các hóa đơn trong CSDL">
-              <span>🔥 Đã bán:</span> <strong>${soldCount || 0}</strong> <span>cuốn (theo hóa đơn)</span>
+              <span>🔥 Đã bán:</span> <strong>${soldCount || 0}</strong> <span>cuốn</span>
             </div>
           ` 
           : ''
