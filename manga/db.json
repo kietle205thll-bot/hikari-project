@@ -538,6 +538,20 @@
       "status": "active",
       "usedCoupons": [],
       "createdAt": "2026-11-12T08:33:30.145Z"
+    },
+    {
+      "id": 1794657134837,
+      "name": "Nguyễn Văn Giao (Shipper SPX)",
+      "email": "shipper@spx.vn",
+      "phone": "0912345678",
+      "birthday": "1995-05-15",
+      "password": "123456",
+      "role": "shipper",
+      "status": "active",
+      "usedCoupons": [],
+      "address": "Bưu cục SPX Express Tân Phú, TP.HCM",
+      "wishlist": [],
+      "createdAt": "2026-11-14T11:52:14.565Z"
     }
   ],
   "orders": [
