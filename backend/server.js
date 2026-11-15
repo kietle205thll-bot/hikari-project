@@ -336,6 +336,20 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+app.post('/api/auth/verify-password', async (req, res) => {
+  try {
+    const { userId, password } = req.body;
+    if (!userId || !password) return res.status(400).json({ error: 'Missing userId or password' });
+    const userRes = await query('SELECT password FROM users WHERE id = $1', [userId]);
+    if (userRes.rows.length === 0) return res.status(404).json({ error: 'User not found' });
+    const isMatch = verifyPassword(password, userRes.rows[0].password);
+    res.json({ valid: isMatch });
+  } catch (err) {
+    console.error('Lỗi POST /api/auth/verify-password:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get('/users', async (req, res) => {
   try {
     const { email } = req.query;

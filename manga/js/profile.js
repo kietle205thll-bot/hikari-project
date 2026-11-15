@@ -28,7 +28,7 @@ import {
   isOrderCancelled,
   pushOrderNotification
 } from './api.js';
-import { sendOrderCompletedEmail } from './mailbox.js';
+import { sendOrderCompletedEmail, sendOtpEmail, openMailboxModal, sendVirtualEmail } from './mailbox.js';
 
 // State lưu trữ dữ liệu trang Profile
 const state = {
@@ -1299,11 +1299,201 @@ const setupProfileForms = () => {
     });
   }
 
-  // Form đổi mật khẩu (Áp dụng Password Complexity Policy)
+  // ================= 7B. QUẢN LÝ MẬT KHẨU (ĐỔI THƯỜNG & KHÔI PHÚC OTP QUA HÒM THƯ ẢO) =================
   const formChangePassword = document.querySelector('#formChangePassword');
-  if (formChangePassword) {
-    const PASSWORD_COMPLEXITY_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_#^])[A-Za-z\d@$!%*?&_#^]{8,}$/;
+  const formResetPasswordOtp = document.querySelector('#formResetPasswordOtp');
+  const btnSwitchToOtpReset = document.querySelector('#btnSwitchToOtpReset');
+  const btnBackToNormalChange = document.querySelector('#btnBackToNormalChange');
+  const btnSendProfileOtp = document.querySelector('#btnSendProfileOtp');
+  const btnOpenMailboxForOtp = document.querySelector('#btnOpenMailboxForOtp');
+  const otpTargetEmailDisplay = document.querySelector('#otpTargetEmailDisplay');
+  const otpStatusNotice = document.querySelector('#otpStatusNotice');
 
+  const PASSWORD_COMPLEXITY_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_#^])[A-Za-z\d@$!%*?&_#^]{8,}$/;
+
+  // State lưu OTP cho trang Profile
+  const profileOtpState = {
+    code: '',
+    expiresAt: 0
+  };
+
+  // 1. Chuyển đổi giữa 2 chế độ (Đổi thường <-> Khôi phục bằng OTP)
+  btnSwitchToOtpReset?.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (formChangePassword) formChangePassword.style.display = 'none';
+    if (formResetPasswordOtp) {
+      formResetPasswordOtp.style.display = 'block';
+      if (otpTargetEmailDisplay) {
+        otpTargetEmailDisplay.textContent = state.user?.email || 'email tài khoản';
+      }
+    }
+  });
+
+  btnBackToNormalChange?.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (formResetPasswordOtp) formResetPasswordOtp.style.display = 'none';
+    if (formChangePassword) formChangePassword.style.display = 'block';
+  });
+
+  // 2. Bấm nút "Mở Hòm Thư Ảo" để lấy mã
+  btnOpenMailboxForOtp?.addEventListener('click', () => {
+    try {
+      openMailboxModal();
+    } catch (e) {
+      console.warn('Lỗi mở hòm thư:', e);
+    }
+  });
+
+  // 3. Bấm nút "Gửi Mã OTP" vào Hòm Thư Ảo
+  btnSendProfileOtp?.addEventListener('click', async () => {
+    const userEmail = state.user?.email;
+    if (!userEmail) {
+      showToast('Không tìm thấy địa chỉ email tài khoản!', 'error');
+      return;
+    }
+
+    // Sinh mã OTP ngẫu nhiên 6 chữ số
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    profileOtpState.code = otpCode;
+    profileOtpState.expiresAt = Date.now() + 5 * 60 * 1000; // Hiệu lực 5 phút
+
+    // Gửi email chính thức vào Hòm Thư Ảo
+    try {
+      sendOtpEmail(userEmail, otpCode, 'Khôi phục mật khẩu tài khoản Hikari');
+    } catch (err) {
+      console.warn('Lỗi gửi OTP mailbox:', err);
+    }
+
+    // Đẩy thông báo chuông 🔔
+    try {
+      pushOrderNotification({
+        title: 'Mã xác thực OTP bảo mật',
+        message: `Mã OTP khôi phục mật khẩu của bạn là [${otpCode}] (hiệu lực 5 phút). Xem chi tiết trong Hòm Thư Ảo!`,
+        type: 'security'
+      });
+      updateNotificationsDisplay();
+    } catch (notifErr) {
+      console.warn('Lỗi đẩy thông báo chuông:', notifErr);
+    }
+
+    // Cập nhật trạng thái giao diện
+    if (otpStatusNotice) {
+      otpStatusNotice.style.display = 'block';
+      otpStatusNotice.textContent = `✓ Đã gửi mã OTP vào Hòm Thư Ảo! (Hết hạn lúc ${new Date(profileOtpState.expiresAt).toLocaleTimeString('vi-VN')})`;
+    }
+
+    showToast('✓ Mã OTP 6 số đã được gửi vào Hòm Thư Ảo! Bấm "Hòm Thư" để lấy mã.', 'success');
+    const inpOtp = document.querySelector('#inpOtpCode');
+    if (inpOtp) inpOtp.focus();
+  });
+
+  // 4. Form Đặt lại mật khẩu bằng mã OTP
+  formResetPasswordOtp?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const inputOtp = document.querySelector('#inpOtpCode')?.value.trim();
+    const newPass = document.querySelector('#inpOtpNewPass')?.value.trim();
+    const confirmPass = document.querySelector('#inpOtpConfirmPass')?.value.trim();
+
+    if (!inputOtp || !newPass || !confirmPass) {
+      showToast('Vui lòng điền đầy đủ mã OTP và mật khẩu mới!', 'error');
+      return;
+    }
+
+    if (!profileOtpState.code) {
+      showToast('Vui lòng bấm nút "📩 Gửi OTP" để nhận mã trước!', 'error');
+      return;
+    }
+
+    if (Date.now() > profileOtpState.expiresAt) {
+      showToast('Mã OTP đã hết hạn! Vui lòng bấm "Gửi OTP" để lấy mã mới.', 'error');
+      return;
+    }
+
+    if (inputOtp !== profileOtpState.code) {
+      showToast('Mã OTP không chính xác! Vui lòng kiểm tra lại trong Hòm Thư Ảo.', 'error');
+      return;
+    }
+
+    if (!PASSWORD_COMPLEXITY_REGEX.test(newPass)) {
+      showToast('Mật khẩu mới phải từ 8 ký tự trở lên, gồm chữ hoa, chữ thường, số và ký tự đặc biệt (VD: Hikari@2026)!', 'error');
+      return;
+    }
+
+    if (newPass !== confirmPass) {
+      showToast('Xác nhận mật khẩu mới không trùng khớp!', 'error');
+      return;
+    }
+
+    const submitBtn = document.querySelector('#btnSubmitOtpReset');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Đang lưu vào CSDL...';
+    }
+
+    try {
+      // Cập nhật mật khẩu trên backend (tự động băm Bcrypt trên server)
+      await api.patch(`/users/${state.user.id}`, { password: newPass });
+
+      // Cập nhật state & localStorage an toàn
+      state.user.password = newPass;
+      localStorage.setItem('user', JSON.stringify(state.user));
+
+      const localUsers = JSON.parse(localStorage.getItem('registered_users')) || [];
+      const userIdx = localUsers.findIndex(u => String(u.id) === String(state.user.id));
+      if (userIdx !== -1) {
+        localUsers[userIdx].password = newPass;
+        localStorage.setItem('registered_users', JSON.stringify(localUsers));
+      }
+
+      // Gửi thư thông báo bảo mật thành công vào Hòm Thư Ảo
+      try {
+        sendVirtualEmail({
+          to: state.user.email,
+          subject: '🔒 [Hikari Security] Mật khẩu tài khoản đã được thay đổi thành công',
+          preview: 'Mật khẩu tài khoản của bạn vừa được cập nhật thành công bằng mã OTP...',
+          category: 'security',
+          body: `
+            <div style="font-family: sans-serif; color: #334155; line-height: 1.6;">
+              <h2 style="color: #059669; margin-top: 0;">✓ Cập Nhật Mật Khẩu Thành Công</h2>
+              <p>Xin chào <strong>${state.user.name || 'bạn'}</strong>,</p>
+              <p>Mật khẩu tài khoản Hikari BookStore của bạn đã được thay đổi thành công bằng mã xác thực OTP vào lúc <strong>${new Date().toLocaleString('vi-VN')}</strong>.</p>
+              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin: 16px 0;">
+                <div>Tài khoản: <strong>${state.user.email}</strong></div>
+                <div>Trạng thái: <span style="color: #059669; font-weight: 700;">Đã bảo mật với Bcrypt Hash</span></div>
+              </div>
+              <p style="font-size: 13px; color: #64748b;">Nếu không phải bạn thực hiện thao tác này, vui lòng liên hệ ngay với ban quản trị Hikari BookStore để được trợ giúp.</p>
+            </div>
+          `
+        });
+      } catch (mailErr) {
+        console.warn('Lỗi gửi thư thông báo:', mailErr);
+      }
+
+      // Xóa state OTP
+      profileOtpState.code = '';
+      profileOtpState.expiresAt = 0;
+      formResetPasswordOtp.reset();
+      if (otpStatusNotice) otpStatusNotice.style.display = 'none';
+
+      showToast('✓ Đặt lại mật khẩu mới thành công! Mật khẩu mới đã được kích hoạt.', 'success');
+
+      // Chuyển về form đổi thường
+      formResetPasswordOtp.style.display = 'none';
+      if (formChangePassword) formChangePassword.style.display = 'block';
+
+    } catch (err) {
+      console.error('Lỗi đặt lại mật khẩu:', err);
+      showToast('Có lỗi xảy ra khi lưu mật khẩu vào CSDL!', 'error');
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '✅ Xác Nhận Đặt Lại Mật Khẩu';
+      }
+    }
+  });
+
+  // 5. Form đổi mật khẩu thông thường (Khi còn nhớ mật khẩu cũ)
+  if (formChangePassword) {
     formChangePassword.addEventListener('submit', async (e) => {
       e.preventDefault();
       const oldPass = document.querySelector('#inpOldPass')?.value.trim();
@@ -1315,22 +1505,22 @@ const setupProfileForms = () => {
         return;
       }
 
-      // Xác minh mật khẩu hiện tại
-      let actualCurrentPassword = state.user?.password;
-      if (!actualCurrentPassword) {
-        try {
-          const res = await api.get(`/users/${state.user.id}`);
-          actualCurrentPassword = res.data?.password;
-        } catch (fetchErr) {
-          const regUsers = JSON.parse(localStorage.getItem('registered_users')) || [];
-          const found = regUsers.find(u => String(u.id) === String(state.user.id));
-          actualCurrentPassword = found?.password;
+      // Xác minh mật khẩu hiện tại với Backend
+      try {
+        const verifyRes = await api.post('/api/auth/verify-password', {
+          userId: state.user.id,
+          password: oldPass
+        });
+        if (verifyRes.data && verifyRes.data.valid === false) {
+          showToast('Mật khẩu hiện tại không chính xác! Nếu quên, bạn hãy bấm "Quên mật khẩu? Lấy mã OTP" ở phía trên.', 'error');
+          return;
         }
-      }
-
-      if (actualCurrentPassword && actualCurrentPassword !== oldPass) {
-        showToast('Mật khẩu hiện tại không chính xác!', 'error');
-        return;
+      } catch (err) {
+        // Fallback kiểm tra state nếu offline
+        if (state.user?.password && state.user.password !== oldPass && !state.user.password.startsWith('$2b$')) {
+          showToast('Mật khẩu hiện tại không chính xác!', 'error');
+          return;
+        }
       }
 
       if (oldPass === newPass) {
@@ -1359,7 +1549,7 @@ const setupProfileForms = () => {
         localStorage.setItem('registered_users', JSON.stringify(localUsers));
       }
 
-      // Đồng bộ về JSON-Server
+      // Đồng bộ về backend (tự động Bcrypt hash trên server)
       try {
         await api.patch(`/users/${state.user.id}`, { password: newPass });
       } catch (err) {

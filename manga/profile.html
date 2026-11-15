@@ -454,18 +454,24 @@
           <div class="profile-tab-section" id="tabPane_password">
             <div class="section-page-header">
               <div>
-                <h2 class="section-page-title">
+                <h2 class="section-page-title" id="passwordSectionTitle">
                   <span>🔒</span> Đổi Mật Khẩu
                 </h2>
-                <p class="section-page-desc">
+                <p class="section-page-desc" id="passwordSectionDesc">
                   Bảo vệ tài khoản bằng mật khẩu tối thiểu 8 ký tự (gồm chữ hoa, chữ thường, số và ký tự @...)
                 </p>
               </div>
             </div>
 
+            <!-- CHẾ ĐỘ 1: ĐỔI MẬT KHẨU THÔNG THƯỜNG -->
             <form id="formChangePassword" class="auth-form" style="max-width: 480px;" novalidate>
               <div class="form-group">
-                <label for="inpOldPass" class="form-label">Mật khẩu hiện tại *</label>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                  <label for="inpOldPass" class="form-label" style="margin-bottom: 0;">Mật khẩu hiện tại *</label>
+                  <a href="#" id="btnSwitchToOtpReset" style="font-size: 0.78rem; font-weight: 700; color: #e11d48; text-decoration: none;">
+                    🔑 Quên mật khẩu? Lấy mã OTP →
+                  </a>
+                </div>
                 <input type="password" id="inpOldPass" class="form-input" placeholder="Nhập mật khẩu cũ đang dùng" style="padding-left: 1rem;" required />
               </div>
 
@@ -482,6 +488,52 @@
               <div style="margin-top: 1.5rem;">
                 <button type="submit" class="btn btn-primary" id="btnUpdatePassword" style="padding: 0.85rem 1.75rem; font-weight: 700;">
                   🔒 Cập Nhật Mật Khẩu
+                </button>
+              </div>
+            </form>
+
+            <!-- CHẾ ĐỘ 2: ĐẶT LẠI MẬT KHẨU BẰNG MÃ OTP QUA HÒM THƯ ẢO (KHI QUÊN MẬT KHẨU CŨ) -->
+            <form id="formResetPasswordOtp" class="auth-form" style="max-width: 480px; display: none;" novalidate>
+              <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px 14px; margin-bottom: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <span style="font-size: 0.82rem; font-weight: 800; color: #1e40af;">📬 Nhận mã OTP qua Hòm Thư Ảo</span>
+                  <a href="#" id="btnBackToNormalChange" style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-decoration: none;">
+                    ← Quay lại đổi thường
+                  </a>
+                </div>
+                <div style="font-size: 0.78rem; color: #3b82f6; line-height: 1.4;">
+                  Hệ thống bảo mật sẽ gửi mã OTP 6 số đến <strong>Hòm Thư Ảo 📬</strong> của tài khoản <strong id="otpTargetEmailDisplay" style="color: #1e3a8a;">email</strong>.
+                </div>
+              </div>
+
+              <!-- Ô NHẬP OTP + NÚT GỬI + NÚT MỞ HÒM THƯ -->
+              <div class="form-group">
+                <label for="inpOtpCode" class="form-label">Mã xác thực OTP (6 chữ số) *</label>
+                <div style="display: flex; gap: 0.5rem; align-items: stretch;">
+                  <input type="text" id="inpOtpCode" class="form-input" placeholder="Ví dụ: 829143" maxlength="6" style="padding-left: 1rem; font-weight: 800; letter-spacing: 2px; font-size: 1.05rem;" required />
+                  <button type="button" id="btnSendProfileOtp" class="btn" style="background: #e11d48; color: #fff; font-weight: 700; white-space: nowrap; padding: 0 0.85rem; font-size: 0.82rem; border-radius: 8px;">
+                    📩 Gửi OTP
+                  </button>
+                  <button type="button" id="btnOpenMailboxForOtp" class="btn" style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-weight: 700; white-space: nowrap; padding: 0 0.75rem; font-size: 0.82rem; border-radius: 8px;" title="Mở nhanh Hòm Thư Ảo">
+                    📬 Hòm Thư
+                  </button>
+                </div>
+                <div id="otpStatusNotice" style="font-size: 0.78rem; color: #15803d; font-weight: 700; margin-top: 6px; display: none;"></div>
+              </div>
+
+              <div class="form-group" style="margin-top: 1rem;">
+                <label for="inpOtpNewPass" class="form-label">Mật khẩu mới *</label>
+                <input type="password" id="inpOtpNewPass" class="form-input" placeholder="Tối thiểu 8 ký tự (hoa, thường, số, ký tự @...)" style="padding-left: 1rem;" required />
+              </div>
+
+              <div class="form-group" style="margin-top: 1rem;">
+                <label for="inpOtpConfirmPass" class="form-label">Xác nhận mật khẩu mới *</label>
+                <input type="password" id="inpOtpConfirmPass" class="form-input" placeholder="Nhập lại mật khẩu mới" style="padding-left: 1rem;" required />
+              </div>
+
+              <div style="margin-top: 1.5rem;">
+                <button type="submit" class="btn btn-primary" id="btnSubmitOtpReset" style="padding: 0.85rem 1.75rem; font-weight: 700; width: 100%; justify-content: center;">
+                  ✅ Xác Nhận Đặt Lại Mật Khẩu
                 </button>
               </div>
             </form>
