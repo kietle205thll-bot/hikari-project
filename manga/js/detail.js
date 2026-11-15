@@ -22,7 +22,11 @@ const renderBreadcrumb = (product) => {
   breadcrumbEl.innerHTML = `
     <a href="index.html">Trang chủ</a>
     <span class="breadcrumb-separator">/</span>
-    <a href="index.html">${product.categoryName || 'Sách'}</a>
+    <a href="products.html">${product.categoryName || 'Sách'}</a>
+    ${product.genre ? `
+      <span class="breadcrumb-separator">/</span>
+      <span style="color: #64748b; font-weight: 500;">${product.genre}</span>
+    ` : ''}
     <span class="breadcrumb-separator">/</span>
     <span class="breadcrumb-current">${product.name}</span>
   `;
@@ -93,20 +97,18 @@ const renderProductDetail = (product) => {
 
       <!-- CỘT PHẢI: THÔNG TIN CHI TIẾT SÁCH -->
       <div class="detail-info-wrap">
-        <span class="detail-category-badge">${categoryName || 'Sách chính hãng'}</span>
-        <h1 class="detail-title">${name}</h1>
-
-        <div class="detail-rating-row">
-          <span class="rating-stars">★★★★★</span>
-          <span class="rating-text">${rating || 5.0} / 5.0</span>
-          <span class="rating-count">(${reviewsCount || 100} lượt đánh giá)</span>
+        <div class="detail-tags-row" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 0.85rem;">
+          <span class="detail-category-badge" style="margin-bottom: 0;">${categoryName || 'Sách chính hãng'}</span>
+          ${genre ? `<span class="detail-genre-badge" style="background: #fdf2f8; color: #db2777; font-size: 0.8125rem; font-weight: 700; padding: 0.3rem 0.75rem; border-radius: 9999px; border: 1px solid #fbcfe8; display: inline-flex; align-items: center; gap: 4px;">🏷️ Thể loại: ${genre}</span>` : ''}
         </div>
+        <h1 class="detail-title">${name}</h1>
 
         <div class="detail-meta-list">
           <div>Tác giả: <strong>${author || 'Đang cập nhật'}</strong></div>
           <div>NXB: <strong>${publisher || 'Đang cập nhật'}</strong></div>
           <div>Dịch giả: <strong>${translator || 'Nguyên tác'}</strong></div>
           <div>Năm XB: <strong>${publishYear || 2024}</strong></div>
+          ${genre ? `<div>Thể loại: <strong style="color: #db2777;">${genre}</strong></div>` : ''}
         </div>
 
         <!-- KHỐI GIÁ BÁN -->
@@ -198,7 +200,7 @@ const renderProductDetail = (product) => {
           </tr>
           <tr>
             <th>Thể loại</th>
-            <td>${genre || 'Đang cập nhật'}</td>
+            <td><strong style="color: #db2777;">${genre || 'Đang cập nhật'}</strong></td>
           </tr>
           <tr>
             <th>Số trang</th>

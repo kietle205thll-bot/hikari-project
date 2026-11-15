@@ -62,10 +62,7 @@ const createProductCardHtml = (product, options = {}) => {
 
       <div class="product-card-body">
         <div class="product-meta-row">
-          <div class="product-tags-group">
-            <span class="product-category-tag">${getShortCategoryName(categoryName)}</span>
-            ${genre ? `<span class="product-genre-badge" title="${genre}">🏷️ ${genre.split(',')[0].trim()}</span>` : ''}
-          </div>
+          <span class="product-category-tag">${getShortCategoryName(categoryName)}</span>
           <span class="product-rating">★ ${rating || 5.0}</span>
         </div>
 

@@ -81,10 +81,7 @@ const createProductCardHtml = (product) => {
 
       <div class="product-card-body">
         <div class="product-meta-row">
-          <div class="product-tags-group">
-            <span class="product-category-tag">${getShortCategoryName(categoryName)}</span>
-            ${genre ? `<span class="product-genre-badge" title="${genre}">🏷️ ${genre.split(',')[0].trim()}</span>` : ''}
-          </div>
+          <span class="product-category-tag">${getShortCategoryName(categoryName)}</span>
           <span class="product-rating">★ ${rating || 5.0}</span>
         </div>
 
@@ -579,10 +576,6 @@ const resetFilters = () => {
   if (discountSelect) discountSelect.value = 'all';
   if (sortSelect) sortSelect.value = 'hot';
 
-  document.querySelectorAll('.genre-pill').forEach(pill => {
-    pill.classList.toggle('active', pill.dataset.genre === 'all');
-  });
-
   applyFiltersAndRender(true);
 };
 
@@ -632,20 +625,6 @@ const setupEventListeners = () => {
     state.sortBy = e.target.value;
     applyFiltersAndRender();
   });
-
-  // 4b. Bộ lọc Thể loại (Genre Pills)
-  const genrePillsContainer = document.querySelector('#genrePillsList');
-  if (genrePillsContainer) {
-    genrePillsContainer.addEventListener('click', (e) => {
-      const pill = e.target.closest('.genre-pill');
-      if (!pill) return;
-      const targetGenre = pill.dataset.genre || 'all';
-      state.currentGenre = targetGenre;
-      genrePillsContainer.querySelectorAll('.genre-pill').forEach(p => p.classList.remove('active'));
-      pill.classList.add('active');
-      applyFiltersAndRender(true);
-    });
-  }
 
   // 5. Nút Reset
   const btnReset = document.querySelector('#btnResetFilters');

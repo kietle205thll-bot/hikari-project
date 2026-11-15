@@ -122,6 +122,14 @@
   flex-direction: column;
 }
 
+.detail-tags-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
 .detail-category-badge {
   display: inline-block;
   align-self: flex-start;
@@ -131,7 +139,19 @@
   font-weight: 700;
   padding: 0.3rem 0.75rem;
   border-radius: var(--radius-full);
-  margin-bottom: 0.75rem;
+}
+
+.detail-genre-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #fdf2f8;
+  color: #db2777;
+  border: 1px solid #fbcfe8;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-full);
 }
 
 .detail-title {
