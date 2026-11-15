@@ -1,22 +1,28 @@
 const express = require('express');
 const cors = require('cors');
 const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 require('dotenv').config();
 const { query } = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Khóa salt băm mật khẩu bảo mật
-const AUTH_SALT = process.env.AUTH_SALT || 'hikari_books_secure_salt_2026';
+// Băm mật khẩu bảo mật chuẩn Bcrypt ($2b$10$... chứa các ký tự đặc biệt $, /, .)
 const hashPassword = (plain) => {
-  return crypto.createHmac('sha256', AUTH_SALT).update(String(plain)).digest('hex');
+  return bcrypt.hashSync(String(plain), 10);
 };
 
 const verifyPassword = (plain, stored) => {
   if (!stored) return false;
-  // Khớp mã băm HMAC-SHA256 HOẶC khớp mật khẩu chữ (cho tài khoản demo cũ: 123, 123456)
-  return String(stored) === hashPassword(plain) || String(stored) === String(plain);
+  // 1. Kiểm tra chuẩn Bcrypt ($2a$, $2b$)
+  if (stored.startsWith('$2a$') || stored.startsWith('$2b$')) {
+    return bcrypt.compareSync(String(plain), stored);
+  }
+  // 2. Dự phòng chuẩn cũ HMAC-SHA256 hoặc chữ thường
+  const AUTH_SALT = process.env.AUTH_SALT || 'hikari_books_secure_salt_2026';
+  const legacyHmac = crypto.createHmac('sha256', AUTH_SALT).update(String(plain)).digest('hex');
+  return String(stored) === legacyHmac || String(stored) === String(plain);
 };
 
 // Cột công khai an toàn của bảng users (Tuyệt đối không lộ password khi F12)
@@ -289,8 +295,8 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(401).json({ error: 'Tên đăng nhập hoặc mật khẩu không chính xác' });
     }
 
-    // Tự động nâng cấp mật khẩu cũ sang dạng băm mã hóa bảo mật trên Neon
-    if (user.password && user.password !== hashPassword(password)) {
+    // Tự động nâng cấp mật khẩu sang dạng Bcrypt chuẩn trên Neon nếu chưa phải bcrypt
+    if (user.password && !user.password.startsWith('$2b$') && !user.password.startsWith('$2a$')) {
       await query('UPDATE users SET password = $1 WHERE id = $2', [hashPassword(password), user.id]).catch(() => {});
     }
 
