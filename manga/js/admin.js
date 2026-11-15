@@ -935,6 +935,7 @@ const renderScopedOrdersTable = (scopedOrders, groups, activeGroupFilter) => {
       case 'Chờ xác nhận': return '⏳ Chờ xác nhận';
       case 'Đang xử lý': return '📦 Đang xử lý';
       case 'Đang giao hàng': return '🚚 Đang giao hàng';
+      case 'Đã giao hàng': return '📦 Đã giao hàng';
       case 'Đã hoàn thành': return '✅ Đã hoàn thành';
       case 'Đã hủy': return '❌ Đã hủy';
       default: return `✓ ${escapeHtml(status || 'Đã ghi nhận')}`;
@@ -956,7 +957,9 @@ const renderScopedOrdersTable = (scopedOrders, groups, activeGroupFilter) => {
     } else if (currentStatus === 'Đang xử lý') {
       stepActionHtml = `<button type="button" class="btn-order-step" data-order-id="${order.id}" data-next-status="Đang giao hàng" style="width: 100%; padding: 5px 8px; border-radius: 6px; border: 1px solid #7e22ce; background: #7e22ce; color: #ffffff; font-size: 0.75rem; font-weight: 700; cursor: pointer;">🚚 Giao hàng (+ Vận đơn)</button>`;
     } else if (!isAdmin && currentStatus === 'Đang giao hàng') {
-      stepActionHtml = `<div style="font-size: 0.72rem; color: #6b21a8; font-weight: 600;">⏳ Chờ khách bấm "Đã nhận hàng"</div>`;
+      stepActionHtml = `<div style="font-size: 0.72rem; color: #7e22ce; font-weight: 600;">🚚 Bưu tá đang giao</div>`;
+    } else if (!isAdmin && currentStatus === 'Đã giao hàng') {
+      stepActionHtml = `<div style="font-size: 0.72rem; color: #0284c7; font-weight: 600;">⏳ Bưu tá đã giao - Chờ khách nhận</div>`;
     }
 
     const adminSelectHtml = isAdmin ? `
@@ -964,6 +967,7 @@ const renderScopedOrdersTable = (scopedOrders, groups, activeGroupFilter) => {
       <option value="Chờ xác nhận" ${currentStatus === 'Chờ xác nhận' ? 'selected' : ''}>⏳ Chờ xác nhận</option>
       <option value="Đang xử lý" ${currentStatus === 'Đang xử lý' ? 'selected' : ''}>📦 Đang xử lý</option>
       <option value="Đang giao hàng" ${currentStatus === 'Đang giao hàng' ? 'selected' : ''}>🚚 Đang giao hàng</option>
+      <option value="Đã giao hàng" ${currentStatus === 'Đã giao hàng' ? 'selected' : ''}>📦 Đã giao hàng</option>
       <option value="Đã hoàn thành" ${currentStatus === 'Đã hoàn thành' ? 'selected' : ''}>✅ Đã hoàn thành</option>
       <option value="Đã hủy" ${currentStatus === 'Đã hủy' ? 'selected' : ''}>❌ Đã hủy</option>
     </select>
@@ -1112,6 +1116,7 @@ const getStatusBadgeBg = (status) => {
     case 'Chờ xác nhận': return '#fef3c7';
     case 'Đang xử lý': return '#e0f2fe';
     case 'Đang giao hàng': return '#f3e8ff';
+    case 'Đã giao hàng': return '#e0f2fe';
     case 'Đã hoàn thành': return '#dcfce7';
     case 'Đã hủy': return '#fee2e2';
     default: return '#dcfce7';
@@ -1123,6 +1128,7 @@ const getStatusBadgeColor = (status) => {
     case 'Chờ xác nhận': return '#b45309';
     case 'Đang xử lý': return '#0369a1';
     case 'Đang giao hàng': return '#7e22ce';
+    case 'Đã giao hàng': return '#0284c7';
     case 'Đã hoàn thành': return '#15803d';
     case 'Đã hủy': return '#b91c1c';
     default: return '#15803d';
@@ -1399,6 +1405,13 @@ const setupRevenueEventListeners = () => {
         sendOrderShippedEmail(order, patchPayload.trackingCode);
       } catch (mailErr) {
         console.warn('Lỗi gửi email SPX giao hàng:', mailErr);
+      }
+    } else if (targetStatus === 'Đã giao hàng') {
+      notifMessage = `Bưu tá SPX Express đã bàn giao kiện hàng #${orderCode} đến bạn! Vui lòng bấm "Đã nhận được hàng" để hoàn tất đơn.`;
+      try {
+        sendOrderCompletedEmail(order);
+      } catch (mailErr) {
+        console.warn('Lỗi gửi email giao hàng đơn:', mailErr);
       }
     } else if (targetStatus === 'Đã hoàn thành') {
       notifMessage = `Đơn hàng #${orderCode} đã hoàn thành.`;

@@ -877,7 +877,9 @@ export const syncNotificationsFromOrders = async () => {
 
       let notifMsg = '';
       if (status === 'Đã hoàn thành') {
-        notifMsg = `Đơn hàng #${orderCode} đã giao thành công bởi SPX Express!`;
+        notifMsg = `Đơn hàng #${orderCode} đã hoàn tất và xuất hóa đơn điện tử VAT!`;
+      } else if (status === 'Đã giao hàng') {
+        notifMsg = `Bưu tá SPX Express đã giao kiện hàng #${orderCode}! Mời bạn bấm "Đã nhận được hàng" để hoàn tất.`;
       } else if (status === 'Đang giao hàng') {
         notifMsg = `Đơn hàng #${orderCode} đang được giao đến bạn (Mã VĐ: ${o.trackingCode || 'SPX'}).`;
       } else if (isPaid && status === 'Đang xử lý') {

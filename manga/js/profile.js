@@ -396,8 +396,9 @@ const renderVipTab = () => {
 const ORDER_LIFECYCLE_STEPS = [
   { key: 'Chờ xác nhận', icon: '⏳', label: 'Chờ xác nhận' },
   { key: 'Đang xử lý', icon: '📦', label: 'Đang xử lý' },
-  { key: 'Đang giao hàng', icon: '🚚', label: 'Đang giao hàng' },
-  { key: 'Đã hoàn thành', icon: '✅', label: 'Đã hoàn thành' }
+  { key: 'Đang giao hàng', icon: '🚚', label: 'Đang giao' },
+  { key: 'Đã giao hàng', icon: '📦', label: 'Đã giao' },
+  { key: 'Đã hoàn thành', icon: '✅', label: 'Hoàn thành' }
 ];
 
 const getOrderStatusBadge = (status) => {
@@ -409,6 +410,8 @@ const getOrderStatusBadge = (status) => {
       return '<span style="background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 0.8rem;">📦 Đang xử lý</span>';
     case 'Đang giao hàng':
       return '<span style="background: #f3e8ff; color: #7e22ce; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 0.8rem;">🚚 Đang giao hàng</span>';
+    case 'Đã giao hàng':
+      return '<span style="background: #e0f2fe; color: #0284c7; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 0.8rem; border: 1px solid #7dd3fc;">📦 Đã giao (Chờ bạn nhận)</span>';
     case 'Đã hoàn thành':
       return '<span style="background: #dcfce7; color: #15803d; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 0.8rem;">✅ Đã hoàn thành</span>';
     case 'Đã hủy':
@@ -660,21 +663,28 @@ const renderOrdersTab = () => {
       : 'Chuyển khoản Ngân hàng / Ví MoMo (QR)';
     const currentStatus = normalizeOrderStatus(order.status);
     const trackingCode = String(order.trackingCode || '').trim();
-    const canConfirmReceived = currentStatus === 'Đang giao hàng';
+    const canConfirmReceived = currentStatus === 'Đã giao hàng';
     const canCancelCod = isCodOrder && (currentStatus === 'Chờ xác nhận' || currentStatus === 'Đang xử lý');
 
     let policyNoticeHtml = '';
     if (!isOrderCancelled(order)) {
-      if (!isCodOrder) {
+      if (currentStatus === 'Đã giao hàng') {
         policyNoticeHtml = `
-          <div style="margin-top: 0.5rem; padding: 0.45rem 0.75rem; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 6px; font-size: 0.76rem; color: #9a3412;">
-            🔒 <strong>Chính sách thanh toán chuyển khoản:</strong> Đơn đã thanh toán online không hỗ trợ hủy hoặc trả hàng. Hỗ trợ đổi cuốn lỗi in ấn qua Hotline <strong>1900 6868</strong>.
+          <div style="margin-top: 0.5rem; padding: 0.5rem 0.85rem; background: #ecfdf5; border: 1px solid #86efac; border-radius: 6px; font-size: 0.78rem; color: #166534; font-weight: 600; display: flex; align-items: center; gap: 0.4rem;">
+            <span>🎉</span>
+            <span>Bưu tá SPX Express đã bàn giao kiện hàng đến bạn. Vui lòng kiểm tra sách và bấm <strong>"✅ Đã nhận được hàng"</strong> để hoàn tất đơn!</span>
           </div>
         `;
       } else if (currentStatus === 'Đang giao hàng') {
         policyNoticeHtml = `
           <div style="margin-top: 0.5rem; padding: 0.45rem 0.75rem; background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 6px; font-size: 0.76rem; color: #5b21b6;">
-            🚚 Đơn COD đang trên đường giao đến bạn nên không thể hủy trực tuyến. Khi nhận được kiện hàng, vui lòng bấm <strong>"Đã nhận được hàng"</strong>.
+            🚚 Kiện hàng đang trên tuyến giao. Bưu tá SPX Express đang trên đường đến địa chỉ của bạn. Nút <strong>"Đã nhận được hàng"</strong> sẽ tự động xuất hiện ngay sau khi bưu tá giao hàng tới nơi.
+          </div>
+        `;
+      } else if (!isCodOrder) {
+        policyNoticeHtml = `
+          <div style="margin-top: 0.5rem; padding: 0.45rem 0.75rem; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 6px; font-size: 0.76rem; color: #9a3412;">
+            🔒 <strong>Chính sách thanh toán chuyển khoản:</strong> Đơn đã thanh toán online không hỗ trợ hủy hoặc trả hàng. Hỗ trợ đổi cuốn lỗi in ấn qua Hotline <strong>1900 6868</strong>.
           </div>
         `;
       } else if (canCancelCod) {

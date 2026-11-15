@@ -293,9 +293,8 @@ export const normalizeOrderStatus = (status) => {
   if (normalized === 'pending' || normalized === 'chờ xác nhận') return 'Chờ xác nhận';
   if (normalized === 'processing' || normalized === 'đang xử lý') return 'Đang xử lý';
   if (normalized === 'shipping' || normalized === 'đang giao hàng') return 'Đang giao hàng';
-  if (normalized === 'delivered' || normalized === 'completed' || normalized === 'đã hoàn thành' || normalized === 'đã giao hàng') {
-    return 'Đã hoàn thành';
-  }
+  if (normalized === 'delivered' || normalized === 'đã giao hàng') return 'Đã giao hàng';
+  if (normalized === 'completed' || normalized === 'đã hoàn thành') return 'Đã hoàn thành';
   if (normalized === 'cancelled' || normalized === 'canceled' || normalized === 'đã hủy') return 'Đã hủy';
   return status;
 };

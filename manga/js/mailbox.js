@@ -812,10 +812,10 @@ export const syncMailboxFromOrders = async () => {
 
       if (!hasEmail) {
         sendOrderPlacedEmail(o, false);
-        if (o.status === 'Đang giao hàng' || o.status === 'Đã hoàn thành') {
+        if (o.status === 'Đang giao hàng' || o.status === 'Đã giao hàng' || o.status === 'Đã hoàn thành') {
           sendOrderShippedEmail(o, o.trackingCode || `SPX-${orderCode}`, false);
         }
-        if (o.status === 'Đã hoàn thành') {
+        if (o.status === 'Đã giao hàng' || o.status === 'Đã hoàn thành') {
           sendOrderCompletedEmail(o, false);
         }
         hasNew = true;

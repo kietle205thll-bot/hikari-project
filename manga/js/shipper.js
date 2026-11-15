@@ -73,7 +73,10 @@ const loadOrders = async () => {
  */
 const updateMetrics = () => {
   const deliveringOrders = state.allOrders.filter(o => normalizeOrderStatus(o.status) === 'Đang giao hàng');
-  const completedOrders = state.allOrders.filter(o => normalizeOrderStatus(o.status) === 'Đã hoàn thành');
+  const completedOrders = state.allOrders.filter(o => {
+    const st = normalizeOrderStatus(o.status);
+    return st === 'Đã hoàn thành' || st === 'Đã giao hàng';
+  });
 
   // Đếm đơn giao
   const metricDeliveringCount = document.querySelector('#metricDeliveringCount');
@@ -112,7 +115,10 @@ const renderTabBadges = () => {
     const st = normalizeOrderStatus(o.status);
     return st === 'Chờ xác nhận' || st === 'Đang xử lý';
   }).length;
-  const completedCount = state.allOrders.filter(o => normalizeOrderStatus(o.status) === 'Đã hoàn thành').length;
+  const completedCount = state.allOrders.filter(o => {
+    const st = normalizeOrderStatus(o.status);
+    return st === 'Đã hoàn thành' || st === 'Đã giao hàng';
+  }).length;
 
   const bDelivering = document.querySelector('#badgeDeliveringTab');
   const bPending = document.querySelector('#badgePendingTab');
@@ -139,7 +145,10 @@ const renderOrders = () => {
       return st === 'Chờ xác nhận' || st === 'Đang xử lý';
     });
   } else if (state.activeTab === 'completed') {
-    filtered = state.allOrders.filter(o => normalizeOrderStatus(o.status) === 'Đã hoàn thành');
+    filtered = state.allOrders.filter(o => {
+      const st = normalizeOrderStatus(o.status);
+      return st === 'Đã hoàn thành' || st === 'Đã giao hàng';
+    });
   }
 
   // Sắp xếp đơn mới nhất lên đầu
@@ -223,11 +232,18 @@ const renderOrders = () => {
           </button>
         </div>
       `;
+    } else if (currentStatus === 'Đã giao hàng') {
+      actionsHtml = `
+        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.65rem 1rem; color: #15803d; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
+          <span>✓ Bưu tá đã bàn giao cho khách (${order.completedAt ? new Date(order.completedAt).toLocaleString('vi-VN') : 'Mới giao'})</span>
+          <span style="font-size: 0.75rem; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 2px 8px; border-radius: 4px; font-weight: 700;">⏳ Chờ khách xác nhận nhận hàng</span>
+        </div>
+      `;
     } else if (currentStatus === 'Đã hoàn thành') {
       actionsHtml = `
-        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.65rem 1rem; color: #15803d; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: space-between;">
-          <span>✓ Đã giao thành công vào: ${order.completedAt ? new Date(order.completedAt).toLocaleString('vi-VN') : 'Gần đây'}</span>
-          <span style="font-size: 0.75rem; background: #dcfce7; padding: 2px 8px; border-radius: 4px;">Đã phát hành hóa đơn PDF</span>
+        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.65rem 1rem; color: #15803d; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
+          <span>✓ Khách đã xác nhận nhận hàng: ${order.completedAt ? new Date(order.completedAt).toLocaleString('vi-VN') : 'Đã hoàn tất'}</span>
+          <span style="font-size: 0.75rem; background: #dcfce7; padding: 2px 8px; border-radius: 4px; font-weight: 700;">Đã phát hành hóa đơn PDF</span>
         </div>
       `;
     } else {
@@ -366,7 +382,7 @@ const openConfirmModal = (order) => {
     </div>
 
     <p style="font-size: 0.8rem; color: #64748b; margin-top: 1rem; text-align: center;">
-      💡 Khi xác nhận, hệ thống sẽ tự động cập nhật đơn sang <strong>"Đã hoàn thành"</strong> và gửi email thông báo kèm <strong>Hóa đơn VAT điện tử PDF</strong> cho khách hàng.
+      💡 Khi xác nhận, hệ thống sẽ cập nhật trạng thái <strong>"Đã giao hàng"</strong> và kích hoạt nút <strong>"Đã nhận được hàng"</strong> ở phía khách hàng để khách kiểm tra sách.
     </p>
   `;
 
@@ -398,7 +414,7 @@ const submitDeliveryCompletion = async () => {
   try {
     const nowIso = new Date().toISOString();
     const patchPayload = {
-      status: 'Đã hoàn thành',
+      status: 'Đã giao hàng',
       completedAt: nowIso
     };
 
@@ -410,21 +426,21 @@ const submitDeliveryCompletion = async () => {
     const updated = await updateOrder(order.id, patchPayload);
     Object.assign(order, updated || patchPayload);
 
-    // 2. Gửi email hoàn thành kèm Hóa đơn VAT Điện Tử PDF vào Hòm thư ảo của khách hàng & Chuông thông báo
+    // 2. Gửi thông báo đến Chuông và Hòm thư ảo của khách hàng
     try {
       sendOrderCompletedEmail(order);
-      pushOrderNotification(order, `Đơn hàng #${order.orderCode || order.id} đã giao thành công bởi SPX Express!`, 'Đã hoàn thành');
+      pushOrderNotification(order, `Bưu tá SPX Express đã giao thành công đơn hàng #${order.orderCode || order.id}! Mời bạn bấm "Đã nhận được hàng" để hoàn tất.`, 'Đã giao hàng');
     } catch (mailErr) {
-      console.warn('Lỗi gửi email hoàn thành đơn:', mailErr);
+      console.warn('Lỗi gửi email/thông báo giao hàng:', mailErr);
     }
 
     // 3. Phát tín hiệu cập nhật tức thì cho Admin & Profile Khách hàng
     localStorage.setItem('cart_last_synced', Date.now().toString());
     localStorage.setItem('hikari_order_status_updated', Date.now().toString());
     localStorage.setItem('orders_last_updated', Date.now().toString());
-    window.dispatchEvent(new CustomEvent('orderUpdated', { detail: { orderId: order.id, status: 'Đã hoàn thành' } }));
+    window.dispatchEvent(new CustomEvent('orderUpdated', { detail: { orderId: order.id, status: 'Đã giao hàng' } }));
 
-    showToast(`✓ Đơn #${order.orderCode || order.id} đã hoàn tất giao hàng! Đã xuất hóa đơn PDF vào hòm thư khách.`, 'success');
+    showToast(`✓ Đơn #${order.orderCode || order.id} đã bàn giao cho khách! Đang chờ khách xác nhận nhận hàng.`, 'success');
 
     closeConfirmModal();
     updateMetrics();
