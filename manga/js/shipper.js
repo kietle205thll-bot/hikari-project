@@ -3,7 +3,7 @@
  * Xử lý nghiệp vụ phân biệt Đơn COD (Thu tiền mặt) vs Đơn Thanh Toán Trước (0đ)
  * Tự động gửi Email hoàn tất đơn + Hóa đơn VAT Điện Tử PDF vào Hòm thư ảo của khách
  */
-import { api, fetchOrders, updateOrder, normalizeOrderStatus } from './api.js';
+import { api, fetchOrders, updateOrder, normalizeOrderStatus, pushOrderNotification } from './api.js';
 import { formatPrice, showToast } from './utils.js';
 import { sendOrderCompletedEmail } from './mailbox.js';
 
@@ -410,9 +410,10 @@ const submitDeliveryCompletion = async () => {
     const updated = await updateOrder(order.id, patchPayload);
     Object.assign(order, updated || patchPayload);
 
-    // 2. Gửi email hoàn thành kèm Hóa đơn VAT Điện Tử PDF vào Hòm thư ảo của khách hàng
+    // 2. Gửi email hoàn thành kèm Hóa đơn VAT Điện Tử PDF vào Hòm thư ảo của khách hàng & Chuông thông báo
     try {
       sendOrderCompletedEmail(order);
+      pushOrderNotification(order, `Đơn hàng #${order.orderCode || order.id} đã giao thành công bởi SPX Express!`, 'Đã hoàn thành');
     } catch (mailErr) {
       console.warn('Lỗi gửi email hoàn thành đơn:', mailErr);
     }

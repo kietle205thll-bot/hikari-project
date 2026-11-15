@@ -4,7 +4,7 @@
  */
 
 import { api, addToCartServer, fetchCartServer, fetchOrders, isOrderCancelled } from './api.js';
-import { initMailbox, updateMailboxHeaderBadge } from './mailbox.js';
+import { initMailbox, updateMailboxHeaderBadge, openMailboxModal } from './mailbox.js';
 import './chatbot.js';
 
 // Định dạng số thành tiền tệ Việt Nam Đồng (VND)
@@ -819,13 +819,36 @@ export const updateNotificationsDisplay = () => {
   }
 
   notifList.innerHTML = notifs.slice(0, 8).map(n => `
-    <div style="padding: 9px 12px; border-bottom: 1px solid #f1f5f9; background: ${n.read ? '#fff' : '#fef2f2'}; font-size: 0.8rem;">
-      <div style="font-weight: 700; color: #0f172a; margin-bottom: 2px;">
-        ${n.message}
+    <div class="header-notif-item" data-notif-id="${n.id}" data-order-code="${n.orderCode || ''}" style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; background: ${n.read ? '#fff' : '#fef2f2'}; font-size: 0.8rem; cursor: pointer; transition: background 0.15s ease;" title="Bấm để mở email chi tiết & Hóa đơn PDF trong Hòm Thư Ảo">
+      <div style="font-weight: 700; color: #0f172a; margin-bottom: 2px; display: flex; justify-content: space-between; align-items: flex-start; gap: 6px;">
+        <span>${n.message}</span>
+        ${!n.read ? '<span style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #ef4444; flex-shrink: 0; margin-top: 4px;"></span>' : ''}
       </div>
-      <div style="font-size: 0.72rem; color: #94a3b8;">${n.time || ''}</div>
+      <div style="font-size: 0.72rem; color: #94a3b8; display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+        <span>${n.time || ''}</span>
+        <span style="color: #0284c7; font-weight: 600; font-size: 0.72rem;">📬 Xem chi tiết →</span>
+      </div>
     </div>
   `).join('');
+
+  // Gắn sự kiện click vào từng thông báo -> Tự động chuyển thẳng tới Hòm Thư Ảo & mở Hóa đơn PDF
+  notifList.querySelectorAll('.header-notif-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const notifId = item.getAttribute('data-notif-id');
+      const orderCode = item.getAttribute('data-order-code');
+      const allNotifs = JSON.parse(localStorage.getItem('hikari_order_notifications')) || [];
+      const targetNotif = allNotifs.find(n => String(n.id) === String(notifId));
+      if (targetNotif && !targetNotif.read) {
+        targetNotif.read = true;
+        localStorage.setItem('hikari_order_notifications', JSON.stringify(allNotifs));
+        updateNotificationsDisplay();
+      }
+      const notifDropdown = document.querySelector('#headerNotifDropdown');
+      if (notifDropdown) notifDropdown.style.display = 'none';
+
+      openMailboxModal(orderCode);
+    });
+  });
 };
 
 /**
@@ -951,8 +974,9 @@ export const checkCurrentUser = async () => {
             <div id="headerNotifList" style="max-height: 240px; overflow-y: auto;">
               <!-- Render động thông báo -->
             </div>
-            <div style="padding: 8px; text-align: center; background: #f8fafc; border-top: 1px solid #e2e8f0;">
-              <a href="profile.html#orders" style="font-size: 0.78rem; font-weight: 700; color: #e11d48; text-decoration: none;">Xem lịch sử đơn hàng →</a>
+            <div style="padding: 8px 12px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+              <a href="profile.html#orders" style="font-size: 0.76rem; font-weight: 700; color: #64748b; text-decoration: none;">📋 Xem đơn</a>
+              <button type="button" id="btnOpenMailboxFromNotif" style="background: none; border: none; font-size: 0.76rem; font-weight: 700; color: #0284c7; cursor: pointer; display: flex; align-items: center; gap: 3px; padding: 0;">📬 Mở Hòm Thư Ảo & PDF →</button>
             </div>
           </div>
         </div>
@@ -1013,6 +1037,15 @@ export const checkCurrentUser = async () => {
         if (!notifDropdown.contains(e.target) && e.target !== notifBtn) {
           notifDropdown.style.display = 'none';
         }
+      });
+    }
+
+    const btnOpenMailboxFromNotif = document.querySelector('#btnOpenMailboxFromNotif');
+    if (btnOpenMailboxFromNotif) {
+      btnOpenMailboxFromNotif.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (notifDropdown) notifDropdown.style.display = 'none';
+        openMailboxModal();
       });
     }
 

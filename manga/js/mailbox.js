@@ -4,6 +4,7 @@
  */
 import { formatPrice, showToast } from './utils.js';
 import { downloadOrderInvoicePdf } from './pdf-helper.js';
+import { fetchOrders } from './api.js';
 
 const STORAGE_KEY = 'hikari_virtual_mailbox';
 
@@ -176,7 +177,7 @@ export const deleteEmail = (emailId) => {
 /**
  * Trigger 1: Email xác nhận đặt hàng thành công
  */
-export const sendOrderPlacedEmail = (order) => {
+export const sendOrderPlacedEmail = (order, notify = true) => {
   if (!order) return;
   const orderCode = order.orderCode || order.id;
   const customer = order.customer || order.customerInfo || {};
@@ -265,14 +266,15 @@ export const sendOrderPlacedEmail = (order) => {
     snippet: `Cảm ơn bạn đã đặt hàng! Mã đơn #${orderCode}. Trạng thái: Chờ nhân viên xác nhận & bàn giao SPX.`,
     htmlBody,
     type: 'order_placed',
-    orderData: order
+    orderData: order,
+    notify
   });
 };
 
 /**
  * Trigger 2: Email thông báo SPX Express đang đi giao
  */
-export const sendOrderShippedEmail = (order, trackingCode = '') => {
+export const sendOrderShippedEmail = (order, trackingCode = '', notify = true) => {
   if (!order) return;
   const orderCode = order.orderCode || order.id;
   const customer = order.customer || order.customerInfo || {};
@@ -335,14 +337,15 @@ export const sendOrderShippedEmail = (order, trackingCode = '') => {
     snippet: `Shipper Nguyễn Văn Giao đang đi giao kiện #${trk}. ${isCod ? `Thu tiền mặt: ${formatPrice(total)}` : 'Đã thanh toán trước: 0đ'}.`,
     htmlBody,
     type: 'order_shipped',
-    orderData: { ...order, trackingCode: trk }
+    orderData: { ...order, trackingCode: trk },
+    notify
   });
 };
 
 /**
  * Trigger 3: Email thông báo giao hàng thành công & đính kèm Hóa đơn VAT Điện Tử PDF
  */
-export const sendOrderCompletedEmail = (order) => {
+export const sendOrderCompletedEmail = (order, notify = true) => {
   if (!order) return;
   const orderCode = order.orderCode || order.id;
   const customer = order.customer || order.customerInfo || {};
@@ -396,7 +399,8 @@ export const sendOrderCompletedEmail = (order) => {
     snippet: `Đơn hàng #${orderCode} đã giao thành công bởi SPX Express! Bấm xem thư để tải Hóa đơn VAT điện tử PDF.`,
     htmlBody,
     type: 'order_completed',
-    orderData: { ...order, status: 'Đã hoàn thành' }
+    orderData: { ...order, status: 'Đã hoàn thành' },
+    notify
   });
 };
 
@@ -542,9 +546,9 @@ const ensureMailboxModalDom = () => {
 };
 
 /**
- * Hiển thị Modal Hòm Thư Ảo
+ * Hiển thị Modal Hòm Thư Ảo (Hỗ trợ mở trực tiếp theo Email ID hoặc Mã Đơn Hàng từ Chuông Thông Báo)
  */
-export const openMailboxModal = (specificEmailId = null) => {
+export const openMailboxModal = (specificEmailOrOrder = null) => {
   const modal = ensureMailboxModalDom();
   modal.classList.add('active');
 
@@ -553,14 +557,28 @@ export const openMailboxModal = (specificEmailId = null) => {
     emailTag.textContent = getCurrentUserEmail();
   }
 
-  if (specificEmailId) {
-    selectedEmailId = specificEmailId;
+  if (specificEmailOrOrder) {
+    const emails = getStoredEmails();
+    const str = String(specificEmailOrOrder).trim();
+    const matched = emails.find(m => 
+      m.id === str || 
+      (m.orderData && (String(m.orderData.orderCode) === str || String(m.orderData.id) === str))
+    );
+    if (matched) {
+      selectedEmailId = matched.id;
+    } else {
+      selectedEmailId = str;
+    }
   }
 
   renderMailboxList();
 
   if (selectedEmailId) {
     renderEmailDetail(selectedEmailId);
+    const detailPane = document.querySelector('#mbDetailPane');
+    if (detailPane) {
+      detailPane.classList.add('viewing');
+    }
   }
 };
 
@@ -757,30 +775,59 @@ const renderEmailDetail = (emailId) => {
 };
 
 /**
- * Tự động đồng bộ email đơn hàng vào hòm thư ảo nếu hòm thư đang trống
+ * Tự động đồng bộ email đơn hàng vào hòm thư ảo từ CSDL Neon Server
  */
-export const syncMailboxFromOrders = () => {
+export const syncMailboxFromOrders = async () => {
   try {
-    const existing = getStoredEmails();
-    if (existing.length > 0) return;
-    const orders = JSON.parse(localStorage.getItem('orders')) || [];
     const curEmail = getCurrentUserEmail().toLowerCase();
+    let orders = [];
+    try {
+      orders = JSON.parse(localStorage.getItem('orders')) || [];
+    } catch (e) {}
+
+    // Nếu localStorage chưa có orders, fetch trực tiếp từ server Neon
+    if (!orders || orders.length === 0) {
+      try {
+        orders = await fetchOrders();
+      } catch (e) {}
+    }
+
+    if (!Array.isArray(orders) || orders.length === 0) return;
+
     const myOrders = orders.filter(o => 
       curEmail === 'guest@hikaribooks.vn' ||
       !curEmail ||
       (o.customer?.email && o.customer.email.toLowerCase() === curEmail)
     );
 
-    myOrders.slice(0, 3).forEach(o => {
-      sendOrderPlacedEmail(o);
-      if (o.status === 'Đang giao hàng' || o.status === 'Đã hoàn thành') {
-        sendOrderShippedEmail(o);
-      }
-      if (o.status === 'Đã hoàn thành') {
-        sendOrderCompletedEmail(o);
+    const existing = getStoredEmails();
+    let hasNew = false;
+
+    // Duyệt qua tối đa 5 đơn gần nhất của khách
+    myOrders.slice(0, 5).forEach(o => {
+      const orderCode = o.orderCode || o.id;
+      const hasEmail = existing.some(m => 
+        m.orderData && (String(m.orderData.orderCode) === String(orderCode) || String(m.orderData.id) === String(o.id))
+      );
+
+      if (!hasEmail) {
+        sendOrderPlacedEmail(o, false);
+        if (o.status === 'Đang giao hàng' || o.status === 'Đã hoàn thành') {
+          sendOrderShippedEmail(o, o.trackingCode || `SPX-${orderCode}`, false);
+        }
+        if (o.status === 'Đã hoàn thành') {
+          sendOrderCompletedEmail(o, false);
+        }
+        hasNew = true;
       }
     });
-  } catch (e) {}
+
+    if (hasNew) {
+      updateMailboxHeaderBadge();
+    }
+  } catch (e) {
+    console.warn('Lỗi đồng bộ virtual mailbox:', e);
+  }
 };
 
 /**

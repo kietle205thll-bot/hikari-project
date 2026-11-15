@@ -28,6 +28,7 @@ import {
   isOrderCancelled,
   pushOrderNotification
 } from './api.js';
+import { sendOrderCompletedEmail } from './mailbox.js';
 
 // State lưu trữ dữ liệu trang Profile
 const state = {
@@ -814,6 +815,11 @@ const renderOrdersTab = () => {
           `Khách hàng đã xác nhận nhận đơn hàng #${orderCode} — Hoàn thành!`,
           'Đã hoàn thành'
         );
+        try {
+          sendOrderCompletedEmail(order);
+        } catch (mailErr) {
+          console.warn('Lỗi gửi email hoàn tất vào mailbox:', mailErr);
+        }
         await refreshProfileOrders(false);
         showToast(`🎉 Cảm ơn bạn! Đơn #${orderCode} đã chuyển sang "Đã hoàn thành".`, 'success');
       } catch (err) {
