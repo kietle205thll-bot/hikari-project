@@ -491,29 +491,45 @@
           </div>
         </div>
 
-        <!-- THỂ LOẠI & SỐ LƯỢNG TỒN KHO -->
+        <!-- DANH MỤC & THỂ LOẠI TÁC PHẨM -->
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
           <div class="form-group">
-            <label for="pCategory" class="form-label">Thể loại / Danh mục *</label>
+            <label for="pCategory" class="form-label">📁 Danh mục chính (Định dạng) *</label>
             <select id="pCategory" class="form-input" required>
               <!-- Render động từ API categories -->
             </select>
           </div>
           <div class="form-group">
-            <label for="pStock" class="form-label">Số lượng tồn kho ban đầu *</label>
-            <input type="number" id="pStock" class="form-input" value="50" min="0" required />
+            <label for="pGenre" class="form-label">🏷️ Thể loại / Tag nội dung *</label>
+            <input type="text" id="pGenre" class="form-input" placeholder="Ví dụ: Shounen, Hành Động, Phiêu Lưu" list="genreSuggestions" required />
+            <datalist id="genreSuggestions">
+              <option value="Shounen, Hành Động, Phiêu Lưu"></option>
+              <option value="Shounen, Hành Động, Siêu Nhiên"></option>
+              <option value="Hài Hước, Gia Đình, Học Đường, Tình Cảm"></option>
+              <option value="Trinh Thám, Học Đường, Bí Ẩn"></option>
+              <option value="Thể Thao, Shounen, Học Đường"></option>
+              <option value="Isekai, Game, Hành Động, Khoa Học Viễn Tưởng"></option>
+              <option value="Isekai, Kỳ Ảo, Chuyển Sinh, Phiêu Lưu"></option>
+              <option value="Tình Cảm, Tâm Lý, Đời Sống"></option>
+              <option value="Học Đường, Tâm Lý, Tình Cảm"></option>
+              <option value="Kỹ Năng, Tài Chính, Tâm Lý"></option>
+            </datalist>
           </div>
         </div>
 
-        <!-- GIÁ BÁN & GIÁ GỐC -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <!-- GIÁ BÁN, GIÁ GỐC & TỒN KHO -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
           <div class="form-group">
             <label for="pPrice" class="form-label">Giá bán hiện tại (đ) *</label>
             <input type="number" id="pPrice" class="form-input" placeholder="Ví dụ: 35000" min="1000" required />
           </div>
           <div class="form-group">
-            <label for="pOriginalPrice" class="form-label">Giá bìa gốc (đ) (tính % giảm giá)</label>
+            <label for="pOriginalPrice" class="form-label">Giá bìa gốc (đ)</label>
             <input type="number" id="pOriginalPrice" class="form-input" placeholder="Ví dụ: 40000" min="0" />
+          </div>
+          <div class="form-group">
+            <label for="pStock" class="form-label">Tồn kho ban đầu *</label>
+            <input type="number" id="pStock" class="form-input" value="50" min="0" required />
           </div>
         </div>
 

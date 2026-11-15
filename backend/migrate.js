@@ -64,6 +64,7 @@ async function migrate() {
         discount NUMERIC DEFAULT 0,
         "categoryId" INT,
         "categoryName" VARCHAR(255),
+        genre VARCHAR(255) DEFAULT '',
         image TEXT,
         description TEXT,
         pages INT,

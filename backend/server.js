@@ -108,13 +108,23 @@ app.get('/coupons', async (req, res) => {
 app.get('/products', async (req, res) => {
   try {
     res.set('Cache-Control', 'public, max-age=15, s-maxage=30');
-    const { categoryId, _sort, _order, _limit } = req.query;
+    const { categoryId, genre, _sort, _order, _limit } = req.query;
     let sql = 'SELECT * FROM products';
     const params = [];
+    const whereClauses = [];
 
     if (categoryId && Number(categoryId) > 0) {
       params.push(Number(categoryId));
-      sql += ` WHERE "categoryId" = $${params.length}`;
+      whereClauses.push(`"categoryId" = $${params.length}`);
+    }
+
+    if (genre && String(genre).trim()) {
+      params.push(`%${String(genre).trim()}%`);
+      whereClauses.push(`genre ILIKE $${params.length}`);
+    }
+
+    if (whereClauses.length > 0) {
+      sql += ` WHERE ${whereClauses.join(' AND ')}`;
     }
 
     if (_sort) {
@@ -158,12 +168,12 @@ app.post('/products', async (req, res) => {
     const result = await query(
       `INSERT INTO products (
         id, name, author, publisher, translator, price, "originalPrice", discount,
-        "categoryId", "categoryName", image, description, pages, "publishYear",
+        "categoryId", "categoryName", genre, image, description, pages, "publishYear",
         format, rating, "reviewsCount", stock, sold, "isHot", "isNew"
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8,
         $9, $10, $11, $12, $13, $14,
-        $15, $16, $17, $18, $19, $20, $21
+        $15, $16, $17, $18, $19, $20, $21, $22
       ) RETURNING *`,
       [
         id,
@@ -176,6 +186,7 @@ app.post('/products', async (req, res) => {
         p.discount || 0,
         p.categoryId || null,
         p.categoryName || '',
+        p.genre || '',
         p.image || '',
         p.description || '',
         p.pages || 0,
@@ -237,14 +248,14 @@ app.put('/products/:id', async (req, res) => {
       `UPDATE products SET
         name = $1, author = $2, publisher = $3, translator = $4, price = $5,
         "originalPrice" = $6, discount = $7, "categoryId" = $8, "categoryName" = $9,
-        image = $10, description = $11, pages = $12, "publishYear" = $13,
-        format = $14, rating = $15, "reviewsCount" = $16, stock = $17,
-        sold = $18, "isHot" = $19, "isNew" = $20
-      WHERE id = $21 RETURNING *`,
+        genre = $10, image = $11, description = $12, pages = $13, "publishYear" = $14,
+        format = $15, rating = $16, "reviewsCount" = $17, stock = $18,
+        sold = $19, "isHot" = $20, "isNew" = $21
+      WHERE id = $22 RETURNING *`,
       [
         p.name, p.author || '', p.publisher || '', p.translator || '', p.price,
         p.originalPrice || p.price, p.discount || 0, p.categoryId || null, p.categoryName || '',
-        p.image || '', p.description || '', p.pages || 0, p.publishYear || 2024,
+        p.genre || '', p.image || '', p.description || '', p.pages || 0, p.publishYear || 2024,
         p.format || '', p.rating || 5, p.reviewsCount || 0, p.stock || 0,
         p.sold || 0, p.isHot ?? false, p.isNew ?? false, id
       ]

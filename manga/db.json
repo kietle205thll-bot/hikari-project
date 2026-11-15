@@ -34,13 +34,6 @@
       "slug": "artbook",
       "icon": "🎨",
       "description": "Tập tranh minh họa cao cấp, postcard và phiên bản giới hạn"
-    },
-    {
-      "id": 6,
-      "name": "fantasy",
-      "slug": "fantasy",
-      "icon": "✨",
-      "description": "time travel"
     }
   ],
   "banners": [
@@ -155,7 +148,8 @@
       "reviewsCount": 1420,
       "stock": 80,
       "isHot": true,
-      "isNew": true
+      "isNew": true,
+      "genre": "Shounen, Hành Động, Phiêu Lưu"
     },
     {
       "id": 2,
@@ -177,7 +171,8 @@
       "reviewsCount": 980,
       "stock": 0,
       "isHot": true,
-      "isNew": true
+      "isNew": true,
+      "genre": "Shounen, Hành Động, Siêu Nhiên"
     },
     {
       "id": 3,
@@ -199,7 +194,8 @@
       "reviewsCount": 750,
       "stock": 54,
       "isHot": true,
-      "isNew": false
+      "isNew": false,
+      "genre": "Hài Hước, Gia Đình, Học Đường, Tình Cảm"
     },
     {
       "id": 4,
@@ -221,7 +217,8 @@
       "reviewsCount": 1100,
       "stock": 120,
       "isHot": false,
-      "isNew": true
+      "isNew": true,
+      "genre": "Trinh Thám, Học Đường, Bí Ẩn"
     },
     {
       "id": 5,
@@ -243,7 +240,8 @@
       "reviewsCount": 630,
       "stock": 35,
       "isHot": false,
-      "isNew": true
+      "isNew": true,
+      "genre": "Shounen, Hành Động, Kinh Dị"
     },
     {
       "id": 6,
@@ -265,7 +263,8 @@
       "reviewsCount": 890,
       "stock": 50,
       "isHot": true,
-      "isNew": false
+      "isNew": false,
+      "genre": "Thể Thao, Shounen, Học Đường"
     },
     {
       "id": 7,
@@ -287,7 +286,8 @@
       "reviewsCount": 540,
       "stock": 28,
       "isHot": true,
-      "isNew": false
+      "isNew": false,
+      "genre": "Isekai, Game, Hành Động, Khoa Học Viễn Tưởng"
     },
     {
       "id": 8,
@@ -309,7 +309,8 @@
       "reviewsCount": 670,
       "stock": 40,
       "isHot": true,
-      "isNew": true
+      "isNew": true,
+      "genre": "Isekai, Kỳ Ảo, Chuyển Sinh, Phiêu Lưu"
     },
     {
       "id": 9,
@@ -331,7 +332,8 @@
       "reviewsCount": 420,
       "stock": 18,
       "isHot": false,
-      "isNew": false
+      "isNew": false,
+      "genre": "Isekai, Kỳ Ảo, Chuyển Sinh, Tâm Lý"
     },
     {
       "id": 10,
@@ -353,7 +355,8 @@
       "reviewsCount": 890,
       "stock": 15,
       "isHot": true,
-      "isNew": false
+      "isNew": false,
+      "genre": "Isekai, Kỳ Ảo, Chiến Tranh, Ma Pháp"
     },
     {
       "id": 11,
@@ -375,7 +378,8 @@
       "reviewsCount": 610,
       "stock": 31,
       "isHot": true,
-      "isNew": true
+      "isNew": true,
+      "genre": "Học Đường, Tâm Lý, Tình Cảm"
     },
     {
       "id": 12,
@@ -397,7 +401,8 @@
       "reviewsCount": 350,
       "stock": 22,
       "isHot": false,
-      "isNew": false
+      "isNew": false,
+      "genre": "Isekai, Game, Trí Tuệ, Hài Hước"
     },
     {
       "id": 13,
@@ -419,7 +424,8 @@
       "reviewsCount": 2300,
       "stock": 55,
       "isHot": true,
-      "isNew": false
+      "isNew": false,
+      "genre": "Tình Cảm, Tâm Lý, Đời Sống"
     },
     {
       "id": 14,
@@ -441,7 +447,8 @@
       "reviewsCount": 4500,
       "stock": 90,
       "isHot": true,
-      "isNew": false
+      "isNew": false,
+      "genre": "Tâm Lý, Đời Sống, Gia Đình"
     },
     {
       "id": 15,
@@ -463,7 +470,8 @@
       "reviewsCount": 1820,
       "stock": 64,
       "isHot": false,
-      "isNew": false
+      "isNew": false,
+      "genre": "Tình Cảm, Học Đường, Tuổi Thơ"
     },
     {
       "id": 16,
@@ -485,7 +493,8 @@
       "reviewsCount": 3100,
       "stock": 69,
       "isHot": true,
-      "isNew": false
+      "isNew": false,
+      "genre": "Kỹ Năng, Tài Chính, Tâm Lý"
     }
   ],
   "users": [

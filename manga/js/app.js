@@ -23,7 +23,7 @@ const state = {
 
 // ================= TẠO HTML THẺ SẢN PHẨM (TÁI SỬ DỤNG) =================
 const createProductCardHtml = (product, options = {}) => {
-  const { id, name, author, price, originalPrice, discount, image, categoryName, rating, isHot, isNew, stock, soldCount } = product;
+  const { id, name, author, price, originalPrice, discount, image, categoryName, genre, rating, isHot, isNew, stock, soldCount } = product;
   const isOutOfStock = typeof stock === 'number' && stock <= 0;
   const { showSalesBadge = false, isFlashSale = false, isToday = false } = options;
 
@@ -63,6 +63,7 @@ const createProductCardHtml = (product, options = {}) => {
       <div class="product-card-body">
         <div class="product-meta-row">
           <span class="product-category-tag">${categoryName || 'Sách'}</span>
+          ${genre ? `<span class="product-genre-badge" style="background: #fdf2f8; color: #db2777; font-size: 0.68rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${genre}">🏷️ ${genre.split(',')[0]}</span>` : ''}
           <span class="product-rating">★ ${rating || 5.0}</span>
         </div>
 

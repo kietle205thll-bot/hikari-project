@@ -47,6 +47,7 @@ const renderProductDetail = (product) => {
     discount,
     image,
     categoryName,
+    genre,
     description,
     pages,
     publishYear,
@@ -192,8 +193,12 @@ const renderProductDetail = (product) => {
             <td>${publishYear || 2024}</td>
           </tr>
           <tr>
+            <th>Danh mục</th>
+            <td>${categoryName || 'Sách'}</td>
+          </tr>
+          <tr>
             <th>Thể loại</th>
-            <td>${categoryName}</td>
+            <td>${genre || 'Đang cập nhật'}</td>
           </tr>
           <tr>
             <th>Số trang</th>

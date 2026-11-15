@@ -14,11 +14,12 @@
     "pages": 240,
     "publishYear": 2024,
     "format": "Bìa rời, kèm postcard",
-    "rating": 5.0,
+    "rating": 5,
     "reviewsCount": 850,
     "stock": 50,
     "isHot": true,
-    "isNew": true
+    "isNew": true,
+    "genre": ""
   },
   {
     "name": "Kaguya-sama: Cuộc Chiến Tỏ Tình - Tập 28",
@@ -39,7 +40,8 @@
     "reviewsCount": 920,
     "stock": 45,
     "isHot": true,
-    "isNew": true
+    "isNew": true,
+    "genre": ""
   },
   {
     "name": "Sousou no Frieren - Pháp Sư Tiễn Táng - Tập 12",
@@ -56,10 +58,11 @@
     "pages": 192,
     "publishYear": 2024,
     "format": "Bìa rời cao cấp, kèm bookmark PVC",
-    "rating": 5.0,
+    "rating": 5,
     "reviewsCount": 1600,
     "stock": 60,
     "isHot": true,
-    "isNew": true
+    "isNew": true,
+    "genre": ""
   }
 ]

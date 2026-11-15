@@ -187,23 +187,41 @@
       </div>
     </div>
 
-    <!-- BỘ CHỌN THỂ LOẠI SÁCH (DROPDOWN CĂN BÊN TRÁI - GỌN GÀNG, KHÔNG TRÀN MÀN HÌNH) -->
+    <!-- BỘ CHỌN DANH MỤC SÁCH (DROPDOWN CĂN BÊN TRÁI - GỌN GÀNG, KHÔNG TRÀN MÀN HÌNH) -->
     <div class="category-select-bar" id="categorySelectBar">
       <div class="cat-select-dropdown-wrapper" id="catSelectWrapper">
-        <button class="cat-select-btn" id="catSelectBtn" type="button" aria-expanded="false" title="Bấm để chọn thể loại sách">
+        <button class="cat-select-btn" id="catSelectBtn" type="button" aria-expanded="false" title="Bấm để chọn danh mục định dạng sách">
           <span class="cat-select-burger">☰</span>
-          <span class="cat-select-label" id="catSelectLabel">Thể loại: Tất Cả Tác Phẩm</span>
+          <span class="cat-select-label" id="catSelectLabel">Danh mục: Tất Cả Tác Phẩm</span>
           <span class="cat-select-arrow">▾</span>
         </button>
 
         <div class="cat-select-menu" id="catSelectMenu">
-          <!-- Render động danh sách thể loại từ CSDL qua products.js -->
+          <!-- Render động danh sách danh mục từ CSDL qua products.js -->
         </div>
       </div>
 
       <button class="cat-all-btn" id="catAllBtn" title="Xem lại tất cả tác phẩm">
         Xem Tất Cả Sách
       </button>
+    </div>
+
+    <!-- THANH LỌC THỂ LOẠI NỘI DUNG (GENRE PILLS BẤM CHỌN NHANH) -->
+    <div class="genre-filter-bar" id="genreFilterBar" style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin: 0.85rem 0 1.25rem 0; padding: 0.65rem 1rem; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+      <span style="font-size: 0.82rem; font-weight: 800; color: #475569; display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
+        🏷️ Thể loại:
+      </span>
+      <div id="genrePillsList" style="display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center;">
+        <button type="button" class="genre-pill active" data-genre="all">Tất Cả Thể Loại</button>
+        <button type="button" class="genre-pill" data-genre="Shounen">⚔️ Shounen / Hành Động</button>
+        <button type="button" class="genre-pill" data-genre="Tình Cảm">💕 Tình Cảm / Học Đường</button>
+        <button type="button" class="genre-pill" data-genre="Isekai">🌀 Isekai / Chuyển Sinh</button>
+        <button type="button" class="genre-pill" data-genre="Trinh Thám">🔍 Trinh Thám</button>
+        <button type="button" class="genre-pill" data-genre="Hài Hước">😄 Hài Hước / Gia Đình</button>
+        <button type="button" class="genre-pill" data-genre="Thể Thao">⚽ Thể Thao</button>
+        <button type="button" class="genre-pill" data-genre="Tâm Lý">🧠 Tâm Lý / Đời Sống</button>
+        <button type="button" class="genre-pill" data-genre="Kỹ Năng">💡 Kỹ Năng / Tài Chính</button>
+      </div>
     </div>
 
     <!-- THANH CÔNG CỤ BỘ LỌC VÀ SẮP XẾP CHUYÊN SÂU -->

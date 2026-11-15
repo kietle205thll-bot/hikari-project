@@ -171,7 +171,7 @@ const handleOrderLookup = async (text) => {
   `;
 };
 
-// ================= 4. GỢI Ý SÁCH THEO THỂ LOẠI (LOCAL ENGINE DỰ PHÒNG) =================
+// ================= 4. GỢI Ý SÁCH THEO THỂ LOẠI & GIÁ (MULTI-INTENT ENGINE DỰ PHÒNG) =================
 const handleBookRecommendationLocal = async (text) => {
   const prods = await loadProductsForChatbot();
   if (!prods || prods.length === 0) {
@@ -179,53 +179,130 @@ const handleBookRecommendationLocal = async (text) => {
   }
 
   const query = text.toLowerCase();
-  let filtered = [];
-  let genreTitle = 'Top tác phẩm bán chạy nhất';
+  let filtered = [...prods];
+  let catTitle = '';
+  let genreTitle = '';
 
-  if (query.includes('shounen') || query.includes('hành động') || query.includes('action')) {
-    genreTitle = 'Manga Shounen & Hành Động bán chạy nhất';
-    filtered = prods.filter(p => (p.categoryName || '').toLowerCase().includes('shounen') || (p.description || '').toLowerCase().includes('hành động'));
-  } else if (query.includes('isekai') || query.includes('chuyển sinh')) {
-    genreTitle = 'Truyện Chuyển Sinh Isekai được yêu thích nhất';
-    filtered = prods.filter(p => (p.categoryName || '').toLowerCase().includes('isekai') || (p.description || '').toLowerCase().includes('chuyển sinh'));
-  } else if (query.includes('romance') || query.includes('tình cảm') || query.includes('lãng mạn') || query.includes('học đường')) {
-    genreTitle = 'Truyện Tình Cảm & Học Đường ngọt ngào nhất';
-    filtered = prods.filter(p => (p.categoryName || '').toLowerCase().includes('romance') || (p.description || '').toLowerCase().includes('tình cảm'));
-  } else if (query.includes('trinh thám') || query.includes('conan') || query.includes('kinh dị')) {
-    genreTitle = 'Truyện Trinh Thám & Ly Kỳ hồi hộp nhất';
-    filtered = prods.filter(p => (p.categoryName || '').toLowerCase().includes('trinh thám') || (p.name || '').toLowerCase().includes('conan'));
-  } else if (query.includes('light novel') || query.includes('tiểu thuyết')) {
-    genreTitle = 'Light Novel ăn khách nhất';
-    filtered = prods.filter(p => (p.categoryName || '').toLowerCase().includes('light novel') || p.categoryId === 2);
+  // 1. Nhận diện Danh mục (Category - Manga, Light Novel, Tiểu Thuyết, Kỹ Năng)
+  const isManga = /\b(manga|truyện tranh|truyen tranh)\b/i.test(query);
+  const isLN = /\b(light novel|ln|tiểu thuyết ánh sáng)\b/i.test(query);
+  const isNovel = /\b(tiểu thuyết|tieu thuyet|văn học|van hoc)\b/i.test(query);
+  const isSkill = /\b(kỹ năng|ky nang|tư duy|tu duy|tài chính|tai chinh)\b/i.test(query);
+
+  if (isManga) {
+    filtered = filtered.filter(p => Number(p.categoryId) === 1 || (p.categoryName || '').toLowerCase().includes('manga'));
+    catTitle = 'Manga';
+  } else if (isLN) {
+    filtered = filtered.filter(p => Number(p.categoryId) === 2 || (p.categoryName || '').toLowerCase().includes('light novel'));
+    catTitle = 'Light Novel';
+  } else if (isNovel) {
+    filtered = filtered.filter(p => Number(p.categoryId) === 3 || (p.categoryName || '').toLowerCase().includes('tiểu thuyết'));
+    catTitle = 'Tiểu Thuyết';
+  } else if (isSkill) {
+    filtered = filtered.filter(p => Number(p.categoryId) === 4 || (p.categoryName || '').toLowerCase().includes('kỹ năng'));
+    catTitle = 'Sách Kỹ Năng';
   }
 
+  // 2. Nhận diện Thể loại nội dung (Genre: Shounen, Tình cảm, Isekai, Trinh thám...)
+  const isShounen = /\b(shounen|hành động|action|chiến đấu)\b/i.test(query);
+  const isRomance = /\b(tình cảm|tinh cam|romance|lãng mạn|lang man|ngọt ngào|ngot ngao)\b/i.test(query);
+  const isSchool = /\b(học đường|hoc duong)\b/i.test(query);
+  const isIsekai = /\b(isekai|chuyển sinh|chuyen sinh|kỳ ảo|ky ao|fantasy)\b/i.test(query);
+  const isDetective = /\b(trinh thám|trinh tham|conan|bí ẩn|bi an)\b/i.test(query);
+  const isComedy = /\b(hài hước|hai huoc|gia đình|gia dinh|đời thường|doi thuong)\b/i.test(query);
+  const isSport = /\b(thể thao|the thao|bóng đá|bong da|blue lock)\b/i.test(query);
+
+  if (isRomance) {
+    genreTitle = 'Tình Cảm & Lãng Mạn';
+    const primary = filtered.filter(p => (p.genre || '').toLowerCase().includes('tình cảm') || (p.genre || '').toLowerCase().includes('lãng mạn'));
+    if (primary.length > 0) {
+      filtered = primary;
+    } else {
+      const secondary = filtered.filter(p => (p.genre || '').toLowerCase().includes('học đường') || (p.genre || '').toLowerCase().includes('gia đình'));
+      if (secondary.length > 0) filtered = secondary;
+    }
+  } else if (isSchool) {
+    genreTitle = 'Học Đường';
+    const sub = filtered.filter(p => (p.genre || '').toLowerCase().includes('học đường'));
+    if (sub.length > 0) filtered = sub;
+  } else if (isShounen) {
+    genreTitle = 'Shounen & Hành Động';
+    const sub = filtered.filter(p => (p.genre || '').toLowerCase().includes('shounen') || (p.genre || '').toLowerCase().includes('hành động'));
+    if (sub.length > 0) filtered = sub;
+  } else if (isIsekai) {
+    genreTitle = 'Isekai & Kỳ Ảo';
+    const sub = filtered.filter(p => (p.genre || '').toLowerCase().includes('isekai') || (p.genre || '').toLowerCase().includes('kỳ ảo') || (p.genre || '').toLowerCase().includes('chuyển sinh'));
+    if (sub.length > 0) filtered = sub;
+  } else if (isDetective) {
+    genreTitle = 'Trinh Thám & Ly Kỳ';
+    const sub = filtered.filter(p => (p.genre || '').toLowerCase().includes('trinh thám') || (p.name || '').toLowerCase().includes('conan'));
+    if (sub.length > 0) filtered = sub;
+  } else if (isComedy) {
+    genreTitle = 'Hài Hước & Đời Thường';
+    const sub = filtered.filter(p => (p.genre || '').toLowerCase().includes('hài hước') || (p.genre || '').toLowerCase().includes('gia đình'));
+    if (sub.length > 0) filtered = sub;
+  } else if (isSport) {
+    genreTitle = 'Thể Thao';
+    const sub = filtered.filter(p => (p.genre || '').toLowerCase().includes('thể thao'));
+    if (sub.length > 0) filtered = sub;
+  }
+
+  // Nếu không còn sách nào sau khi lọc kết hợp, fallback về danh sách ban đầu của danh mục
   if (filtered.length === 0) {
-    filtered = prods;
+    filtered = isManga ? prods.filter(p => Number(p.categoryId) === 1) : (isLN ? prods.filter(p => Number(p.categoryId) === 2) : prods);
   }
 
-  // SẮP XẾP THEO SỐ LƯỢNG BÁN CHẠY NHẤT (SOLD GIẢM DẦN)
-  const sorted = [...filtered].sort((a, b) => (Number(b.sold) || 0) - (Number(a.sold) || 0));
-  const top3 = sorted.slice(0, 3);
+  // 3. Nhận diện Sắp xếp theo Giá / Bán chạy
+  const isCheapest = /\b(rẻ nhất|re nhat|giá rẻ|gia re|thấp nhất|thap nhat|ưu đãi nhất|it tien nhat)\b/i.test(query);
+  const isHighest = /\b(cao nhất|cao nhat|đắt nhất|dat nhat|giá bán cao nhất|gia ban cao nhat|giá cao nhất)\b/i.test(query);
+
+  let sortText = 'bán chạy nhất';
+  let sortReason = 'dựa trên số lượng bán thực tế tại Hikari';
+
+  if (isCheapest) {
+    filtered.sort((a, b) => (Number(a.price) || 0) - (Number(b.price) || 0));
+    sortText = 'giá rẻ nhất & tiết kiệm nhất';
+    sortReason = 'sắp xếp theo giá bán từ thấp đến cao';
+  } else if (isHighest) {
+    filtered.sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0));
+    sortText = 'có giá bán cao nhất (bản cao cấp)';
+    sortReason = 'sắp xếp theo giá bán từ cao đến thấp';
+  } else {
+    filtered.sort((a, b) => (Number(b.sold) || 0) - (Number(a.sold) || 0));
+  }
+
+  const titleParts = [];
+  if (catTitle) titleParts.push(catTitle);
+  if (genreTitle) titleParts.push(genreTitle);
+  titleParts.push(sortText);
+  const finalTitle = titleParts.join(' ');
+
+  const top3 = filtered.slice(0, 3);
 
   const listHtml = top3.map((item, idx) => `
-    <div style="display: flex; gap: 8px; margin-top: 8px; padding: 6px; background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0; align-items: center;">
-      <span style="font-weight: 800; color: #e11d48; font-size: 0.95rem; width: 18px; text-align: center;">#${idx + 1}</span>
-      <img src="${item.image}" alt="${item.name}" style="width: 42px; height: 56px; object-fit: cover; border-radius: 4px;" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=100&auto=format&fit=crop&q=80'" />
+    <div style="display: flex; gap: 8px; margin-top: 8px; padding: 8px; background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0; align-items: center;">
+      <span style="font-weight: 800; color: #e11d48; font-size: 0.95rem; width: 20px; text-align: center;">#${idx + 1}</span>
+      <img src="${item.image}" alt="${item.name}" style="width: 44px; height: 58px; object-fit: cover; border-radius: 4px; border: 1px solid #f1f5f9;" onerror="this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=100&auto=format&fit=crop&q=80'" />
       <div style="flex: 1; min-width: 0;">
         <div style="font-weight: 700; font-size: 0.82rem; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
           <a href="product-detail.html?id=${item.id}" style="color: inherit; text-decoration: none;">${item.name}</a>
         </div>
-        <div style="font-size: 0.75rem; color: #e11d48; font-weight: 800;">${formatPrice(item.price)}</div>
-        <div style="font-size: 0.72rem; color: #15803d; font-weight: 700;">🔥 Đã bán: ${item.sold || 100} cuốn</div>
+        <div style="font-size: 0.72rem; color: #64748b; margin: 2px 0;">
+          📁 ${item.categoryName || 'Sách'} ${item.genre ? `• 🏷️ ${item.genre.split(',').slice(0, 2).join(', ')}` : ''}
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <span style="font-size: 0.78rem; color: #e11d48; font-weight: 800;">${formatPrice(item.price)}</span>
+          <span style="font-size: 0.72rem; color: #15803d; font-weight: 700;">🔥 Đã bán: ${item.sold || 100} cuốn</span>
+        </div>
       </div>
-      <a href="product-detail.html?id=${item.id}" style="background: #f1f5f9; color: #0f172a; text-decoration: none; padding: 4px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700;">
+      <a href="product-detail.html?id=${item.id}" style="background: #f1f5f9; color: #0f172a; text-decoration: none; padding: 5px 9px; border-radius: 6px; font-size: 0.72rem; font-weight: 700;">
         Xem
       </a>
     </div>
   `).join('');
 
   return `
-    ✨ <strong>${genreTitle}</strong> (dựa trên số lượng bán thực tế tại Hikari):<br/>
+    ✨ <strong>Top ${finalTitle}</strong> (${sortReason}):<br/>
     ${listHtml}
     <div style="margin-top: 8px; font-size: 0.75rem; color: #64748b;">
       👉 Bấm vào từng cuốn để xem chi tiết hoặc ghé <a href="products.html" style="color: #e11d48; font-weight: 700;">Kệ Sách</a> để lọc thêm nhé!
@@ -251,7 +328,7 @@ const callGeminiAi = async (userMessage) => {
   // Lấy top 15 tác phẩm bán chạy nhất làm RAG knowledge base
   const sortedProds = [...prods].sort((a, b) => (Number(b.sold) || 0) - (Number(a.sold) || 0)).slice(0, 15);
   const catalogContext = sortedProds.map(p => 
-    `- ${p.name} | Thể loại: ${p.categoryName || 'Manga'} | Giá: ${formatPrice(p.price)} | Đã bán: ${p.sold || 0} cuốn | Tồn kho: ${p.stock || 'còn hàng'}`
+    `- ${p.name} | Danh mục: ${p.categoryName || 'Manga'} | Thể loại: ${p.genre || 'Chung'} | Giá: ${formatPrice(p.price)} | Đã bán: ${p.sold || 0} cuốn | Tồn kho: ${p.stock || 'còn hàng'}`
   ).join('\n');
 
   // Đơn hàng gần nhất phục vụ MCP Tool context (Thời gian thực từ CSDL Neon)
@@ -327,8 +404,8 @@ const processBotReplyLocal = async (text) => {
     return await handleOrderLookup(text);
   }
 
-  // 2. Tư vấn sách theo thể loại / bán chạy
-  if (/\b(tư vấn|gợi ý|sách hay|truyện hay|bán chạy|hot|mua gì|thể loại|manga|light novel|shounen|isekai|romance|conan)\b/i.test(text)) {
+  // 2. Tư vấn sách theo thể loại / danh mục / giá rẻ / bán chạy
+  if (/\b(tư vấn|gợi ý|sách hay|truyện hay|bán chạy|hot|mua gì|thể loại|danh mục|manga|light novel|ln|tiểu thuyết|shounen|isekai|romance|tình cảm|học đường|trinh thám|conan|rẻ nhất|cao nhất|đắt nhất)\b/i.test(text)) {
     return await handleBookRecommendationLocal(text);
   }
 

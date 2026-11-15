@@ -12,6 +12,7 @@ const state = {
   categories: [],
   orders: [],
   currentCategoryId: 0,   // 0 = Tất cả
+  currentGenre: 'all',    // 'all' hoặc tên thể loại (Shounen, Tình Cảm, Isekai...)
   searchKeyword: '',
   priceRange: 'all',      // 'all', 'under50', '50to100', 'over100'
   discountFilter: 'all',  // 'all', 'tier10', 'tier20', 'tier30'
@@ -48,7 +49,7 @@ const attachSalesToProducts = (products = [], orders = []) => {
 
 // ================= TẠO HTML THẺ SẢN PHẨM =================
 const createProductCardHtml = (product) => {
-  const { id, name, author, price, originalPrice, discount, image, categoryName, rating, isHot, isNew, stock, soldCount } = product;
+  const { id, name, author, price, originalPrice, discount, image, categoryName, genre, rating, isHot, isNew, stock, soldCount } = product;
   const isOutOfStock = typeof stock === 'number' && stock <= 0;
   const currentUser = JSON.parse(localStorage.getItem('user'));
   const wishlist = (currentUser && currentUser.name) ? (JSON.parse(localStorage.getItem('hikari_wishlist')) || []) : [];
@@ -81,6 +82,7 @@ const createProductCardHtml = (product) => {
       <div class="product-card-body">
         <div class="product-meta-row">
           <span class="product-category-tag">${categoryName || 'Sách'}</span>
+          ${genre ? `<span class="product-genre-badge" style="background: #fdf2f8; color: #db2777; font-size: 0.68rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${genre}">🏷️ ${genre.split(',')[0]}</span>` : ''}
           <span class="product-rating">★ ${rating || 5.0}</span>
         </div>
 
@@ -205,17 +207,17 @@ const renderCategorySelector = (categories = []) => {
   // Hàm cập nhật nhãn trên nút bấm
   const updateLabel = () => {
     if (state.isSaleOnly) {
-      if (label) label.textContent = 'Thể loại: ⚡ Flash Sale Giảm Sâu';
+      if (label) label.textContent = 'Danh mục: ⚡ Flash Sale Giảm Sâu';
       if (btnAll) btnAll.classList.remove('active');
       return;
     }
 
     if (state.currentCategoryId === 0) {
-      if (label) label.textContent = 'Thể loại: Tất Cả Tác Phẩm';
+      if (label) label.textContent = 'Danh mục: Tất Cả Tác Phẩm';
       if (btnAll) btnAll.classList.remove('active');
     } else {
       const cur = categories.find(c => c.id === state.currentCategoryId);
-      if (label) label.textContent = `Thể loại: ${cur ? cur.name : 'Tất Cả Tác Phẩm'}`;
+      if (label) label.textContent = `Danh mục: ${cur ? cur.name : 'Tất Cả Tác Phẩm'}`;
       if (btnAll) btnAll.classList.add('active');
     }
   };
@@ -323,6 +325,12 @@ const applyFiltersAndRender = (resetPage = true) => {
   // 1. Lọc theo Danh mục (categoryId)
   if (!state.isSaleOnly && state.currentCategoryId !== 0) {
     result = result.filter(item => item.categoryId === state.currentCategoryId);
+  }
+
+  // 1b. Lọc theo Thể loại nội dung (genre)
+  if (state.currentGenre && state.currentGenre !== 'all') {
+    const targetGenre = state.currentGenre.toLowerCase();
+    result = result.filter(item => (item.genre || '').toLowerCase().includes(targetGenre));
   }
 
   // 2. Lọc chỉ xem sản phẩm đang giảm giá (Flash sale)
@@ -554,6 +562,7 @@ const resetFilters = () => {
   state.discountFilter = 'all';
   state.searchKeyword = '';
   state.sortBy = 'hot';
+  state.currentGenre = 'all';
   state.currentPage = 1;
 
   const searchInput = document.querySelector('#searchInput');
@@ -567,6 +576,10 @@ const resetFilters = () => {
   if (priceSelect) priceSelect.value = 'all';
   if (discountSelect) discountSelect.value = 'all';
   if (sortSelect) sortSelect.value = 'hot';
+
+  document.querySelectorAll('.genre-pill').forEach(pill => {
+    pill.classList.toggle('active', pill.dataset.genre === 'all');
+  });
 
   applyFiltersAndRender(true);
 };
@@ -617,6 +630,20 @@ const setupEventListeners = () => {
     state.sortBy = e.target.value;
     applyFiltersAndRender();
   });
+
+  // 4b. Bộ lọc Thể loại (Genre Pills)
+  const genrePillsContainer = document.querySelector('#genrePillsList');
+  if (genrePillsContainer) {
+    genrePillsContainer.addEventListener('click', (e) => {
+      const pill = e.target.closest('.genre-pill');
+      if (!pill) return;
+      const targetGenre = pill.dataset.genre || 'all';
+      state.currentGenre = targetGenre;
+      genrePillsContainer.querySelectorAll('.genre-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      applyFiltersAndRender(true);
+    });
+  }
 
   // 5. Nút Reset
   const btnReset = document.querySelector('#btnResetFilters');

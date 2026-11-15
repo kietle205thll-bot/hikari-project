@@ -1603,7 +1603,12 @@ const renderProductsTable = () => {
           <div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">NXB: ${item.publisher || 'NXB Kim Đồng'}</div>
         </td>
         <td>${item.author || 'Chưa cập nhật'}</td>
-        <td><span style="background: #f1f5f9; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; color: #475569;">${item.categoryName || 'Sách'}</span></td>
+        <td>
+          <div style="font-weight: 700; color: #0f172a; font-size: 0.85rem;">${item.categoryName || 'Sách'}</div>
+          ${item.genre ? `<div style="font-size: 0.72rem; color: #475569; margin-top: 3px; display: flex; flex-wrap: wrap; gap: 3px;">
+            ${item.genre.split(',').map(g => `<span style="background: #e0f2fe; color: #0369a1; padding: 1px 5px; border-radius: 3px; font-weight: 600;">${g.trim()}</span>`).join('')}
+          </div>` : ''}
+        </td>
         <td style="font-weight: 700; color: #e11d48;">${formatPrice(item.price)}</td>
         <td style="text-align: center;">
           <span class="stock-badge ${stockBadgeClass}">${stockBadgeText}</span>
@@ -2233,6 +2238,8 @@ const setupProductModal = () => {
   btnOpen?.addEventListener('click', () => {
     form.reset();
     document.querySelector('#editProductId').value = '';
+    const pGenreInput = document.querySelector('#pGenre');
+    if (pGenreInput) pGenreInput.value = '';
     titleEl.innerHTML = '<span>📖</span> Thêm Tác Phẩm Mới Vào Kho';
     fillCategories();
 
@@ -2267,6 +2274,7 @@ const setupProductModal = () => {
     const publisher = document.querySelector('#pPublisher').value.trim();
     const categoryId = Number(pCategorySelect.value);
     const categoryName = pCategorySelect.selectedOptions[0]?.dataset.name || 'Manga';
+    const genre = document.querySelector('#pGenre')?.value?.trim() || '';
     const price = Number(document.querySelector('#pPrice').value);
     const originalPrice = Number(document.querySelector('#pOriginalPrice').value) || price;
     const stock = Number(document.querySelector('#pStock').value);
@@ -2291,6 +2299,7 @@ const setupProductModal = () => {
       publisher,
       categoryId,
       categoryName,
+      genre,
       price,
       originalPrice,
       discount: originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0,
@@ -2349,6 +2358,8 @@ const setupProductModal = () => {
       document.querySelector('#pAuthor').value = prod.author || '';
       document.querySelector('#pPublisher').value = prod.publisher || '';
       pCategorySelect.value = prod.categoryId || 1;
+      const pGenreInput = document.querySelector('#pGenre');
+      if (pGenreInput) pGenreInput.value = prod.genre || '';
       document.querySelector('#pPrice').value = prod.price || 0;
       document.querySelector('#pOriginalPrice').value = prod.originalPrice || prod.price || 0;
       document.querySelector('#pStock').value = prod.stock || 0;
