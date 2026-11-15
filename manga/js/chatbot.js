@@ -179,12 +179,29 @@ const handleBookRecommendationLocal = async (text) => {
   }
 
   const query = text.toLowerCase();
+
+  // 0. Nhận diện câu hỏi tổng quan về THỂ LOẠI (VD: "các thể loại sách nên đọc", "những thể loại sách", "thể loại nào hay")
+  const isGeneralGenreQuery = /\b(các thể loại|những thể loại|cac the loai|nhung the loai|thể loại nào|the loai nao|thể loại sách|the loai sach|thể loại nên đọc|the loai nen doc|thể loại hay|the loai hay)\b/i.test(query) ||
+    (/(thể loại|the loai)/i.test(query) && /(nên đọc|nen doc|đáng đọc|dang doc|nào hay|nao hay|có gì|co gi|phổ biến|pho bien)/i.test(query));
+
+  if (isGeneralGenreQuery) {
+    return `
+      📚 <strong>Các nhóm thể loại sách đặc sắc & đáng đọc nhất tại Hikari:</strong><br/><br/>
+      ⚔️ <strong>Manga Shounen & Hành Động:</strong> Nhiệt huyết, tình bạn & chiến đấu mãn nhãn (<em>One Piece, Jujutsu Kaisen, SPY x FAMILY</em>).<br/>
+      ✨ <strong>Light Novel & Isekai:</strong> Thế giới kỳ ảo, ma pháp & chuyển sinh siêu lôi cuốn (<em>Sword Art Online, Re:Zero, Overlord, Slime</em>).<br/>
+      💕 <strong>Tình Cảm & Tuổi Trẻ:</strong> Câu chuyện sâu lắng, học đường & rung cảm ngọt ngào (<em>Rừng Na Uy, Tôi Thấy Hoa Vàng Trên Cỏ Xanh</em>).<br/>
+      💡 <strong>Kỹ Năng & Tư Duy:</strong> Phát triển bản thân, tư duy tài chính & tâm lý học (<em>Tâm Lý Học Về Tiền, Cây Cam Ngọt Của Tôi</em>).<br/><br/>
+      👉 Bạn có thể gõ ngay <em>"Manga Shounen"</em> hoặc <em>"Light Novel đáng đọc"</em> để mình gửi chi tiết từng cuốn nhé!
+    `;
+  }
+
   let filtered = [...prods];
   let catTitle = '';
   let genreTitle = '';
 
   // 1. Nhận diện Danh mục (Category - Manga, Light Novel, Tiểu Thuyết, Kỹ Năng)
-  const isLN = /\b(light\s*novel|lightnovel|ln|tiểu thuyết ánh sáng|tieu thuyet anh sang)\b/i.test(query);
+  // Hỗ trợ cả lỗi gõ phím lighnovel / lightnovel / ln
+  const isLN = /\b(light\s*novel|ligh\s*novel|lightnovel|lighnovel|ln|tiểu thuyết ánh sáng|tieu thuyet anh sang)\b/i.test(query);
   const isManga = /\b(manga|truyện tranh|truyen tranh)\b/i.test(query);
   const isNovel = !isLN && /\b(tiểu thuyết|tieu thuyet|văn học|van hoc)\b/i.test(query);
   const isSkill = /\b(kỹ năng|ky nang|tư duy|tu duy|tài chính|tai chinh)\b/i.test(query);
@@ -223,11 +240,12 @@ const handleBookRecommendationLocal = async (text) => {
     }
   });
 
-  // Tìm thể loại động xuất hiện trong câu hỏi của người dùng
+  // Tìm thể loại động xuất hiện trong câu hỏi của người dùng (tránh các từ chung)
   let matchedDynamicGenre = null;
   for (const g of allGenresInDb) {
     const gLower = g.toLowerCase();
     if (gLower.length <= 2) continue;
+    if (['sách', 'sach', 'truyện', 'truyen', 'chung'].includes(gLower)) continue;
     const re = new RegExp(`(^|\\s|\\b)${gLower}(\\b|\\s|$)`, 'i');
     if (re.test(query)) {
       matchedDynamicGenre = g;
@@ -235,9 +253,13 @@ const handleBookRecommendationLocal = async (text) => {
     }
   }
 
-  // Kiểm tra từ khóa sau cụm "thể loại ..."
-  const genreMatchAfterKeyword = query.match(/(?:thể loại|the loai)\s+([a-z0-9\s\-_]+)/i);
-  const extractedKeyword = genreMatchAfterKeyword ? genreMatchAfterKeyword[1].trim() : '';
+  // Kiểm tra từ khóa sau cụm "thể loại [từ khóa]"
+  const genreMatchAfterKeyword = query.match(/(?:thể loại|the loai)\s+([a-zA-Z0-9\u00C0-\u1EF9\s\-_]+)/i);
+  let extractedKeyword = genreMatchAfterKeyword ? genreMatchAfterKeyword[1].trim() : '';
+  // Bỏ qua các từ chung chung
+  if (/^(sách|sach|truyện|truyen|nào|nao|gì|gi|các|những|phổ biến|pho bien|hay|nên đọc|nen doc|đáng đọc|dang doc)$/i.test(extractedKeyword)) {
+    extractedKeyword = '';
+  }
 
   if (isRomance) {
     genreTitle = 'Tình Cảm & Lãng Mạn';
@@ -314,9 +336,10 @@ const handleBookRecommendationLocal = async (text) => {
     filtered = isManga ? prods.filter(p => Number(p.categoryId) === 1) : (isLN ? prods.filter(p => Number(p.categoryId) === 2) : prods);
   }
 
-  // 3. Nhận diện Sắp xếp theo Giá / Bán chạy
+  // 3. Nhận diện Sắp xếp: Giá rẻ / Giá cao / Đáng đọc / Bán chạy
   const isCheapest = /\b(rẻ nhất|re nhat|giá rẻ|gia re|thấp nhất|thap nhat|ưu đãi nhất|it tien nhat)\b/i.test(query);
   const isHighest = /\b(cao nhất|cao nhat|đắt nhất|dat nhat|giá bán cao nhất|gia ban cao nhat|giá cao nhất)\b/i.test(query);
+  const isRecommended = /\b(đáng đọc|dang doc|nên đọc|nen doc|đề cử|de cu|đề xuất|de xuat|tâm đắc|tam dac|hay nhất|hay nhat|hot nhất|review)\b/i.test(query);
 
   let sortText = 'bán chạy nhất';
   let sortReason = 'dựa trên số lượng bán thực tế tại Hikari';
@@ -329,6 +352,10 @@ const handleBookRecommendationLocal = async (text) => {
     filtered.sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0));
     sortText = 'có giá bán cao nhất (bản cao cấp)';
     sortReason = 'sắp xếp theo giá bán từ cao đến thấp';
+  } else if (isRecommended) {
+    filtered.sort((a, b) => (Number(b.sold) || 0) - (Number(a.sold) || 0));
+    sortText = 'đáng đọc nhất';
+    sortReason = 'tác phẩm nổi bật được bạn đọc yêu thích nhất';
   } else {
     filtered.sort((a, b) => (Number(b.sold) || 0) - (Number(a.sold) || 0));
   }
@@ -353,8 +380,9 @@ const handleBookRecommendationLocal = async (text) => {
           <div style="font-weight: 700; font-size: 0.82rem; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${item.name}">
             <a href="product-detail.html?id=${item.id}" style="color: inherit; text-decoration: none;">${item.name}</a>
           </div>
-          <div style="font-size: 0.72rem; color: #64748b; margin: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-            📁 ${shortCat}${firstGenre ? ` • 🏷️ ${firstGenre}` : ''}
+          <div style="display: flex; gap: 4px; align-items: center; margin: 3px 0; flex-wrap: nowrap; overflow: hidden;">
+            <span style="font-size: 0.68rem; font-weight: 700; color: #475569; background: #f1f5f9; padding: 1px 6px; border-radius: 4px; white-space: nowrap; flex-shrink: 0;">📁 ${shortCat}</span>
+            ${firstGenre ? `<span style="font-size: 0.68rem; font-weight: 700; color: #db2777; background: #fdf2f8; padding: 1px 6px; border-radius: 4px; white-space: nowrap; max-width: 105px; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1;" title="${firstGenre}">🏷️ ${firstGenre}</span>` : ''}
           </div>
           <div style="display: flex; gap: 6px; align-items: center; justify-content: space-between; flex-wrap: nowrap; margin-top: 2px;">
             <span style="font-size: 0.82rem; color: #e11d48; font-weight: 800; white-space: nowrap;">${formatPrice(item.price)}</span>
@@ -471,8 +499,12 @@ const processBotReplyLocal = async (text) => {
     return await handleOrderLookup(text);
   }
 
-  // 2. Tư vấn sách theo thể loại / danh mục / giá rẻ / bán chạy
-  if (/\b(tư vấn|gợi ý|sách hay|truyện hay|bán chạy|hot|mua gì|thể loại|the loai|danh mục|manga|light\s*novel|lightnovel|ln|tiểu thuyết|shounen|isekai|romance|tình cảm|học đường|trinh thám|conan|gore|rẻ nhất|cao nhất|đắt nhất)\b/i.test(text) || /(?:thể loại|the loai)\s+/i.test(text)) {
+  // 2. Tư vấn sách theo thể loại / danh mục / giá rẻ / bán chạy / đáng đọc
+  if (
+    /\b(tư vấn|tu van|gợi ý|goi y|sách hay|truyện hay|bán chạy|ban chay|hot|mua gì|mua gi|thể loại|the loai|danh mục|danh muc|manga|light\s*novel|ligh\s*novel|lightnovel|lighnovel|ln|tiểu thuyết|tieu thuyet|shounen|isekai|romance|tình cảm|tinh cam|học đường|hoc duong|trinh thám|trinh tham|conan|gore|rẻ nhất|re nhat|cao nhất|cao nhat|đắt nhất|dat nhat|đáng đọc|dang doc|nên đọc|nen doc|đề cử|de cu|đề xuất|de xuat|tâm đắc|tam dac|review|recommend)\b/i.test(text) ||
+    /(?:thể loại|the loai)\s+/i.test(text) ||
+    /\b(đáng đọc|nên đọc|hay nhất|đặc sắc)\b/i.test(text)
+  ) {
     return await handleBookRecommendationLocal(text);
   }
 
