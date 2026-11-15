@@ -10,7 +10,7 @@
  */
 
 import { formatPrice } from './utils.js';
-import { fetchProducts } from './api.js';
+import { fetchProducts, fetchOrders, normalizeOrderStatus } from './api.js';
 
 // Cấu hình Google Gemini AI
 const DEFAULT_GEMINI_KEY = '';
@@ -72,31 +72,101 @@ const handleVoucherResponse = () => {
 
 // ================= 3. TRA CỨU ĐƠN HÀNG THỜI GIAN THỰC (MCP TOOL SIMULATION) =================
 const isOrderInquiry = (text) => {
-  return /#?HKR\d+/i.test(text) || /\b(tra cứu đơn|kiểm tra đơn|tình trạng đơn|đơn hàng của tôi)\b/i.test(text);
+  return /#?HKR\d+/i.test(text) || 
+         /\b(VD-[A-Z0-9]+|SPX[A-Z0-9]*)\b/i.test(text) ||
+         /\b(tra cứu đơn|kiểm tra đơn|tình trạng đơn|đơn hàng của tôi|mã vận đơn|vận đơn)\b/i.test(text);
 };
 
-const handleOrderLookup = (text) => {
-  const match = text.match(/#?(HKR\d+)/i);
-  if (!match) {
-    return `📦 Bạn vui lòng nhập mã đơn hàng cần tra cứu (ví dụ: <code>#HKR992153</code>) để mình kiểm tra trạng thái giao hàng ngay cho bạn nhé!`;
+const handleOrderLookup = async (text) => {
+  // Trích xuất mã đơn dạng #HKR... hoặc mã vận đơn VD-... / SPX...
+  const hkrMatch = text.match(/#?(HKR\d+)/i);
+  const vdMatch = text.match(/\b(VD-[A-Z0-9]+)\b/i);
+  const spxMatch = text.match(/\b(SPX[A-Z0-9]+)\b/i);
+  const numMatch = text.match(/\b(\d{6,})\b/);
+
+  let searchCode = '';
+  if (hkrMatch) {
+    searchCode = hkrMatch[1].toUpperCase();
+  } else if (vdMatch) {
+    searchCode = vdMatch[1].toUpperCase();
+  } else if (spxMatch) {
+    searchCode = spxMatch[1].toUpperCase();
+  } else if (numMatch) {
+    searchCode = numMatch[1];
   }
 
-  const searchCode = match[1].toUpperCase();
-  const allOrders = JSON.parse(localStorage.getItem('orders')) || [];
-  const found = allOrders.find(o => String(o.orderCode || o.id).toUpperCase().includes(searchCode));
+  if (!searchCode) {
+    return `📦 Bạn vui lòng nhập mã đơn hàng (ví dụ: <code>#HKR411610</code>) hoặc mã vận đơn (ví dụ: <code>VD-HKR411610</code>) để mình kiểm tra trạng thái giao hàng ngay cho bạn nhé!`;
+  }
+
+  // Luôn nạp dữ liệu đơn hàng mới nhất thời gian thực từ CSDL Neon Server
+  let allOrders = [];
+  try {
+    allOrders = await fetchOrders();
+    if (Array.isArray(allOrders) && allOrders.length > 0) {
+      localStorage.setItem('orders', JSON.stringify(allOrders));
+    }
+  } catch (err) {
+    allOrders = JSON.parse(localStorage.getItem('orders')) || [];
+  }
+
+  const cleanSearch = searchCode.replace(/^#/, '').toUpperCase();
+  const found = allOrders.find(o => {
+    const oCode = String(o.orderCode || '').toUpperCase();
+    const oId = String(o.id || '');
+    const oTrack = String(o.trackingCode || '').toUpperCase();
+    return oCode.includes(cleanSearch) || oId === cleanSearch || (oTrack && oTrack.includes(cleanSearch));
+  });
 
   if (!found) {
-    return `🔍 Rất tiếc, mình không tìm thấy đơn hàng nào có mã <strong>#${searchCode}</strong> trong hệ thống. Bạn vui lòng kiểm tra lại trong <a href="profile.html#orders" style="color: #e11d48; font-weight: 700;">Lịch Sử Đơn Hàng</a> nhé!`;
+    return `🔍 Rất tiếc, mình không tìm thấy đơn hàng nào có mã hoặc vận đơn <strong>"${searchCode}"</strong> trong hệ thống. Bạn vui lòng kiểm tra lại trong <a href="profile.html#orders" style="color: #e11d48; font-weight: 700;">Lịch Sử Đơn Hàng</a> nhé!`;
   }
 
-  const statusColor = found.status === 'Đã hoàn thành' ? '#15803d' : (found.status === 'Đã hủy' ? '#b91c1c' : '#0369a1');
+  const currentStatus = normalizeOrderStatus(found.status);
+  let statusColor = '#0369a1';
+  let statusIcon = '📦';
+  if (currentStatus === 'Đã hoàn thành') {
+    statusColor = '#15803d';
+    statusIcon = '✅';
+  } else if (currentStatus === 'Đã giao hàng') {
+    statusColor = '#0284c7';
+    statusIcon = '📦';
+  } else if (currentStatus === 'Đang giao hàng') {
+    statusColor = '#7e22ce';
+    statusIcon = '🚚';
+  } else if (currentStatus === 'Đang xử lý') {
+    statusColor = '#0369a1';
+    statusIcon = '📦';
+  } else if (currentStatus === 'Chờ xác nhận') {
+    statusColor = '#b45309';
+    statusIcon = '⏳';
+  } else if (currentStatus === 'Đã hủy') {
+    statusColor = '#b91c1c';
+    statusIcon = '❌';
+  }
+
+  const items = Array.isArray(found.items) ? found.items : [];
+  const totalQuantity = items.reduce((sum, it) => sum + (Number(it.quantity) || 1), 0);
+  const itemsSummary = items.map(it => `&nbsp;&nbsp;• <em>${it.name}</em> (x${it.quantity || 1})`).join('<br/>');
+
+  const isCod = found.paymentMethod === 'cod';
+  const paymentText = isCod
+    ? '💵 Thu tiền mặt COD khi nhận'
+    : '✅ Chuyển khoản / Ví MoMo (Đã thanh toán)';
+
+  const trackingText = found.trackingCode 
+    ? `🚚 <strong>${found.trackingCode}</strong> (SPX Express)`
+    : '<em>Đang chuẩn bị đóng gói tại kho</em>';
 
   return `
     📦 <strong>Thông tin đơn hàng #${found.orderCode || found.id}:</strong><br/>
-    • Người nhận: <strong>${found.customer?.name || 'Khách hàng'}</strong><br/>
-    • Trạng thái: <strong style="color: ${statusColor};">[${found.status || 'Đang xử lý'}]</strong><br/>
-    • Tổng tiền: <strong>${formatPrice(found.total)}</strong> (${(found.items || []).length} cuốn sách)<br/>
-    • Ngày đặt: <em>${found.createdAt || 'Gần đây'}</em><br/>
+    • <strong>Người nhận:</strong> <strong>${found.customer?.name || 'Khách hàng'}</strong>${found.customer?.phone ? ` (${found.customer.phone})` : ''}<br/>
+    • <strong>Trạng thái:</strong> <strong style="color: ${statusColor};">${statusIcon} [${currentStatus}]</strong><br/>
+    • <strong>Mã vận đơn:</strong> ${trackingText}<br/>
+    • <strong>Thanh toán:</strong> ${paymentText}<br/>
+    • <strong>Tổng tiền:</strong> <strong style="color: #e11d48;">${formatPrice(found.total)}</strong> (${totalQuantity} cuốn sách)<br/>
+    ${itemsSummary ? `• <strong>Sách đã đặt:</strong><br/>${itemsSummary}<br/>` : ''}
+    • <strong>Ngày đặt:</strong> <em>${found.createdAt || 'Gần đây'}</em><br/>
     👉 Bạn có thể in hoặc tải hóa đơn VAT tại <a href="profile.html#orders" style="color: #e11d48; font-weight: 700;">Trang Cá Nhân</a>!
   `;
 };
@@ -184,10 +254,15 @@ const callGeminiAi = async (userMessage) => {
     `- ${p.name} | Thể loại: ${p.categoryName || 'Manga'} | Giá: ${formatPrice(p.price)} | Đã bán: ${p.sold || 0} cuốn | Tồn kho: ${p.stock || 'còn hàng'}`
   ).join('\n');
 
-  // Đơn hàng gần nhất phục vụ MCP Tool context
-  const allOrders = JSON.parse(localStorage.getItem('orders')) || [];
+  // Đơn hàng gần nhất phục vụ MCP Tool context (Thời gian thực từ CSDL Neon)
+  let allOrders = [];
+  try {
+    allOrders = await fetchOrders();
+  } catch (e) {
+    allOrders = JSON.parse(localStorage.getItem('orders')) || [];
+  }
   const ordersContext = allOrders.slice(0, 5).map(o => 
-    `- Đơn #${o.orderCode || o.id} | Khách: ${o.customer?.name || 'Khách'} | Trạng thái: [${o.status || 'Đang xử lý'}] | Tổng tiền: ${formatPrice(o.total)}`
+    `- Đơn #${o.orderCode || o.id} | Mã VĐ: ${o.trackingCode || 'Chưa bàn giao'} | Khách: ${o.customer?.name || 'Khách'} | Trạng thái: [${normalizeOrderStatus(o.status)}] | Tổng tiền: ${formatPrice(o.total)}`
   ).join('\n');
 
   const systemInstruction = `
@@ -249,7 +324,7 @@ Hãy trả lời bằng tiếng Việt thân thiện, súc tích, chuyên nghi�
 const processBotReplyLocal = async (text) => {
   // 1. Tra cứu đơn hàng
   if (isOrderInquiry(text)) {
-    return handleOrderLookup(text);
+    return await handleOrderLookup(text);
   }
 
   // 2. Tư vấn sách theo thể loại / bán chạy
@@ -296,9 +371,9 @@ const processBotReply = async (userMessage) => {
     return handleVoucherResponse();
   }
 
-  // 3. Tra cứu đơn hàng cụ thể có mã #HKR...
-  if (isOrderInquiry(text) && /#?HKR\d+/i.test(text)) {
-    return handleOrderLookup(text);
+  // 3. Tra cứu đơn hàng cụ thể có mã #HKR... hoặc mã vận đơn VD-... / SPX...
+  if (isOrderInquiry(text) && (/#?HKR\d+/i.test(text) || /VD-[A-Z0-9]+/i.test(text) || /SPX[A-Z0-9]+/i.test(text))) {
+    return await handleOrderLookup(text);
   }
 
   // 4. Kết nối Gemini AI Model gemini-3.5-flash-lite kèm RAG Context
