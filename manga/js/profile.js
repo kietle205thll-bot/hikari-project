@@ -592,9 +592,11 @@ const showCustomerOrderDetailModal = (order) => {
 
       <!-- MODAL FOOTER -->
       <div style="padding: 0.9rem 1.4rem; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
-        <button type="button" id="btnCustomerModalPdf" class="btn" style="padding: 0.45rem 1rem; font-size: 0.82rem; font-weight: 700; background: #e0e7ff; color: #4338ca; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
-          📄 Xuất Hóa Đơn PDF
-        </button>
+        ${currentStatus === 'Đã hoàn thành' ? `
+          <button type="button" id="btnCustomerModalPdf" class="btn" style="padding: 0.45rem 1rem; font-size: 0.82rem; font-weight: 700; background: #e0e7ff; color: #4338ca; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+            📄 Xuất Hóa Đơn PDF
+          </button>
+        ` : '<div></div>'}
         <button type="button" id="btnCustomerModalCloseBottom" class="btn" style="padding: 0.45rem 1.25rem; font-size: 0.85rem; font-weight: 600; background: #e2e8f0; color: #334155; border: none; border-radius: 6px; cursor: pointer;">Đóng</button>
       </div>
     </div>
@@ -665,6 +667,7 @@ const renderOrdersTab = () => {
     const trackingCode = String(order.trackingCode || '').trim();
     const canConfirmReceived = currentStatus === 'Đã giao hàng';
     const canCancelCod = isCodOrder && (currentStatus === 'Chờ xác nhận' || currentStatus === 'Đang xử lý');
+    const isOrderCompleted = currentStatus === 'Đã hoàn thành';
 
     let policyNoticeHtml = '';
     if (!isOrderCancelled(order)) {
@@ -777,9 +780,11 @@ const renderOrdersTab = () => {
                   ❌ Hủy đơn hàng
                 </button>
               ` : ''}
-              <button type="button" class="btn btn-outline btn-export-order-pdf" data-order-id="${order.id}" style="padding: 0.45rem 0.85rem; font-size: 0.82rem; font-weight: 700;">
-                📄 Tải Hóa Đơn PDF
-              </button>
+              ${isOrderCompleted ? `
+                <button type="button" class="btn btn-outline btn-export-order-pdf" data-order-id="${order.id}" style="padding: 0.45rem 0.85rem; font-size: 0.82rem; font-weight: 700;">
+                  📄 Tải Hóa Đơn PDF
+                </button>
+              ` : ''}
             </div>
           </div>
           ${policyNoticeHtml}
@@ -1037,9 +1042,16 @@ const getOrderFinancialBreakdown = (order) => {
 
 const exportProfileInvoicePdf = async (order, btnEl) => {
   if (!order) return;
-  const originalText = btnEl.innerHTML;
-  btnEl.disabled = true;
-  btnEl.innerHTML = `⏳ Đang tạo PDF...`;
+  const currentStatus = normalizeOrderStatus(order.status);
+  if (currentStatus !== 'Đã hoàn thành') {
+    showToast('Hóa đơn VAT chỉ khả dụng sau khi bạn đã nhận hàng thành công!', 'warning');
+    return;
+  }
+  const originalText = btnEl ? btnEl.innerHTML : '';
+  if (btnEl) {
+    btnEl.disabled = true;
+    btnEl.innerHTML = `⏳ Đang tạo PDF...`;
+  }
 
   const printContainer = document.querySelector('#profileInvoicePrintContainer');
   if (!printContainer) return;
@@ -1049,7 +1061,6 @@ const exportProfileInvoicePdf = async (order, btnEl) => {
   const customerPhone = order.customer?.phone || state.user?.phone || 'Chưa có SĐT';
   const customerAddress = order.customer?.address || '123 Đường Sách Nguyễn Huệ, Q1, TP.HCM';
   const createdAt = order.createdAt || new Date().toLocaleString('vi-VN');
-  const currentStatus = normalizeOrderStatus(order.status);
   const trackingCode = order.trackingCode || '';
   const items = order.items || [];
   const { subtotal, shippingFee, discount, total } = getOrderFinancialBreakdown(order);

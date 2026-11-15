@@ -83,7 +83,12 @@ const loadCartData = async () => {
   const userId = getCurrentUserId();
   try {
     const serverItems = await fetchCartServer(userId);
-    if (Array.isArray(serverItems) && serverItems.length > 0) {
+    if (Array.isArray(serverItems)) {
+      if (serverItems.length === 0) {
+        currentCartItems = [];
+        saveCart([]);
+        return [];
+      }
       const enriched = await enrichCartItemsNewFlag(serverItems);
       currentCartItems = enriched;
       saveCart(enriched); // Cập nhật cache dự phòng
@@ -605,8 +610,14 @@ const attachCartEventListeners = () => {
           return;
         }
 
-        // Cập nhật bất đồng bộ lên CSDL
-        await updateCartItemQtyServer(cartId, item.quantity + 1);
+        // Cập nhật optimistic bộ nhớ & LocalStorage
+        item.quantity += 1;
+        saveCart(currentCartItems);
+        try {
+          await updateCartItemQtyServer(cartId, item.quantity);
+        } catch (serverErr) {
+          console.warn('Lỗi cập nhật số lượng server:', serverErr);
+        }
         await renderCart();
         await updateCartBadge();
       } catch (err) {
@@ -630,13 +641,26 @@ const attachCartEventListeners = () => {
 
       try {
         if (item.quantity > 1) {
-          await updateCartItemQtyServer(cartId, item.quantity - 1);
+          item.quantity -= 1;
+          saveCart(currentCartItems);
+          try {
+            await updateCartItemQtyServer(cartId, item.quantity);
+          } catch (serverErr) {
+            console.warn('Lỗi cập nhật số lượng server:', serverErr);
+          }
           await renderCart();
           await updateCartBadge();
         } else {
           // Khi giảm xuống 0 -> Xác nhận xóa
           if (window.confirm(`Bạn có chắc chắn muốn xóa cuốn "${item.name}" khỏi giỏ hàng?`)) {
-            await removeCartItemServer(cartId);
+            currentCartItems = currentCartItems.filter(p => String(p.id) !== String(cartId) && String(p.productId) !== String(item.productId || cartId));
+            saveCart(currentCartItems);
+            if (currentCartItems.length === 0) clearAppliedCoupon();
+            try {
+              await removeCartItemServer(cartId);
+            } catch (e) {
+              console.warn('Xóa sản phẩm server thất bại:', e);
+            }
             showToast(`Đã xóa "${item.name}" khỏi giỏ hàng!`, 'info');
             await renderCart();
             await updateCartBadge();
@@ -663,7 +687,14 @@ const attachCartEventListeners = () => {
 
       if (window.confirm(`Bạn có chắc chắn muốn xóa cuốn "${item.name}" khỏi giỏ hàng?`)) {
         try {
-          await removeCartItemServer(cartId);
+          currentCartItems = currentCartItems.filter(p => String(p.id) !== String(cartId) && String(p.productId) !== String(item.productId || cartId));
+          saveCart(currentCartItems);
+          if (currentCartItems.length === 0) clearAppliedCoupon();
+          try {
+            await removeCartItemServer(cartId);
+          } catch (e) {
+            console.warn('Xóa sản phẩm server thất bại:', e);
+          }
           showToast(`Đã xóa "${item.name}" khỏi giỏ hàng!`, 'info');
           await renderCart();
           await updateCartBadge();
