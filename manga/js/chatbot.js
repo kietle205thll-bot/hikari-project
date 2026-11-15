@@ -599,8 +599,8 @@ const makeDraggable = (targetEl, handleEl, { shouldIgnore, onDragEnd } = {}) => 
 
 // ================= 8. KHỞI TẠO & RENDER WIDGET GIAO DIỆN CHATBOX =================
 export const initHikariChatbot = () => {
-  // Không hiển thị chatbot trên trang quản trị Admin
-  if (window.location.pathname.includes('admin.html')) return;
+  // Không hiển thị chatbot trên trang quản trị Admin và trang giao nhận Shipper
+  if (window.location.pathname.includes('admin.html') || window.location.pathname.includes('shipper.html')) return;
 
   // Tránh render trùng lặp
   if (document.querySelector('#hikariChatWidget')) return;
