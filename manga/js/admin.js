@@ -2513,14 +2513,19 @@ const setupCategoryManagement = () => {
     }
 
     try {
-      await api.post('/categories', newCat);
-      state.categories.push(newCat);
+      const savedCat = await api.post('/categories', newCat);
+      const finalCat = (savedCat && savedCat.id) ? savedCat : newCat;
+      // Tránh trùng lặp nếu state đã có
+      if (!state.categories.some(c => Number(c.id) === Number(finalCat.id))) {
+        state.categories.push(finalCat);
+      }
       showToast(`✓ Đã thêm danh mục "${name}" vào CSDL thành công!`, 'success');
       form.reset();
       const iconInput = document.querySelector('#catIcon');
       if (iconInput) iconInput.value = '✨';
 
       renderCategoryList();
+      await refreshData();
 
       // Cập nhật bộ lọc thể loại ở trang Admin
       const catSelect = document.querySelector('#adminCategoryFilter');

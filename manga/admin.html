@@ -667,11 +667,14 @@
     <div class="admin-modal-card" style="max-width: 680px;">
       <button type="button" class="modal-close-btn" id="btnCloseCategoryModal">&times;</button>
       <h2 style="font-size: 1.35rem; font-weight: 800; color: #0f172a; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem;">
-        <span>📂</span> Quản Lý Danh Mục Sản Phẩm
+        <span>📂</span> Quản Lý Danh Mục Sản Phẩm (Định Dạng Sách)
       </h2>
-      <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1.25rem;">
-        Thêm mới các danh mục (như Fantasy, Isekai, Romance...) hoặc xóa danh mục không còn sử dụng.
+      <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.5rem;">
+        Thêm mới các danh mục định dạng ấn bản (như Tạp Chí, Sách Ngoại Văn, Truyện Tranh Màu...) hoặc xóa danh mục không còn sử dụng.
       </p>
+      <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 8px 12px; margin-bottom: 1.25rem; font-size: 0.78rem; color: #1e40af; line-height: 1.4;">
+        💡 <strong>Mẹo phân biệt:</strong> Để gắn thể loại nội dung (như <em>Shounen, Tình Cảm, Gore, Isekai, Trinh Thám...</em>), bạn có thể nhập trực tiếp ở mục <strong>"🏷️ Thể loại / Tag nội dung"</strong> khi thêm/sửa tác phẩm trong kho sách!
+      </div>
 
       <!-- FORM THÊM DANH MỤC MỚI -->
       <form id="addCategoryForm" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.25rem; margin-bottom: 1.5rem;" novalidate>
@@ -684,13 +687,13 @@
             <input type="text" id="catIcon" class="form-input" value="✨" maxlength="4" style="text-align: center; font-size: 1.2rem; padding: 0.5rem;" />
           </div>
           <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label">Tên thể loại / Danh mục *</label>
-            <input type="text" id="catName" class="form-input" placeholder="Ví dụ: Isekai & Chuyển Sinh, Fantasy..." required />
+            <label class="form-label">Tên danh mục chính (Định dạng sách) *</label>
+            <input type="text" id="catName" class="form-input" placeholder="Ví dụ: Truyện Tranh Màu, Sách Ngoại Văn, Tạp Chí..." required />
           </div>
         </div>
         <div class="form-group" style="margin-bottom: 0.85rem;">
           <label class="form-label">Mô tả ngắn</label>
-          <input type="text" id="catDesc" class="form-input" placeholder="Ví dụ: Thế giới giả tưởng, chuyển sinh dị giới hấp dẫn..." />
+          <input type="text" id="catDesc" class="form-input" placeholder="Ví dụ: Tuyển tập truyện tranh bản in màu cao cấp..." />
         </div>
         <div style="display: flex; justify-content: flex-end;">
           <button type="submit" id="btnSaveCategory" class="btn-admin btn-admin-primary" style="display: inline-flex; align-items: center; gap: 6px; padding: 0.55rem 1.25rem;">

@@ -57,11 +57,24 @@ app.get('/categories', async (req, res) => {
 
 app.post('/categories', async (req, res) => {
   try {
-    const { name, slug, icon, description } = req.body;
-    const result = await query(
-      `INSERT INTO categories (name, slug, icon, description) VALUES ($1, $2, $3, $4) RETURNING *`,
-      [name, slug || name.toLowerCase().replace(/\s+/g, '-'), icon || '✨', description || '']
-    );
+    const { id, name, slug, icon, description } = req.body;
+    let result;
+    if (id && Number(id) > 0) {
+      result = await query(
+        `INSERT INTO categories (id, name, slug, icon, description)
+         VALUES ($1, $2, $3, $4, $5)
+         ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, slug = EXCLUDED.slug, icon = EXCLUDED.icon, description = EXCLUDED.description
+         RETURNING *`,
+        [Number(id), name, slug || name.toLowerCase().replace(/\s+/g, '-'), icon || '✨', description || '']
+      );
+    } else {
+      result = await query(
+        `INSERT INTO categories (name, slug, icon, description) VALUES ($1, $2, $3, $4) RETURNING *`,
+        [name, slug || name.toLowerCase().replace(/\s+/g, '-'), icon || '✨', description || '']
+      );
+    }
+    // Tự động đồng bộ sequence lên giá trị MAX(id)
+    await query(`SELECT setval('categories_id_seq', (SELECT COALESCE(MAX(id), 1) FROM categories))`);
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('Lỗi POST /categories:', err);
