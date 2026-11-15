@@ -2,7 +2,7 @@
  * pdf-helper.js - Bộ sinh Hóa đơn VAT Điện Tử file PDF chuẩn A4
  * Dùng chung cho Giỏ hàng (Cart), Trang cá nhân (Profile) và Hòm thư ảo (Mailbox)
  */
-import { formatPrice } from './utils.js';
+import { formatPrice, showToast } from './utils.js';
 
 /**
  * Đảm bảo thư viện html2pdf.js đã được nạp vào trang
@@ -47,6 +47,15 @@ const getFinancials = (order) => {
  */
 export const downloadOrderInvoicePdf = async (order, btnEl = null) => {
   if (!order) return false;
+
+  if (order.status) {
+    const st = String(order.status).toLowerCase();
+    const isCompleted = ['completed', 'đã hoàn thành'].some(k => st.includes(k));
+    if (!isCompleted) {
+      showToast('Hóa đơn VAT chỉ khả dụng sau khi bạn đã nhận hàng thành công!', 'warning');
+      return false;
+    }
+  }
 
   let originalText = '';
   if (btnEl) {

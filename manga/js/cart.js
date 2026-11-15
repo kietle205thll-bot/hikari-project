@@ -1287,15 +1287,17 @@ const setupCheckoutModal = () => {
             </p>
 
             <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem;">
-              <button id="btnExportInvoicePdf" class="btn btn-primary" style="background: #1e1b4b; border-color: #1e1b4b;">
-                📄 Xuất Hóa Đơn PDF
-              </button>
-              <a href="profile.html#orders" class="btn btn-outline" style="background: #ffffff; color: #1e1b4b; border-color: #cbd5e1;">
+              <a href="profile.html#orders" class="btn btn-primary" style="background: #1e1b4b; border-color: #1e1b4b; padding: 0.65rem 1.4rem; font-weight: 700;">
                 📦 Theo Dõi Đơn Hàng
               </a>
-              <a href="index.html" class="btn btn-outline" style="background: #ffffff;">
+              <a href="index.html" class="btn btn-outline" style="background: #ffffff; padding: 0.65rem 1.4rem; font-weight: 700;">
                 ← Tiếp tục mua sắm
               </a>
+            </div>
+
+            <div style="margin-top: 1.15rem; padding: 0.65rem 1.1rem; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; font-size: 0.82rem; color: #065f46; display: inline-flex; align-items: center; gap: 0.45rem;">
+              <span>💡</span>
+              <span>Hóa đơn VAT điện tử sẽ sẵn sàng để tải về sau khi bạn nhận hàng thành công tại mục <strong>Đơn Hàng Của Bạn</strong>.</span>
             </div>
 
             ${paymentMethod !== 'cod' ? `
@@ -1312,170 +1314,7 @@ const setupCheckoutModal = () => {
               </div>
             ` : ''}
           </div>
-
-          <!-- MẪU HÓA ĐƠN ĐỂ XUẤT PDF CHUẨN A4 (TỰ ĐỘNG CÂN CHỈNH 1 TRANG, KHÔNG CẮT CHỮ, KHÔNG LỖI CUỘN TRANG) -->
-          <div id="invoicePrintTemplate" style="display: none; background: #ffffff; width: 680px; max-width: 100%; box-sizing: border-box; padding: 20px 24px; font-family: 'Segoe UI', Arial, sans-serif; color: #1e293b; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
-            <!-- 1. HEADER HÓA ĐƠN -->
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; border-bottom: 2px solid #e11d48; padding-bottom: 12px; margin-bottom: 14px;">
-              <div style="flex: 1; min-width: 0;">
-                <h1 style="font-size: 21px; color: #b91c1c; margin: 0 0 4px 0; font-weight: 900; letter-spacing: 0.5px;">HIKARI BOOKSTORE</h1>
-                <p style="margin: 0; font-size: 11.5px; color: #475569; font-weight: 600;">Nhà Sách Manga, Light Novel &amp; Tiểu Thuyết Bản Quyền</p>
-                <p style="margin: 2px 0 0 0; font-size: 11px; color: #64748b;">Địa chỉ: 123 Đường Sách Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh</p>
-                <p style="margin: 2px 0 0 0; font-size: 11px; color: #64748b;">Hotline: 1900 6868 | Email: support@hikaribooks.vn</p>
-              </div>
-              <div style="text-align: right; flex-shrink: 0;">
-                <h2 style="font-size: 16px; margin: 0 0 4px 0; color: #0f172a; font-weight: 800;">HÓA ĐƠN BÁN HÀNG</h2>
-                <div style="display: inline-block; background: #ffe4e6; color: #e11d48; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-size: 11.5px;">Mã đơn: #${orderData.orderCode}</div>
-                <p style="margin: 4px 0 0 0; font-size: 11px; color: #64748b;">Ngày tạo: ${orderData.createdAt}</p>
-              </div>
-            </div>
-
-            <!-- 2. THÔNG TIN KHÁCH HÀNG & THANH TOÁN (LAYOUT 2 CỘT GỌN GÀNG, KHÔNG TRÀN TRANG) -->
-            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px; margin-bottom: 14px; font-size: 12px; line-height: 1.6;">
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                <div style="min-width: 0; word-break: break-word;">
-                  <div style="font-weight: 800; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b;">THÔNG TIN NGƯỜI NHẬN</div>
-                  <div><strong>Khách hàng:</strong> ${name}</div>
-                  <div><strong>Số điện thoại:</strong> ${phone}</div>
-                  <div><strong>Địa chỉ giao:</strong> ${address}</div>
-                </div>
-                <div style="min-width: 0; word-break: break-word;">
-                  <div style="font-weight: 800; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b;">CHI TIẾT ĐƠN HÀNG</div>
-                  <div><strong>Thanh toán:</strong> ${paymentMethod === 'cod' ? 'Thanh toán tiền mặt khi nhận sách (COD)' : 'Chuyển khoản Ngân hàng / Ví MoMo (VietQR)'}</div>
-                  <div><strong>Trạng thái:</strong> <span style="color: #b45309; font-weight: 700;">Chờ xác nhận đơn hàng</span></div>
-                  ${note ? `<div><strong>Ghi chú:</strong> ${note}</div>` : ''}
-                </div>
-              </div>
-            </div>
-
-            <!-- 3. BẢNG DANH SÁCH SÁCH -->
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 12px; table-layout: fixed;">
-              <thead>
-                <tr style="background: #1e1b4b; color: #ffffff; text-align: left;">
-                  <th style="padding: 8px 8px; width: 42px; text-align: center;">STT</th>
-                  <th style="padding: 8px 8px;">Tên tác phẩm</th>
-                  <th style="padding: 8px 8px; width: 90px; text-align: right;">Đơn giá</th>
-                  <th style="padding: 8px 8px; width: 45px; text-align: center;">SL</th>
-                  <th style="padding: 8px 8px; width: 102px; text-align: right;">Thành tiền</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${orderData.items.map((item, idx) => `
-                  <tr style="border-bottom: 1px solid #e2e8f0; page-break-inside: avoid; break-inside: avoid;">
-                    <td style="padding: 8px 8px; text-align: center; color: #64748b;">${idx + 1}</td>
-                    <td style="padding: 8px 8px; font-weight: 600; color: #0f172a; word-break: break-word;">${item.name}</td>
-                    <td style="padding: 8px 8px; text-align: right;">${formatPrice(item.price)}</td>
-                    <td style="padding: 8px 8px; text-align: center;">${item.quantity}</td>
-                    <td style="padding: 8px 8px; text-align: right; font-weight: 600;">${formatPrice(item.price * item.quantity)}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-
-            <!-- 4. TỔNG KẾT THANH TOÁN -->
-            <div style="display: flex; justify-content: flex-end; margin-bottom: 18px; page-break-inside: avoid; break-inside: avoid;">
-              <div style="width: 280px; font-size: 12px; line-height: 1.7;">
-                <div style="display: flex; justify-content: space-between;">
-                  <span>Tạm tính:</span>
-                  <strong>${formatPrice(orderData.subtotal)}</strong>
-                </div>
-                <div style="display: flex; justify-content: space-between;">
-                  <span>Phí vận chuyển:</span>
-                  <span>${orderData.shippingFee === 0 ? '<span style="color: #16a34a; font-weight: 700;">Miễn phí (0 ₫)</span>' : `<strong>${formatPrice(orderData.shippingFee)}</strong>`}</span>
-                </div>
-                ${appliedDiscount > 0 ? `
-                  <div style="display: flex; justify-content: space-between; color: #e11d48;">
-                    <span>Voucher (${appliedCouponCode}):</span>
-                    <strong>-${formatPrice(appliedDiscount)}</strong>
-                  </div>
-                ` : ''}
-                <div style="display: flex; justify-content: space-between; border-top: 2px solid #0f172a; margin-top: 6px; padding-top: 6px; font-size: 14.5px; font-weight: 900; color: #e11d48;">
-                  <span>TỔNG CỘNG:</span>
-                  <span>${formatPrice(orderData.total)}</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- 5. CHỮ KÝ XÁC NHẬN CHỨNG TỪ & CON DẤU XUẤT KHO -->
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; text-align: center; margin-top: 18px; font-size: 12px; page-break-inside: avoid; break-inside: avoid;">
-              <div style="width: 200px;">
-                <strong style="color: #0f172a; font-size: 12.5px;">Người mua hàng</strong><br>
-                <span style="font-size: 11px; color: #64748b;">(Ký và ghi rõ họ tên)</span>
-                <div style="height: 38px;"></div>
-                <span style="font-size: 12px; color: #334155; font-style: italic; font-weight: 700;">${name}</span>
-              </div>
-              <div style="width: 250px;">
-                <strong style="color: #0f172a; font-size: 12.5px;">Thủ kho Hikari BookStore</strong><br>
-                <span style="font-size: 11px; color: #64748b;">(Đã ký xác nhận xuất kho)</span>
-                <div style="margin-top: 6px; display: flex; justify-content: center;">
-                  <div style="border: 2px solid #dc2626; border-radius: 6px; padding: 5px 12px; background: #fff1f2; transform: rotate(-2deg); text-align: center; min-width: 165px; box-shadow: 0 1px 4px rgba(220,38,38,0.12);">
-                    <div style="font-size: 9.5px; font-weight: 800; color: #dc2626; letter-spacing: 0.5px;">XÁC NHẬN XUẤT KHO</div>
-                    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 14px; font-weight: 800; color: #b91c1c; margin: 1px 0; letter-spacing: 0.5px;">Hikari BookStore</div>
-                    <div style="font-size: 8.5px; color: #991b1b; font-weight: 600;">HỆ THỐNG KHO TỰ ĐỘNG</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 6. FOOTER CHÚ THÍCH -->
-            <div style="text-align: center; border-top: 1px dashed #cbd5e1; margin-top: 18px; padding-top: 8px; font-size: 11px; color: #94a3b8; page-break-inside: avoid; break-inside: avoid;">
-              Cảm ơn quý độc giả đã tin tưởng lựa chọn Hikari BookStore! Hóa đơn này là chứng từ bảo hành đổi trả trong 7 ngày.
-            </div>
-          </div>
         `;
-
-        // GẮN SỰ KIỆN XUẤT HÓA ĐƠN PDF VỚI TIMEOUT 2 GIÂY THEO ĐÚNG YÊU CẦU
-        const btnExportPdf = document.querySelector('#btnExportInvoicePdf');
-        if (btnExportPdf) {
-          btnExportPdf.addEventListener('click', () => {
-            btnExportPdf.disabled = true;
-            btnExportPdf.innerHTML = `⏳ Đang xử lý & tạo hóa đơn PDF...`;
-
-            // Đợi 1 giây để hiệu ứng mượt mà và chuẩn bị DOM in ấn
-            setTimeout(async () => {
-              const invoiceEl = document.querySelector('#invoicePrintTemplate');
-              if (!invoiceEl) return;
-
-              // Cuộn nhẹ lên đầu để html2canvas chụp đúng vị trí chuẩn xác
-              window.scrollTo({ top: 0, behavior: 'instant' });
-              invoiceEl.style.display = 'block';
-
-              try {
-                const opt = {
-                  margin: [10, 10, 10, 10], // 10mm căn đều 4 cạnh chuẩn in ấn A4
-                  filename: `HoaDon_${orderData.orderCode}.pdf`,
-                  image: { type: 'jpeg', quality: 0.98 },
-                  html2canvas: { 
-                    scale: 2, 
-                    useCORS: true,
-                    scrollY: 0,
-                    scrollX: 0,
-                    logging: false
-                  },
-                  jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                  pagebreak: { mode: ['avoid-all', 'css', 'legacy'] } // Chống cắt đôi con dấu hoặc bảng
-                };
-
-                if (window.html2pdf) {
-                  // Gọi lưu PDF và chờ hoàn tất
-                  await window.html2pdf().set(opt).from(invoiceEl).toPdf().get('pdf').save();
-                } else {
-                  window.print();
-                }
-
-                showToast('✓ Xuất file hóa đơn PDF thành công! File đã được lưu về máy của bạn.', 'success');
-              } catch (pdfErr) {
-                console.error('Lỗi tạo PDF:', pdfErr);
-                showToast('Đang mở cửa sổ in ấn hóa đơn...', 'info');
-                window.print();
-              } finally {
-                invoiceEl.style.display = 'none';
-                btnExportPdf.disabled = false;
-                btnExportPdf.innerHTML = `📄 Tải Lại Hóa Đơn PDF`;
-              }
-            }, 1000);
-          });
-        }
 
         // LẮNG NGHE WEBHOOK SEPAY THỜI GIAN THỰC (POLLING) CHO ĐƠN CHUYỂN KHOẢN
         if (orderData.paymentMethod !== 'cod') {
