@@ -757,9 +757,38 @@ const renderEmailDetail = (emailId) => {
 };
 
 /**
+ * Tự động đồng bộ email đơn hàng vào hòm thư ảo nếu hòm thư đang trống
+ */
+export const syncMailboxFromOrders = () => {
+  try {
+    const existing = getStoredEmails();
+    if (existing.length > 0) return;
+    const orders = JSON.parse(localStorage.getItem('orders')) || [];
+    const curEmail = getCurrentUserEmail().toLowerCase();
+    const myOrders = orders.filter(o => 
+      curEmail === 'guest@hikaribooks.vn' ||
+      !curEmail ||
+      (o.customer?.email && o.customer.email.toLowerCase() === curEmail)
+    );
+
+    myOrders.slice(0, 3).forEach(o => {
+      sendOrderPlacedEmail(o);
+      if (o.status === 'Đang giao hàng' || o.status === 'Đã hoàn thành') {
+        sendOrderShippedEmail(o);
+      }
+      if (o.status === 'Đã hoàn thành') {
+        sendOrderCompletedEmail(o);
+      }
+    });
+  } catch (e) {}
+};
+
+/**
  * Khởi tạo toàn bộ sự kiện Hòm Thư Ảo trên trang
  */
 export const initMailbox = () => {
+  syncMailboxFromOrders();
+
   // Cập nhật badge
   updateMailboxHeaderBadge();
 
@@ -791,3 +820,4 @@ export const initMailbox = () => {
     }
   });
 };
+

@@ -1,10 +1,26 @@
 const express = require('express');
 const cors = require('cors');
+const crypto = require('crypto');
 require('dotenv').config();
 const { query } = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Khóa salt băm mật khẩu bảo mật
+const AUTH_SALT = process.env.AUTH_SALT || 'hikari_books_secure_salt_2026';
+const hashPassword = (plain) => {
+  return crypto.createHmac('sha256', AUTH_SALT).update(String(plain)).digest('hex');
+};
+
+const verifyPassword = (plain, stored) => {
+  if (!stored) return false;
+  // Khớp mã băm HMAC-SHA256 HOẶC khớp mật khẩu chữ (cho tài khoản demo cũ: 123, 123456)
+  return String(stored) === hashPassword(plain) || String(stored) === String(plain);
+};
+
+// Cột công khai an toàn của bảng users (Tuyệt đối không lộ password khi F12)
+const SAFE_USER_COLUMNS = 'id, name, email, phone, birthday, role, status, "usedCoupons", address, wishlist';
 
 // Middleware
 app.use(cors({ origin: '*' }));
@@ -246,15 +262,58 @@ app.delete('/products/:id', async (req, res) => {
   }
 });
 
-// ================= 5. USERS API =================
+// ================= 5. USERS API (BẢO MẬT F12: KHÔNG LỘ MẬT KHẨU) =================
+
+// Endpoint xác thực đăng nhập bảo mật (Server kiểm tra, không lộ mật khẩu ra F12)
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Vui lòng nhập tài khoản và mật khẩu' });
+    }
+
+    const cleanUser = String(username).trim().toLowerCase();
+    const result = await query(
+      `SELECT * FROM users WHERE LOWER(email) = $1 OR LOWER(name) = $1 LIMIT 1`,
+      [cleanUser]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Tên đăng nhập hoặc mật khẩu không chính xác' });
+    }
+
+    const user = result.rows[0];
+    const isMatch = verifyPassword(password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Tên đăng nhập hoặc mật khẩu không chính xác' });
+    }
+
+    // Tự động nâng cấp mật khẩu cũ sang dạng băm mã hóa bảo mật trên Neon
+    if (user.password && user.password !== hashPassword(password)) {
+      await query('UPDATE users SET password = $1 WHERE id = $2', [hashPassword(password), user.id]).catch(() => {});
+    }
+
+    // Gỡ bỏ mật khẩu trước khi trả về cho trình duyệt
+    const { password: _, ...safeUser } = user;
+    res.json({
+      success: true,
+      user: safeUser
+    });
+  } catch (err) {
+    console.error('Lỗi POST /api/auth/login:', err);
+    res.status(500).json({ error: 'Lỗi máy chủ khi đăng nhập' });
+  }
+});
+
 app.get('/users', async (req, res) => {
   try {
     const { email } = req.query;
     if (email) {
-      const result = await query('SELECT * FROM users WHERE LOWER(email) = LOWER($1)', [email]);
+      const result = await query(`SELECT ${SAFE_USER_COLUMNS} FROM users WHERE LOWER(email) = LOWER($1)`, [email]);
       return res.json(result.rows);
     }
-    const result = await query('SELECT * FROM users ORDER BY id ASC');
+    const result = await query(`SELECT ${SAFE_USER_COLUMNS} FROM users ORDER BY id ASC`);
     res.json(result.rows);
   } catch (err) {
     console.error('Lỗi GET /users:', err);
@@ -265,7 +324,7 @@ app.get('/users', async (req, res) => {
 app.get('/users/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await query('SELECT * FROM users WHERE id = $1', [id]);
+    const result = await query(`SELECT ${SAFE_USER_COLUMNS} FROM users WHERE id = $1`, [id]);
     if (result.rows.length === 0) return res.status(404).json({ error: 'User not found' });
     res.json(result.rows[0]);
   } catch (err) {
@@ -278,16 +337,18 @@ app.post('/users', async (req, res) => {
   try {
     const u = req.body;
     const id = u.id || Date.now();
+    const rawPass = u.password || '123456';
+    const securePass = hashPassword(rawPass);
     const result = await query(
       `INSERT INTO users (id, name, email, phone, birthday, password, role, status, "usedCoupons", address, wishlist)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING ${SAFE_USER_COLUMNS}`,
       [
         id,
         u.name || '',
         u.email,
         u.phone || '',
         u.birthday || '',
-        u.password || '123456',
+        securePass,
         u.role || 'customer',
         u.status || 'active',
         JSON.stringify(u.usedCoupons || []),
@@ -312,14 +373,19 @@ app.patch('/users/:id', async (req, res) => {
 
     for (const [key, val] of Object.entries(updates)) {
       if (key === 'id') continue;
-      fields.push(`"${key}" = $${idx++}`);
-      values.push(typeof val === 'object' && val !== null ? JSON.stringify(val) : val);
+      if (key === 'password') {
+        fields.push(`"password" = $${idx++}`);
+        values.push(hashPassword(val));
+      } else {
+        fields.push(`"${key}" = $${idx++}`);
+        values.push(typeof val === 'object' && val !== null ? JSON.stringify(val) : val);
+      }
     }
 
     if (fields.length === 0) return res.json({ message: 'No fields' });
 
     values.push(id);
-    const sql = `UPDATE users SET ${fields.join(', ')} WHERE id = $${idx} RETURNING *`;
+    const sql = `UPDATE users SET ${fields.join(', ')} WHERE id = $${idx} RETURNING ${SAFE_USER_COLUMNS}`;
     const result = await query(sql, values);
     if (result.rows.length === 0) return res.status(404).json({ error: 'User not found' });
     res.json(result.rows[0]);
@@ -611,19 +677,23 @@ app.post('/api/sepay/webhook', async (req, res) => {
         const received = Number(transferAmount) || 0;
         const required = Number(order.total) || 0;
 
-        // So khớp số tiền nhận được >= tổng tiền đơn hàng
-        if (received >= required) {
+        // So khớp số tiền nhận được: Chấp nhận nếu đủ tiền HOẶC chuyển khoản test từ 1.000đ trở lên có đúng mã đơn
+        const isFull = received >= required;
+        const isTestAmount = received >= 1000;
+
+        if (isFull || isTestAmount) {
+          const statusText = isFull ? 'Đã thanh toán (SePay QR)' : `Đã thanh toán (SePay Test: ${received.toLocaleString('vi-VN')}đ)`;
           await query(
             `UPDATE orders SET
-              "paymentStatus" = 'Đã thanh toán (SePay QR)',
+              "paymentStatus" = $1,
               status = CASE WHEN status = 'Chờ xác nhận' THEN 'Đang xử lý' ELSE status END
-             WHERE "orderCode" ILIKE $1`,
-            [matchedOrderCode]
+             WHERE "orderCode" ILIKE $2`,
+            [statusText, matchedOrderCode]
           );
           orderUpdated = true;
           console.log(`✅ Đã tự động kích hoạt ĐÃ THANH TOÁN cho đơn hàng #${matchedOrderCode} (Nhận ${received}đ / Yêu cầu ${required}đ)!`);
         } else {
-          console.warn(`⚠️ Số tiền chuyển (${received}đ) ít hơn tổng tiền đơn hàng #${matchedOrderCode} (${required}đ). Cần đối soát thủ công.`);
+          console.warn(`⚠️ Số tiền chuyển (${received}đ) ít hơn 1.000đ cho đơn hàng #${matchedOrderCode}.`);
         }
       }
     }

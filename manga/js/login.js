@@ -77,28 +77,34 @@ loginForm?.addEventListener('submit', async (e) => {
   submitBtn.textContent = 'Đang kiểm tra đăng nhập...';
 
   try {
-    let users = [];
+    let matchedUser = null;
 
-    // Gọi API json-server lấy danh sách người dùng
+    // 1. Gửi yêu cầu đăng nhập bảo mật lên máy chủ (Không kéo danh sách password về F12)
     try {
-      const response = await api.get('/users');
-      users = response.data;
-    } catch (apiErr) {
-      console.warn('Lỗi gọi API /users, kiểm tra fallback db.json...', apiErr.message);
-      const fallback = await fetch('./db.json');
-      const data = await fallback.json();
-      users = data.users || [];
+      const loginRes = await api.post('/api/auth/login', { username, password });
+      if (loginRes.data && loginRes.data.user) {
+        matchedUser = loginRes.data.user;
+      }
+    } catch (authErr) {
+      if (authErr.response && authErr.response.status === 401) {
+        showError(passwordInput, passwordError, 'Tên đăng nhập hoặc mật khẩu không chính xác!');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Đăng Nhập';
+        return;
+      }
+      console.warn('API /api/auth/login không phản hồi, thử fallback cục bộ db.json...', authErr.message);
+      // Fallback cục bộ khi test offline không có internet
+      try {
+        const fallback = await fetch('./db.json');
+        const data = await fallback.json();
+        const localUsers = JSON.parse(localStorage.getItem('registered_users')) || [];
+        const allUsers = [...(data.users || []), ...localUsers];
+        matchedUser = allUsers.find(u => 
+          (u.email?.toLowerCase() === username.toLowerCase() || u.name?.toLowerCase() === username.toLowerCase()) &&
+          String(u.password) === String(password)
+        );
+      } catch (fbErr) {}
     }
-
-    // Lấy thêm các user đã đăng ký lưu trong LocalStorage (nếu có)
-    const localUsers = JSON.parse(localStorage.getItem('registered_users')) || [];
-    const allUsers = [...users, ...localUsers];
-
-    // Tìm kiếm user khớp thông tin (so khớp email hoặc tên đăng nhập)
-    const matchedUser = allUsers.find(u => 
-      (u.email?.toLowerCase() === username.toLowerCase() || u.name?.toLowerCase() === username.toLowerCase()) &&
-      String(u.password) === String(password)
-    );
 
     if (!matchedUser) {
       showError(passwordInput, passwordError, 'Tên đăng nhập hoặc mật khẩu không chính xác!');

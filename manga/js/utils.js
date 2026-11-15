@@ -828,6 +828,75 @@ export const updateNotificationsDisplay = () => {
   `).join('');
 };
 
+/**
+ * Tự động đồng bộ thông báo từ CSDL Neon Server về thiết bị (Chống bị nuốt thông báo)
+ */
+export const syncNotificationsFromOrders = async () => {
+  const curUser = getCurrentSessionUser();
+  if (!curUser) return;
+
+  try {
+    const orders = await fetchOrders();
+    const userOrders = orders.filter(o => 
+      (o.userId && curUser.id && String(o.userId) === String(curUser.id)) ||
+      (o.customer?.email && curUser.email && o.customer.email.toLowerCase() === curUser.email.toLowerCase())
+    );
+
+    if (userOrders.length === 0) return;
+
+    const allNotifs = JSON.parse(localStorage.getItem('hikari_order_notifications')) || [];
+    let hasNew = false;
+
+    userOrders.forEach(o => {
+      const orderCode = o.orderCode || o.id;
+      const status = o.status || 'Chờ xác nhận';
+      const isPaid = String(o.paymentStatus || '').toLowerCase().includes('đã thanh toán');
+
+      let notifMsg = '';
+      if (status === 'Đã hoàn thành') {
+        notifMsg = `Đơn hàng #${orderCode} đã giao thành công bởi SPX Express!`;
+      } else if (status === 'Đang giao hàng') {
+        notifMsg = `Đơn hàng #${orderCode} đang được giao đến bạn (Mã VĐ: ${o.trackingCode || 'SPX'}).`;
+      } else if (isPaid && status === 'Đang xử lý') {
+        notifMsg = `Đơn hàng #${orderCode} đã thanh toán VietQR thành công & đang đóng gói.`;
+      } else if (status === 'Đang xử lý') {
+        notifMsg = `Đơn hàng #${orderCode} đã được xác nhận và đang đóng gói.`;
+      } else if (status === 'Chờ xác nhận') {
+        notifMsg = `Đơn hàng #${orderCode} đã được đặt thành công (Chờ nhân viên xác nhận).`;
+      }
+
+      if (notifMsg) {
+        const exists = allNotifs.some(n => 
+          (String(n.orderId) === String(o.id) || String(n.orderCode) === String(orderCode)) &&
+          n.status === status
+        );
+
+        if (!exists) {
+          allNotifs.unshift({
+            id: Date.now() + Math.floor(Math.random() * 1000),
+            orderId: o.id,
+            orderCode,
+            userId: curUser.id,
+            userEmail: curUser.email,
+            status,
+            message: notifMsg,
+            time: o.createdAt || new Date().toLocaleString('vi-VN'),
+            read: false
+          });
+          hasNew = true;
+        }
+      }
+    });
+
+    if (hasNew) {
+      localStorage.setItem('hikari_order_notifications', JSON.stringify(allNotifs.slice(0, 50)));
+      updateNotificationsDisplay();
+    }
+  } catch (err) {
+    console.warn('Lỗi đồng bộ thông báo từ server:', err);
+  }
+};
+
 // Kiểm tra phiên đăng nhập của người dùng & hiển thị huy hiệu cấp bậc
 export const checkCurrentUser = async () => {
   const userGreeting = document.querySelector('#userGreeting');
@@ -986,6 +1055,7 @@ export const checkCurrentUser = async () => {
 
   updateWishlistHeaderBadge();
   initMailbox();
+  syncNotificationsFromOrders();
 };
 
 
