@@ -1,0 +1,52 @@
+========================================================================================
+                      HƯỚNG DẪN KHỞI CHẠY ĐỒ ÁN HIKARI BOOKSTORE
+          Hệ Thống Phân Phối Truyện Tranh Manga, Light Novel & Văn Hóa Đọc Nhật Bản
+========================================================================================
+
+CÁCH 1: XEM VÀ CHẤM ĐỒ ÁN TRỰC TIẾP ONLINE (KHÔNG CẦN CÀI ĐẶT)
+----------------------------------------------------------------------------------------
+* Website Đồ Án (Frontend): https://hikari-manga.vercel.app
+* Server API (Backend PostgreSQL): https://hikari-backend-alpha.vercel.app
+
+TÀI KHOẢN DÙNG THỬ CÁC VAI TRÒ (DEMO ACCOUNTS):
+1. Quản Trị Viên (Admin Dashboard):
+   - Email: admin@hikari.vn
+   - Mật khẩu: 123
+   - Chức năng: Quản lý kho sách, doanh thu đa chiều, trạng thái đơn hàng (tab phân loại), duyệt nhân viên.
+
+2. Bưu Tá Giao Hàng (Shipper SPX Express):
+   - Email: shipper@spx.vn
+   - Mật khẩu: 123456
+   - Chức năng: Xem tuyến giao, xác nhận nhận kiện, cập nhật giao thành công.
+
+3. Khách Hàng (Customer):
+   - Email: an@gmail.com
+   - Mật khẩu: 123
+   - Chức năng: Tìm kiếm AI/Chatbot, đặt hàng COD/CK, áp voucher, xem tracking, xác nhận nhận hàng, xuất hóa đơn VAT PDF.
+
+----------------------------------------------------------------------------------------
+CÁCH 2: CHẠY TRỰC TIẾP TRÊN MÁY TÍNH (LOCALHOST)
+----------------------------------------------------------------------------------------
+Yêu cầu: Máy tính đã cài đặt NodeJS (phiên bản 18 trở lên).
+
+BƯỚC 1: Cài đặt thư viện cho Giao diện (Frontend)
+1. Mở cửa sổ Terminal (hoặc CMD / PowerShell) tại thư mục "manga":
+   cd manga
+2. Gõ lệnh cài đặt thư viện:
+   npm install
+3. Khởi chạy giao diện website:
+   npm run dev
+4. Trình duyệt sẽ mở website tại: http://localhost:5173
+
+BƯỚC 2: (Tùy chọn) Chạy Backend API cục bộ (nếu muốn chạy offline)
+1. Mở cửa sổ Terminal thứ 2 tại thư mục "backend":
+   cd backend
+2. Gõ lệnh cài đặt:
+   npm install
+3. Khởi chạy máy chủ:
+   node server.js
+   (Lưu ý: Mặc định Frontend đã kết nối sẵn với Backend Cloud Neon PostgreSQL nên bước này là tùy chọn).
+
+========================================================================================
+                        CHÚC BẠN VÀ THẦY CÔ CÓ TRẢI NGHIỆM TUYỆT VỜI!
+========================================================================================
