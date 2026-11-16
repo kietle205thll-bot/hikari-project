@@ -35,7 +35,11 @@ const state = {
   customerTierFilter: 'all',
   selectedPeriod: 'month', // 'day' | 'month' | 'quarter' | 'year'
   selectedYear: '2026',
-  activeGroupFilter: null
+  activeGroupFilter: null,
+  selectedOrderStatusTab: 'all',
+  lastScopedOrders: [],
+  lastGroups: [],
+  lastActiveGroupFilter: null
 };
 
 // ================= 1. KIỂM TRA QUYỀN TRUY CẬP (ADMIN & STAFF RBAC GUARD) =================
@@ -898,32 +902,120 @@ const showAdminOrderDetailModal = (order) => {
 const renderScopedOrdersTable = (scopedOrders, groups, activeGroupFilter) => {
   const ordersTbody = document.querySelector('#adminOrdersTableBody');
   const countDisplay = document.querySelector('#filteredOrdersCountDisplay');
+  const tabsContainer = document.querySelector('#adminOrderStatusTabs');
 
-  let displayOrders = scopedOrders;
+  state.lastScopedOrders = scopedOrders;
+  state.lastGroups = groups;
+  state.lastActiveGroupFilter = activeGroupFilter;
+
+  let baseOrders = scopedOrders;
   if (activeGroupFilter) {
     const selectedGroup = groups.find(g => g.label === activeGroupFilter);
     if (selectedGroup) {
-      displayOrders = selectedGroup.orders;
+      baseOrders = selectedGroup.orders;
     }
   }
 
   // SẮP XẾP ĐƠN HÀNG MỚI NHẤT LÊN ĐẦU (ưu tiên thời gian chuẩn DD/MM/YYYY, sau đó ID)
-  displayOrders = [...displayOrders].sort((a, b) => {
+  baseOrders = [...baseOrders].sort((a, b) => {
     const timeDiff = parseOrderDate(b).getTime() - parseOrderDate(a).getTime();
     if (timeDiff !== 0) return timeDiff;
     return (Number(b.id) || 0) - (Number(a.id) || 0);
   });
 
+  const ORDER_STATUS_TABS = [
+    { key: 'all', label: 'Tất cả', icon: '📋' },
+    { key: 'Chờ xác nhận', label: 'Chờ xác nhận', icon: '⏳' },
+    { key: 'Đang xử lý', label: 'Đang xử lý', icon: '📦' },
+    { key: 'Đang giao hàng', label: 'Đang giao', icon: '🚚' },
+    { key: 'Đã giao hàng', label: 'Đã giao', icon: '📦' },
+    { key: 'Đã hoàn thành', label: 'Đã hoàn thành', icon: '✅' },
+    { key: 'Đã hủy', label: 'Đã hủy', icon: '❌' }
+  ];
+
+  const statusCounts = {
+    all: baseOrders.length,
+    'Chờ xác nhận': 0,
+    'Đang xử lý': 0,
+    'Đang giao hàng': 0,
+    'Đã giao hàng': 0,
+    'Đã hoàn thành': 0,
+    'Đã hủy': 0
+  };
+
+  baseOrders.forEach(o => {
+    const st = normalizeOrderStatus(o.status);
+    if (statusCounts[st] !== undefined) {
+      statusCounts[st]++;
+    }
+  });
+
+  const currentTab = state.selectedOrderStatusTab || 'all';
+
+  // Lọc danh sách đơn hàng theo Tab trạng thái được chọn
+  let displayOrders = baseOrders;
+  if (currentTab !== 'all') {
+    displayOrders = baseOrders.filter(o => normalizeOrderStatus(o.status) === currentTab);
+  }
+
   state.filteredOrders = displayOrders;
 
-  if (countDisplay) countDisplay.textContent = displayOrders.length;
+  if (countDisplay) {
+    countDisplay.textContent = currentTab === 'all'
+      ? baseOrders.length
+      : `${displayOrders.length} / ${baseOrders.length}`;
+  }
+
+  // Render các Tab trạng thái (Badge pills tương tác nhanh)
+  if (tabsContainer) {
+    const getTabActiveStyle = (tabKey) => {
+      switch (tabKey) {
+        case 'Chờ xác nhận': return 'background: #d97706; color: #ffffff; border-color: #d97706; box-shadow: 0 2px 6px rgba(217,119,6,0.3);';
+        case 'Đang xử lý': return 'background: #0284c7; color: #ffffff; border-color: #0284c7; box-shadow: 0 2px 6px rgba(2,132,199,0.3);';
+        case 'Đang giao hàng': return 'background: #7e22ce; color: #ffffff; border-color: #7e22ce; box-shadow: 0 2px 6px rgba(126,34,206,0.3);';
+        case 'Đã giao hàng': return 'background: #0369a1; color: #ffffff; border-color: #0369a1; box-shadow: 0 2px 6px rgba(3,105,161,0.3);';
+        case 'Đã hoàn thành': return 'background: #16a34a; color: #ffffff; border-color: #16a34a; box-shadow: 0 2px 6px rgba(22,163,74,0.3);';
+        case 'Đã hủy': return 'background: #dc2626; color: #ffffff; border-color: #dc2626; box-shadow: 0 2px 6px rgba(220,38,38,0.3);';
+        default: return 'background: #1e1b4b; color: #ffffff; border-color: #1e1b4b; box-shadow: 0 2px 6px rgba(30,27,75,0.3);';
+      }
+    };
+
+    tabsContainer.innerHTML = ORDER_STATUS_TABS.map(tab => {
+      const isActive = tab.key === currentTab;
+      const count = statusCounts[tab.key] || 0;
+      const activeStyle = isActive
+        ? getTabActiveStyle(tab.key)
+        : 'background: #ffffff; color: #475569; border-color: #cbd5e1;';
+      const badgeStyle = isActive
+        ? 'background: rgba(255,255,255,0.28); color: #ffffff;'
+        : 'background: #f1f5f9; color: #64748b;';
+
+      return `
+        <button type="button" class="btn-order-status-tab" data-tab="${tab.key}" style="border: 1px solid; border-radius: 999px; padding: 5px 12px; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s ease-in-out; ${activeStyle}">
+          <span>${tab.icon}</span>
+          <span>${tab.label}</span>
+          <span style="display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: 0.72rem; font-weight: 800; min-width: 18px; text-align: center; ${badgeStyle}">${count}</span>
+        </button>
+      `;
+    }).join('');
+
+    tabsContainer.querySelectorAll('.btn-order-status-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tabKey = btn.dataset.tab;
+        if (state.selectedOrderStatusTab === tabKey) return;
+        state.selectedOrderStatusTab = tabKey;
+        renderScopedOrdersTable(state.lastScopedOrders || scopedOrders, state.lastGroups || groups, state.lastActiveGroupFilter || activeGroupFilter);
+      });
+    });
+  }
 
   if (!ordersTbody) return;
   if (displayOrders.length === 0) {
     ordersTbody.innerHTML = `
       <tr>
-        <td colspan="7" style="text-align: center; padding: 2rem; color: #64748b;">
-          Không có đơn hàng nào trong khoảng thời gian được chọn!
+        <td colspan="7" style="text-align: center; padding: 2.5rem 1rem; color: #64748b;">
+          <div style="font-size: 2rem; margin-bottom: 0.4rem;">🔍</div>
+          <div>Không có đơn hàng nào ở trạng thái <strong>"${currentTab === 'all' ? 'kỳ lọc này' : currentTab}"</strong>!</div>
         </td>
       </tr>
     `;
